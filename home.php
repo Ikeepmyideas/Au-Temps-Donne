@@ -3,52 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Accueil </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous" defer></script>
     <link rel="icon" type="image/png" href="assets/logo.png" sizes="32x32">
     <link rel="stylesheet" type="text/css" href="home.css" />
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-        body.dark-mode {
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', sans-serif;
-            border-radius: 10px;
-            background:
-                url('assets/background4.png') no-repeat center top fixed,
-                url('assets/point2-dark.png') no-repeat top fixed;
-            background-size: cover;
-            background-color: #544D4D;
-        }
-        button.dark-mode {
-            background-color: #8A80FE;
-            color: black; 
-        }
-       
-        .signup-btn.dark-mode{
-        color: black; 
-        background-color: #8A80FE; 
-        }
-        .signup-btn a.dark-mode{
-        color: black; 
-        background-color: #8A80FE; 
-        }
-        #dark-mode-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999; 
-            padding: 10px 20px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        footer.dark-mode {
-        background-color: #3c1e6e; 
-    }
-
-    </style>
+    <title>Accueil </title>
 </head>
 <body>
     <header>
@@ -65,7 +24,9 @@
             <a href="#">Comment ça marche ?</a>
         </div>
         <button class="connection-btn">Connexion</button>
-        <button id="dark-mode-btn" onclick="toggleDarkMode()">Mode Sombre</button>
+        <button id="dark-mode-btn" onclick="toggleDarkMode()"><svg width="19" height="19" fill="currentColor" class="bi bi-brightness-high" viewBox="0 0 16 16"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"></path>
+                                 <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"></path>
+                            </svg></button>
     </header>
     <div class="both">
         <div class="main-text">Donnons un coup de main à ceux qui en ont besoin</div>
@@ -73,7 +34,7 @@
         <button class="signup-btn"><a href="Inscription/signup.html" >S'inscrire</a></button>
     </div>
     <section>
-        <h1 class="title1">Agissez avec nous !</h1>
+        <h2 class="title1">Agissez avec nous !</h2>
         <div class="image-container">
             <div class="image-overlay">
                 <img src="assets/benevole.png" alt="Bénévole">
@@ -101,93 +62,7 @@
             </div>
         </div>
     </section>
-    <footer>
-        <div class="main_menu">
-            <div class ="banner_footer">
-                <div class="title_footer">
-                    <img src="assets/logo_white.png" height="60px">
-                    <p class="p_title">Au temps donné</p>
-                </div>
-                <h3>Ensemble changeons les choses</h3>
-            </div>
-            <div class="second_menu">
-                <div class ="menu_footer">
-                    <h3 class="title_list">Service</h3>
-                    <a href="">Faire un Don</a>
-                    <a href="">Devenir Bénévole</a>
-                    <a href="">Nos Partenaires</a>
-                    <a href="">Evènements</a>
-                </div>
-                <div class ="menu_footer">
-                    <h3 class="title_list">A propos</h3>
-                    <a href="">Notre histoire</a>
-                    <a href="">Comment ça marche</a>
-                    <a href="">S'engager avec Nous</a>
-                </div>
-                <div class ="menu_footer">
-                    <h3 class="title_list">Contact</h3>
-                    <p>0667309962</p>
-                </div>
-                <div class ="menu_footer">
-                    <h3 class="title_list">Suivez nous</h3>
-                    <div class="social-icons">
-                        <a href="URL_YOUTUBE"><img src="assets/youtube.png" alt="YouTube"></a>
-                        <a href="URL_INSTAGRAM"><img src="assets/instagram.png" alt="Instagram"></a>
-                        <a href="URL_FACEBOOK"><img src="assets/facebook.png" alt="Facebook"></a>
-                        <a href="URL_WHATSAPP"><img src="assets/whatsapp.png" alt="WhatsApp"></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="">
-            <hr class="featurette-divider">
-            <p class="copyright">© <?php echo date("Y");?> Au temps donné</p>
-        </div>
-    </footer>
-    <script>
-        function toggleDarkMode() {
-            var body = document.body;
-            var btn = document.getElementById('dark-mode-btn');
-            var logoLight = document.getElementById('logo-light');
-            var logoDark = document.getElementById('logo-dark');
 
-            body.classList.toggle("dark-mode");
-
-            if (body.classList.contains("dark-mode")) {
-                btn.textContent = "Mode Clair";
-            } else {
-                btn.textContent = "Mode Sombre";
-            }
-
-            if (body.classList.contains("dark-mode")) {
-                logoLight.style.display = "none";
-                logoDark.style.display = "block";
-            } else {
-                logoLight.style.display = "block";
-                logoDark.style.display = "none";
-            }
-
-            var connectionBtns = document.querySelectorAll('.connection-btn');
-            connectionBtns.forEach(function(btn) {
-                btn.classList.toggle('dark-mode');
-            });
-            var inscriptionBtns = document.querySelectorAll('.signup-btn');
-            inscriptionBtns.forEach(function(insbtn) {
-                insbtn.classList.toggle('dark-mode');
-            });
-
-            var footer = document.querySelectorAll('footer');
-            footer.forEach(function(footer) {
-                footer.classList.toggle('dark-mode');
-            });
-        }
-
-        window.onscroll = function() {
-            var btn = document.getElementById('dark-mode-btn');
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                btn.style.display = "block";
-            }
-        };
-    </script>
+    <script src="js/dark-mode.js"></script>
 </body>
 </html>
