@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous" defer></script>
-    <link rel="icon" type="image/png" href="assets/logo.png" sizes="32x32">
-    <link rel="stylesheet" type="text/css" href="home.css" />
-    <title>Accueil </title>
-</head>
+<?php 
+$title = 'Accueil';
+include('includes/head.php');
+?>
 <body>
     <header>
         <div class="title_footer">
-            <img src="assets/logo.png" alt="Votre Logo" class="logo" id="logo-light">
-            <img src="assets/logo-dark.png" alt="Votre Logo en mode sombre" class="logo" id="logo-dark" style="display: none;">
+            <img src="assets/logo.png" alt="Votre Logo" class="logo" id="logo-light" height="80px">
+            <img src="assets/logo-dark.png" alt="Votre Logo en mode sombre" class="logo" id="logo-dark"  height="80px" style="display: none;">
             <p class="p_title">Au temps donné</p>
         </div>
         <div class="nav">
@@ -34,12 +29,12 @@
         <button class="signup-btn"><a href="Inscription/signup.html" >S'inscrire</a></button>
     </div>
     <section>
-        <h2 class="title1">Agissez avec nous !</h2>
+        <h1 class="title1">Agissez avec nous !</h1>
         <div class="image-container">
             <div class="image-overlay">
                 <img src="assets/benevole.png" alt="Bénévole">
                 <div class="overlay">
-                    <img src="assets/benevoles.png" height="50px">
+                    <img src="assets/benevoles.png" height="50px" style="border-radius: 30px;">
                     <p style="font-size:20px; padding-bottom:10px;">Bénévoles</p>
                     <p>Votre temps et énergie peuvent transformer des vies. Engagez-vous à nos côtés pour le changement.</p>
                 </div>
@@ -47,7 +42,7 @@
             <div class="image-overlay">
                 <img src="assets/donation.png" alt="Donation">
                 <div class="overlay">
-                    <img src="assets/dons.png" height="50px">
+                    <img src="assets/dons.png" height="50px" style="border-radius: 30px;">
                     <p style="font-size:20px; padding-bottom:10px;">Dons</p>
                     <p>Votre générosité est notre force. Aidez-nous à faire la différence avec un simple geste de soutien.</p>
                 </div>
@@ -62,7 +57,60 @@
             </div>
         </div>
     </section>
+    <section>
+        <div class="newletter">
+            <h1 class="title_newletter">Abonnez-vous à notre newsletter !</h1>
+            <p>Recevez les dernières actualités, des événements à venir, et des histoires inspirantes de notre association.</p>
+            <form class="email_box" method="POST" action="newsletter.php">
+                <input class="tbox" type="text" name="email" placeholder="Entrez votre mail">
+                <input class="box" type="submit" value="Inscription">
+            </form>
+        </div>
+    </section>
 
+    <footer>
+        <div class="main_menu">
+            <div class ="banner_footer">
+                <div class="title_footer">
+                    <img src="assets/logo_white.png" height="60px">
+                    <p class="p_title">Au temps donné</p>
+                </div>
+                <h3>Ensemble changeons les choses</h3>
+            </div>
+            <div class="second_menu">
+                <div class ="menu_footer">
+                    <h3 class="title_list">Service</h3>
+                    <a href="">Faire un Don</a>
+                    <a href="">Devenir Bénévole</a>
+                    <a href="">Nos Partenaires</a>
+                    <a href="">Evènements</a>
+                </div>
+                <div class ="menu_footer">
+                    <h3 class="title_list">A propos</h3>
+                    <a href="">Notre histoire</a>
+                    <a href="">Comment ça marche</a>
+                    <a href="">S'engager avec Nous</a>
+                </div>
+                <div class ="menu_footer">
+                    <h3 class="title_list">Contact</h3>
+                    <p>0667309962</p>
+                </div>
+                <div class ="menu_footer">
+                    <h3 class="title_list">Suivez nous</h3>
+                    <div class="social-icons">
+                        <a href="URL_YOUTUBE"><img src="assets/youtube.png" alt="YouTube"></a>
+                        <a href="URL_INSTAGRAM"><img src="assets/instagram.png" alt="Instagram"></a>
+                        <a href="URL_FACEBOOK"><img src="assets/facebook.png" alt="Facebook"></a>
+                        <a href="URL_WHATSAPP"><img src="assets/whatsapp.png" alt="WhatsApp"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="">
+            <hr class="featurette-divider">
+            <p class="copyright">© <?php echo date("Y");?> Au temps donné</p>
+        </div>
+    </footer>
     <script src="js/dark-mode.js"></script>
 </body>
 </html>
