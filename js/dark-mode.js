@@ -41,6 +41,12 @@ function toggleDarkMode() {
             overlay.classList.toggle('dark-mode'); 
         });
 
+        var newletters = document.querySelectorAll('.newletter'); 
+
+        newletters.forEach(function(newletter) { 
+            newletter.classList.toggle('dark-mode'); 
+        });
+
     }
 
     window.onscroll = function() {
