@@ -7,15 +7,15 @@
 }
 @font-face {
     font-family: 'Roboto';
-    src: url('font/Roboto-Regular.woff2')format('woff2'),
-    url('font/Roboto-Thin.woff')format('woff');
+    src: url('../font/Roboto-Regular.woff2')format('woff2'),
+    url('../font/Roboto-Thin.woff')format('woff');
     font-weight:normal;
     font-style: normal;
 }
 @font-face {
     font-family: 'Itim';
-    src: url('font/Itim-Regular.woff2') format('woff2'),
-         url('font/Itim-Regular.woff')format('woff');
+    src: url('../font/Itim-Regular.woff2') format('woff2'),
+         url('../font/Itim-Regular.woff')format('woff');
     font-weight:normal;
     font-style: normal;
 }
@@ -30,9 +30,9 @@ body {
     font-family: 'Roboto';
     border-radius: 10px;
     background:
-        url('assets/background.png') no-repeat center top fixed,
-        url('assets/point1.png') no-repeat top fixed,
-        url('assets/point2.png') no-repeat bottom fixed;
+        url('../assets/background.png') no-repeat center top fixed,
+        url('../assets/point1.png') no-repeat top fixed,
+        url('../assets/point2.png') no-repeat bottom fixed;
 
     background-size: cover;
 }
@@ -45,8 +45,6 @@ header {
 }
 
 .logo {
-    max-width: 80px;
-    height: auto;
     display: block;
     filter: drop-shadow(2px 2px 1px rgb(128, 128, 128));
     margin-right: 20px;
@@ -147,7 +145,6 @@ footer {
 }
 .p_title {
     font-family: 'Itim';
-    padding-top: 18px;
     font-size: 20px;
 }
 .title_list{
@@ -211,6 +208,7 @@ footer {
     position: relative;
     margin: 0 30px;
     overflow: hidden; 
+    border-radius: 25px;
 }
 
 .image-container .image-overlay img {
@@ -218,9 +216,11 @@ footer {
     height: auto;
     display: block;
     transition: transform 0.3s ease-in-out; 
+    border-radius: 25px;
 }
 .overlay {
     position: absolute;
+    border-radius: 25px;
     top: 0;
     left: 0;
     width: 100%;
@@ -265,6 +265,7 @@ footer {
     border: 1px solid #C4C4C4;
     background-color: rgba(196, 196, 196, 0.21); 
     color: #F96262;
+
 }
 .box{
     width: 150px;
@@ -274,6 +275,7 @@ footer {
     background-color: #D23939; 
     color: white;
     margin-left: 50px;
+    font-size: 18px;
 }
 
 .newletter{
@@ -288,6 +290,58 @@ footer {
 .title_newletter{
     color:#F96262;
 }
+/* dark mode */
+body.dark-mode {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    border-radius: 10px;
+    background:
+        url('../assets/background4.png') no-repeat center top fixed,
+        url('../assets/point2-dark.png') no-repeat top fixed;
+    background-size: cover;
+    background-color: #544D4D;
+}
+button.dark-mode {
+    background-color: #8A80FE;
+    color: black; 
+}
+
+.signup-btn.dark-mode{
+color: black; 
+background-color: #8A80FE; 
+}
+#dark-mode-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999; 
+    padding: 10px 20px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+footer.dark-mode {
+background-color: #3c1e6e; 
+}
+.overlay.dark-mode {
+    background-color: rgba(138, 128, 254, 0.5); 
+}
+.dark-mode .newletter {
+    background-color: #8A80FE;
+}
+
+.dark-mode .box {
+    background-color: #3c1e6e; 
+    border: 1px solid #3c1e6e;
+
+}
+.dark-mode .title_newletter{
+    color: #3c1e6e;
+}
+
 @media screen and (max-width: 600px) {
     .logo {
         max-width: 70px;
@@ -310,49 +364,7 @@ footer {
         margin: 10px;
     }
 }
-/* dark mode */
-body.dark-mode {
-    margin: 0;
-    padding: 0;
-    font-family: 'Roboto', sans-serif;
-    border-radius: 10px;
-    background:
-        url('assets/background4.png') no-repeat center top fixed,
-        url('assets/point2-dark.png') no-repeat top fixed;
-    background-size: cover;
-    background-color: #544D4D;
-}
-button.dark-mode {
-    background-color: #8A80FE;
-    color: black; 
-}
 
-.signup-btn.dark-mode{
-color: black; 
-background-color: #8A80FE; 
-}
-.signup-btn a.dark-mode{
-color: black; 
-background-color: #8A80FE; 
-}
-#dark-mode-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999; 
-    padding: 10px 20px;
-    background-color: #333;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-footer.dark-mode {
-background-color: #3c1e6e; 
-}
-.overlay.dark-mode {
-    background-color: rgba(138, 128, 254, 0.5); 
-}
 
 @media screen and (min-width: 601px) {
     .connection-btn {
