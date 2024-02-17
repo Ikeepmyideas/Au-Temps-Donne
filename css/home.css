@@ -1,24 +1,3 @@
-@font-face {
-    font-family: 'Roboto';
-    src: url('font/Roboto-Bold.woff2')format('woff2'),
-    url('font/Roboto-Bold.woff')format('woff');
-    font-weight:normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url('../font/Roboto-Regular.woff2')format('woff2'),
-    url('../font/Roboto-Thin.woff')format('woff');
-    font-weight:normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'Itim';
-    src: url('../font/Itim-Regular.woff2') format('woff2'),
-         url('../font/Itim-Regular.woff')format('woff');
-    font-weight:normal;
-    font-style: normal;
-}
 html{
     font-size: 18px;
     scroll-behavior: smooth;
