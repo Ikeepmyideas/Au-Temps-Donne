@@ -32,7 +32,7 @@ include('includes/head.php');
         <h1 class="title1">Agissez avec nous !</h1>
         <div class="image-container">
             <div class="image-overlay">
-                <img src="assets/benevole.png" alt="Bénévole">
+                <img src="assets/benevole-img.png" alt="Bénévole">
                 <div class="overlay">
                     <img src="assets/benevoles.png" height="50px" style="border-radius: 30px;">
                     <p style="font-size:20px; padding-bottom:10px;">Bénévoles</p>
@@ -61,10 +61,12 @@ include('includes/head.php');
         <div class="newletter">
             <h1 class="title_newletter">Abonnez-vous à notre newsletter !</h1>
             <p>Recevez les dernières actualités, des événements à venir, et des histoires inspirantes de notre association.</p>
-            <form class="email_box" method="POST" action="newsletter.php">
-                <input class="tbox" type="text" name="email" placeholder="Entrez votre mail">
-                <input class="box" type="submit" value="Inscription">
+            <form class="email_box" id="newsletterForm">
+                <input class="tbox" type="email" name="email" id="emailInput" placeholder="Entrez votre email" required>
+                <button class="box" type="submit">Inscription</button>
             </form>
+            <div id="newsletterMessage"></div>
+
         </div>
     </section>
 
@@ -112,5 +114,34 @@ include('includes/head.php');
         </div>
     </footer>
     <script src="js/dark-mode.js"></script>
+    <script>
+    document.getElementById('newsletterForm').addEventListener('submit', function(event) {
+        event.preventDefault(); 
+        const email = document.getElementById('emailInput').value;
+
+        const currentDate = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
+
+        fetch('http://localhost:8000/api/newsletter/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email, date_inscription: currentDate })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Erreur lors de l\'inscription à la newsletter');
+        })
+        .then(data => {
+            document.getElementById('newsletterMessage').innerText = 'Vous êtes maintenant inscrit à notre newsletter !';
+        })
+        .catch(error => {
+            document.getElementById('newsletterMessage').innerText = 'Une erreur est survenue. Veuillez réessayer plus tard.';
+            console.error('Erreur lors de l\'inscription à la newsletter :', error);
+        });
+    });
+</script>
 </body>
 </html>
