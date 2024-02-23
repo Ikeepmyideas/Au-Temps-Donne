@@ -54,7 +54,6 @@ span#current-month-year {
     margin-right: 10px;
     border-radius: 16px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    width: 600px;
 }
 .title_dashboard{
     padding: 20px;
@@ -71,12 +70,10 @@ span#current-month-year {
 .table_avenir{
     background-color: white;
     margin-top: 20px;
-    margin-right: 10px;
     width: 340px;
     padding-bottom: 30px;
     border-radius: 16px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-
 }
 #date{
     font-size: 15px;
@@ -125,10 +122,10 @@ div#right1{
 }
 
 
-div img {
+.nav_img img {
     margin-right: 10px;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
 }
 
 #horiz {
@@ -164,14 +161,10 @@ div img {
   .events li a span#event:hover {
     padding: 10px 50px;
     background-color: #e7e8ea;
-}
-
+} 
 .events {
   list-style: none;
 }
-
-
-
 .events li a span#event {
   border-radius: 4px;
   padding: 10px 50px;
@@ -281,24 +274,20 @@ nav a {
  width: 80px;
  transition: var(--transition2);
 }
-
 .nav-min h1, .nav-min span {
   opacity: 0;
   visibility: hidden;
   transition: var(--transition1);
 }
-
 .nav-max { 
   width: 250px;
   transition: var(--transition2);
   scroll-behavior: smooth;
 }
-
 li img {
     margin-left: 25px;
     width: 18px;
 }
-
 .nav-max span, .nav-max h1 {
   opacity: 1;
   transition: 3s;
@@ -307,14 +296,11 @@ li img {
     color: #94A3B8;
   
 }
-
 #toggle-nav-btn {
   right: -12px;
   position: absolute;
   border: solid grey 2px;
 }
-
-
 .box {
   background: var(--primary-color);
   min-width: 50px; max-width: 50px;
@@ -372,7 +358,6 @@ hr#hr2 {
   justify-content: space-between;
   padding: 15px 20px;
 }
-
 .view-all {
   padding: 8px 15px;
   color: #00ACE8;
@@ -386,11 +371,9 @@ hr#hr2 {
   align-items: center;
   margin-right: 0;
 }
-
 .view-all img {
   margin-left: 8px;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -398,7 +381,6 @@ table {
   margin: 15px;
   
 }
-
 table thead th {
   padding: 10px;
   text-align: left;
@@ -420,19 +402,18 @@ th{
 .status {
   display: flex;
   align-items: center;
-  padding-top: 15px;
 }
-
+td.status {
+  padding-top: 10px;
+}
 .status-dot {
   height: 12px;
   width: 12px;
   border-radius: 50%;
   margin-right: 10px;
 }
-
 .accepte {
   background-color: #4CAF50; 
-
 }
 .attente{
   background-color: #00ACE8;
@@ -444,6 +425,9 @@ th{
   background-color: #00ACE8;
 
 }
+td.action{
+  padding-left: 0px;
+}
 .action-btn {
   border: none;
   background: none;
@@ -451,6 +435,7 @@ th{
   color: #333;
   font-size: 16px;
   text-decoration: none;
+  padding-left: 0px;
 }
 .table_statut .table-header {
   display: flex;
@@ -458,15 +443,18 @@ th{
   align-items: center;
   padding: 20px;
 }
-
 .table_statut .table-header .view-all {
   display: flex;
   align-items: center;
   text-decoration: none;
 }
-
 .table_statut .table-header .voir-all-icon {
   margin-left: 8px;
+  margin-right: 10px;
+}
+.voir-all-icon {
+  width: 20px;
+    height: 20px;
 }
 .table_statut {
   background-color: #FFFFFF; 
@@ -488,9 +476,16 @@ th{
   padding-right: 10px;
   padding-left: 10px;
 }
-
 .action-btn.refuser {
   background-color: #F44336; 
+  color: white; 
+  border-radius: 25px;
+  padding: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+.action-btn.ajouter{
+  background-color: orange; 
   color: white; 
   border-radius: 25px;
   padding: 5px;
@@ -502,10 +497,11 @@ th{
   justify-content: space-around; 
   padding: 20px; 
   background-color: #f5f5f5;
-  margin-bottom: 20px;
-  border-radius: 10px; 
 }
-
+.info_bnv .back-button{
+  background-color: #f5f5f5;
+  margin-top: 30px;
+}
 .list_type a {
   text-decoration: none; 
   color: #333; 
@@ -526,6 +522,7 @@ th{
 .search {
   margin-bottom: 20px;
   text-align: center;
+  margin-top: 20px;
 }
 
 .search input[type="text"] {
@@ -538,7 +535,6 @@ th{
   box-shadow: inset 0 1px 3px #ddd;
   font-size: 16px;
 }
-
 .search button {
   width: 120px;
   height: 40px;
@@ -550,7 +546,6 @@ th{
   font-size: 16px;
   transition: background-color 0.3s ease;
 }
-
 .search button:hover {
   background-color: #963b3b;
 }
@@ -566,4 +561,41 @@ th{
   padding: 20px;
   text-decoration: none;
   list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 10px
+}
+.infos li {
+  list-style-type: none; 
+  margin: 0; 
+}
+
+.infos li span {
+  font-weight: bold;
+}
+.filtrer{
+  display: flex;
+  padding-left: 20px;
+}
+.p_filtre{
+  margin-top: 0px;
+  padding-top: 0px;
+  font-size: 16px;
+  color: #333;
+  padding-left: 0px;
+  margin-bottom: 10px;
+  text-decoration: none;
+}
+.filtrer img{
+  padding-top: 40px;
+  padding-right: 10px;
+}
+.container_search{
+    display: flex;
+    justify-content: space-between; 
+}
+#add_link{
+  color: #00ACE8;
+  text-decoration: none;
+  font-size: 16px;
 }
