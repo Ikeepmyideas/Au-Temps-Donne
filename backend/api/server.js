@@ -1,6 +1,10 @@
-const http = require('http');
 const app = require('./app');
 const port = process.env.PORT || 3000;
-const server = http.createServer(app);
+const bodyParser = require('body-parser');
 
-server.listen(port);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
