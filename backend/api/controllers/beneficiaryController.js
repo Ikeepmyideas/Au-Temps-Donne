@@ -77,5 +77,48 @@ module.exports = {
       console.error(error);
       res.status(500).json({ error: 'Internal server error' });
     }
+  },
+  updateUser: async (userId, updatedData, res) => {
+    try {
+      if (!updatedData) {
+        return res.status(400).json({ error: 'Updated data is required' });
+      }
+
+      pool.query('UPDATE beneficiaires SET ? WHERE id = ?', [updatedData, userId], (error, results) => {
+        if (error) {
+          console.error(error);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User information updated successfully' });
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  deleteUser: async (userId, res) => {
+    try {
+      pool.query('DELETE FROM beneficiaires WHERE id = ?', [userId], (error, results) => {
+        if (error) {
+          console.error(error);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User deleted successfully' });
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 };
