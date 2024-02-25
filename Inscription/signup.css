@@ -215,6 +215,8 @@ label{
 .inpu-group.annee input {
     width: 100%; 
 }
+
+
 label#endo {
     margin-bottom: 8px;
     font-size: 12px;
@@ -273,6 +275,96 @@ button {
 button:hover {
     background-color: #F96262;
 }
+.toggle {
+    --width: 180px;
+    --height: calc(var(--width) / 3);
+
+    position: relative;
+    display: inline-block;
+    width: var(--width);
+    height: 45px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
+    border-radius: var(--height);
+    cursor: pointer;
+    border: 3px solid #F96262
+  }
+
+  .toggle input {
+    display: none;
+  }
+
+  .toggle .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--height);
+    background-color: #FFF;
+    transition: all 0.4s ease-in-out;
+  }
+
+.toggle .slider::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+width: 40px;
+height: 40px;
+border-radius: calc(var(--height) / 2);
+background-color: #fff;
+border: 3px solid #F96262; 
+box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
+transition: all 0.4s ease-in-out;
+}
+
+
+  .toggle input:checked+.slider {
+    background-color: #F96262;
+  }
+
+  .toggle input:checked+.slider::before {
+    transform: translateX(calc(var(--width) - var(--height)));
+  }
+
+  .toggle .labels {
+    position: absolute;
+    top: 11px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 20px;
+    font-family: sans-serif;
+    transition: all 0.4s ease-in-out;
+  }
+
+  .toggle .labels::after {
+    content: attr(data-off);
+    position: absolute;
+    right: 5px;
+    color: #F96262;
+    opacity: 1;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s ease-in-out;
+  }
+
+  .toggle .labels::before {
+    content: attr(data-on);
+    position: absolute;
+    left: 5px;
+    color: #FFF;
+    opacity: 0;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.4);
+    transition: all 0.4s ease-in-out;
+  }
+
+  .toggle input:checked~.labels::after {
+    opacity: 0;
+  }
+
+  .toggle input:checked~.labels::before {
+    opacity: 1;
+  }
 
 @media screen and (max-width: 600px) {
     .logo {
