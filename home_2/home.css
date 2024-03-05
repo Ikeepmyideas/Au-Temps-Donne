@@ -1,0 +1,113 @@
+:root{
+    --ff-inter: 'Inter' , sans-serif;
+    --ff-roboto: 'Roboto', sans-serif;
+
+    --section-padding:80px;
+
+    --card-shadow: 0 5px 20px -8px hsla(0,0%, 0%, 0.15);
+
+    --transition-1: 0.05s ease;
+    --transition-2: 0.25s ease;
+    --cubic-in: cubic-bezier(0.51, 0.03, 0.64, 0.28);
+    --cubic-out: cubic-bezier(0.33, 0.85, 0.4, 0.96);
+}
+
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+li { list-style: none; }
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a,
+img,
+span,
+time,
+input,
+strong,
+button,
+ion-icon { display: block; }
+
+img { height: auto; }
+
+ion-icon { pointer-events: none; }
+
+input,
+button {
+  background: none;
+  border: none;
+  font: inherit;
+}
+
+input { width: 100%; }
+
+button { cursor: pointer; }
+
+:focus-visible { outline-offset: 4px; }
+
+::selection { background-color: var(--white_10); }
+
+.logo{
+    color: #D23939;
+    font-size: 12px;
+}
+html {
+  font-family: var(--ff-roboto);
+  color:white;
+  font-size: 10px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-size: 1.6rem;
+  line-height: 1.8;
+  overflow-x: hidden;
+  background:
+        url('../assets/images/background.png') no-repeat center top fixed,
+        url('../assets/images/point1.png') no-repeat top fixed,
+        url('../assets/images/point2.png') no-repeat bottom fixed;
+  background-size: cover;
+}
+
+::-webkit-scrollbar { width: 13px; }
+
+::-webkit-scrollbar-track { background-color: hsl(0, 0%, 95%); }
+
+::-webkit-scrollbar-thumb { background-color: #D23939;}
+
+
+/*------  #HEADER-----*/
+
+
+.lang-switch,
+.header-action { display:none; }
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: transparent;
+  padding-block: 18px;
+  z-index: 4;
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 140px);
+  height: 1px;
+  background-color: var(--white_10);
+}

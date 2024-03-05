@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="singup_2.css" />
+    <style>
+        /* Ajoutez vos styles CSS personnalisés ici */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+    </style>
+    <title>Inscription</title>
+</head>
+<body>
+
+<div id="login-form">
+    <div class="form-box">
+        <h3 class="title_ins" >Inscription</h3>
+        <div class="breadcrumb">
+            <ul>
+                <li><p id="first-child" class="bred-p">1</p></li>
+                <li><p class="bred-p">2</p></li>
+                <li><p class="bred-p">3</p></li>
+            </ul>
+        </div>
+        <div class="button-box">
+            <div id="btn"></div>
+            <button type="button" onclick="showForm('benevoleForm')">Bénévole</button>
+            <button type="button" onclick="showForm('beneficiaireForm')">Bénéficiaire</button>
+        </div>
+        
+        <!-- Formulaire pour les Bénévoles -->
+        <form id="benevoleForm" class="form" style="display: none;">
+            <!-- Page 1 -->
+            <div id="benevole_page1" class="page active">
+                <p>Page 1 - Bénévole</p>
+                <input type="text" class="input-field" name="benevoleField1" placeholder="Champ 1 pour Bénévoles">
+                <input type="text" class="input-field" name="benevoleField2" placeholder="Champ 2 pour Bénévoles">
+                <button type="button" onclick="nextPage('benevoleForm')">Suivant</button>
+            </div>
+
+            <!-- Page 2 -->
+            <div id="benevole_page2" class="page">
+                <p>Page 2 - Bénévole</p>
+                <input type="text" class="input-field" name="benevoleField3" placeholder="Champ 3 pour Bénévoles">
+                <input type="text" class="input-field" name="benevoleField4" placeholder="Champ 4 pour Bénévoles">
+                <button type="button" onclick="prevPage('benevoleForm')">Retour</button>
+                <button type="button" onclick="nextPage('benevoleForm')">Suivant</button>
+            </div>
+
+            <!-- Page 3 -->
+            <div id="benevole_page3" class="page">
+                <p>Page 3 - Bénévole</p>
+                <input type="text" class="input-field" name="benevoleField5" placeholder="Champ 5 pour Bénévoles">
+                <input type="text" class="input-field" name="benevoleField6" placeholder="Champ 6 pour Bénévoles">
+                <button type="button" onclick="prevPage('benevoleForm')">Retour</button>
+                <button type="submit">Finaliser</button>
+            </div>
+        </form>
+
+        <!-- Formulaire pour les Bénéficiaires -->
+        <form id="beneficiaireForm" class="form" style="display: none;">
+            <!-- Page 1 -->
+            <div id="beneficiaire_page1" class="page active">
+                <p>Page 1 - Bénéficiaire</p>
+                <input type="text" class="input-field" name="beneficiaireField1" placeholder="Champ 1 pour Bénéficiaires">
+                <input type="text" class="input-field" name="beneficiaireField2" placeholder="Champ 2 pour Bénéficiaires">
+                <button type="button" onclick="nextPage('beneficiaireForm')">Suivant</button>
+            </div>
+
+            <!-- Page 2 -->
+            <div id="beneficiaire_page2" class="page">
+                <p>Page 2 - Bénéficiaire</p>
+                <input type="text" class="input-field" name="beneficiaireField3" placeholder="Champ 3 pour Bénéficiaires">
+                <input type="text" class="input-field" name="beneficiaireField4" placeholder="Champ 4 pour Bénéficiaires">
+                <button type="button" onclick="prevPage('beneficiaireForm')">Retour</button>
+                <button type="button" onclick="nextPage('beneficiaireForm')">Suivant</button>
+            </div>
+
+            <!-- Page 3 -->
+            <div id="beneficiaire_page3" class="page">
+                <p>Page 3 - Bénéficiaire</p>
+                <input type="text" class="input-field" name="beneficiaireField5" placeholder="Champ 5 pour Bénéficiaires">
+                <input type="text" class="input-field" name="beneficiaireField6" placeholder="Champ 6 pour Bénéficiaires">
+                <button type="button" onclick="prevPage('beneficiaireForm')">Retour</button>
+                <button type="submit">Finaliser</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showForm(formId) {
+        var forms = document.getElementsByClassName('form');
+        for (var i = 0; i < forms.length; i++) {
+            forms[i].style.display = 'none';
+        }
+        document.getElementById(formId).style.display = 'block';
+    }
+
+    function nextPage(formId) {
+        var currentPage = document.querySelector(`#${formId} .page.active`);
+        var nextPage = currentPage.nextElementSibling;
+        currentPage.classList.remove('active');
+        nextPage.classList.add('active');
+    }
+
+    function prevPage(formId) {
+        var currentPage = document.querySelector(`#${formId} .page.active`);
+        var prevPage = currentPage.previousElementSibling;
+        currentPage.classList.remove('active');
+        prevPage.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
+```
+

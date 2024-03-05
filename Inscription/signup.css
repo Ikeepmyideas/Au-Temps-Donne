@@ -24,11 +24,11 @@ body {
     border-radius: 10px;
     overflow: hidden;
     background:
-        url('../assets/signup/background1.png') no-repeat center top fixed,
-        url('../assets/signup/background2.png') no-repeat top fixed,
+        url('../assets/images/background.png') no-repeat center top fixed,
+        url('../assets/images/background/') no-repeat top fixed,
         url('../assets/signup/background3.png') no-repeat bottom fixed,
-        url('../assets/signup/point1.png') no-repeat bottom fixed,
-        url('../assets/signup/point2.png') no-repeat bottom fixed;
+        url('../assets/images/point1.png') no-repeat bottom fixed,
+        url('../assets/images/point2.png') no-repeat bottom fixed;
 
     background-size: cover;
     font-size: 16px;

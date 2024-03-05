@@ -8,12 +8,11 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"> 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
 </head>
 <body>
     <header>
-        <img src="../assets/logo.png" alt="Your Logo" class="logo">
+        <img src="../assets/images/logo.png" alt="Your Logo" class="logo">
     </header>
     <form id="registrationForm" method="POST">
         <!-- Page 1 -->
@@ -32,11 +31,12 @@
             
             <center>
                 <div class="">
+                    <!-- Ajoutez cet écouteur d'événements à votre interrupteur (switch) -->
                     <label class="toggle">
-                        <input type="checkbox" id="switch">
-                        <span class="slider"></span>
-                        <span class="labels" data-on="Bénéficiaire" data-off="Bénévole"></span>
-                      </label>
+                    <input type="checkbox" id="switch" onchange="toggleSwitch()">
+                     <span class="slider"></span>
+                     <span class="labels" data-on="Bénévole" data-off="Bénéficiaire"></span>
+                    </label>
                   </div>
             </center>
              
@@ -163,98 +163,142 @@
             </div>
             <div class="form-group">
                 <div class="input-group">
-                    <label for="needs">Permis de Conduire:</label>
-                    <select id="needs" name="needs" required>
-                        <option value=""></option>
-                        <option value="1">Oui</option>
-                        <option value="0">Non</option>
+                    <label for="needsBeneficiare">Catégorie de besoin:</label>
+                    <select id="needsBeneficiare" name="needsBeneficiare" style="display: block;"required>
+                        <option value="Aide alimentaire">Aide alimentaire</option>
+                        <option value="Soutien scolaire">Activité culturelle</option>
+                        <option value="Aide médicale">Services d'Aide Générale</option>
+                        <option value="Activités sociales et récréatives">Services d'Accompagnement Intégral</option>
+                        <option value="Assistance sociale">Activités Sportives</option>
+                        <option value="Transport et déplacement">Activités Culturelles</option>
+                        <option value="Transport et déplacement">Support Psychologique</option>
+                        <option value="Transport et déplacement">Formation Professionnelle</option>
+                        <option value="Transport et déplacement">Conseil Juridique</option>
+                        <option value="Transport et déplacement">Soutien à l'Emploi</option>
+                        <option value="other">Autres besoins spécifiques</option>
                     </select>
                 </div>
             </div>
 
         <center> <button onclick="showPage(1)">Retour</button>
             <center> <button onclick="showPage(3)">Suivant</button></center>
-       
-    </div>
-
-    <div id="page3" style="display: none;">
-        <!-- Your new form content for page 2 -->
-        <center><div class="breadcrumb">
+        </div>
+            <div id="page3" style="display: none;">
+                <!-- Your new form content for page 2 -->
+                <center><div class="breadcrumb">
+                        <div class="dot"></div>
+                        <div class="line first"></div>
+                        <div class="dot second"></div>
+                        <div class="line second"></div>
+                        <div class="dot"></div>
+               </center>
+                 
+                <center> <h1>Inscription</h1></center>
+                    <center> <p><strong>Déjà un compte chez nous ? <a href="">Connectez-vous</a></strong></p></center>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <label for="needs">Permis de Conduire:</label>
+                            <select id="needs" name="needs" required>
+                                <option value=""></option>
+                                <option value="1">Oui</option>
+                                <option value="0">Non</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                                <div class="input-group">
+                                    <label for="Langues">Langues</label>
+                                    <input type="text" id="Langues" name="Langues" required>
+                                </div>
+                            </div>
+                       
+                    <div class="form-group">
+                        <div class="input-group">
+                            <label for="Compétences">Compétences:</label>
+                            <input type="text" id="Compétences" name="Compétences" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="Qualités">Qualités:</label>
+                            <input type="text" id="Qualités" name="Qualités" required>
+                        </div>
+                    </div>
+                <div class="form-group"> 
+                    <div class="mb-3 inpu-group">
+                    <label for="message_candidature" class="form-label">Message de canditature:</label>
+                    <textarea class="form-control" id="message_candidature" name="message_candidature" rows="3" required ></textarea>
+                  </div>
+                </div>
+               
+                <center> <button onclick="showPage(2)">Retour</button>
+                    <button type="submit">Finaliser</button></center>
+                </div>
+           
+        
+        <div id="page4"style="display: none;">
+            <center><div class="breadcrumb">
                 <div class="dot"></div>
                 <div class="line first"></div>
                 <div class="dot second"></div>
-                <div class="line second"></div>
-                <div class="dot"></div>
+                <div class="line secon"></div>
+                <div class="dot last"></div>
         </div></center>
         
         <center> <h1>Inscription</h1></center>
-            <center> <p><strong>Déjà un compte chez nous ? <a href="">Connectez-vous</a></strong></p></center>
-            <div class="form-group">
-                <div class="input-group">
-                    <label for="dob"><strong>Date de naissance:</strong></label>
-                        </div>
-                        <div class="input-group">
-                            <label for="Langues">Langues</label>
-                            <input type="text" id="Langues" name="Langues" required>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <label for="Compétences">Compétences:</label>
-                    <input type="text" id="Compétences" name="Compétences" required>
-                </div>
-                <div class="input-group">
-                    <label for="Qualités">Qualités:</label>
-                    <input type="text" id="Qualités" name="Qualités" required>
-                </div>
-            </div>
-        <div class="form-group"> 
-            <div class="mb-3">
-            <label for="message_candidature" class="form-label">Message de canditature:</label>
-            <textarea class="form-control" id="message_candidature" name="message_candidature" rows="3" required ></textarea>
-          </div>
+        <center><img src="../assets/images/team/" alt=""></center>
+            <center><h2 style="color: #EB5454;font-size: 20px;">Vérifiez Votre E-mail pour Activer Votre Compte</h2><br/></center>
+           <center><p style="color: #7A7777;font-size: 20;">Un e-mail de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception pour activer votre compte.</p></center> </div>
         </div>
-       
-        <center> <button onclick="showPage(2)">Retour</button>
-            <button type="submit">Finaliser</button></center>
-       
-    </div>
-
-<div id="page4"style="display: none;">
-    <center><div class="breadcrumb">
-        <div class="dot"></div>
-        <div class="line first"></div>
-        <div class="dot second"></div>
-        <div class="line secon"></div>
-        <div class="dot last"></div>
-</div></center>
-
-<center> <h1>Inscription</h1></center>
-<center><img src="../assets/signup/Sans tenv 2.png" alt=""></center>
-    <center><h2 style="color: #EB5454;font-size: 20px;">Vérifiez Votre E-mail pour Activer Votre Compte</h2><br/></center>
-   <center><p style="color: #7A7777;font-size: 20;">Un e-mail de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception pour activer votre compte.</p></center> </div>
-</div>
 </form>
 <script>
-    function showPage(pageNumber) {
-        document.getElementById("page1").style.display = (pageNumber === 1) ? "block" : "none";
-        document.getElementById("page2").style.display = (pageNumber === 2) ? "block" : "none";
-        document.getElementById("page3").style.display = (pageNumber === 3 )? "block" : "none";
-        document.getElementById("page4").style.display = (pageNumber === 4 )? "block" : "none";
+
+let isBenevole = false;
+
+function toggleSwitch() {
+    const switchElement = document.getElementById('switch');
+    isBenevole = switchElement.checked;
+
+    // Appel de votre fonction showPage pour mettre à jour la page en fonction du choix
+    showPage(3);  // Vous pouvez ajuster le numéro de la page selon votre besoin
+}
+function showPage(pageNumber) {
+    const page1 = document.getElementById('page1');
+    const page2 = document.getElementById('page2');
+    const benevolePage = document.getElementById('page3');
+    const beneficiairePage = document.getElementById('page4');
+
+    // Réinitialiser l'affichage des pages
+    page1.style.display = (pageNumber === 1) ? "block" : "none";
+    page2.style.display = (pageNumber === 2) ? "block" : "none";
+    benevolePage.style.display = 'none';
+    beneficiairePage.style.display = 'none';
+
+    // Afficher la page en fonction du choix
+    if (pageNumber === 3) {
+        if (isBenevole) {
+            benevolePage.style.display = 'block';
+            beneficiairePage.style.display = 'none'; // Masquer le champ "besoin" pour le bénévole
+        } else {
+            benevolePage.style.display = 'none';
+            beneficiairePage.style.display = 'block';
+        }
+    }
+}
+const needsSelector = isBenevole ? 'needsBeneficaire' : 'needs';
+    const needsElement = document.getElementById(needsSelector);
+    if (needsElement) {
+        needsElement.style.display = 'block';
     }
 
-function showPage4(event) {
-    event.preventDefault(); 
-    showPage(4);
+document.getElementById("registrationForm").addEventListener("submit", function (event) {
+    // Logique existante pour afficher la page 3
+    // ...
 
-    var formContainer = document.querySelector('#page4 .form-container');
+    // Ajoutez la logique pour afficher la page 3 spécifique au bénévole ou au bénéficiaire
+    showPage(3);
+
+    var formContainer = document.querySelector('#page3 .form-container');
     formContainer.classList.add('emailsended');
-}
-
-document.getElementById("registrationForm").addEventListener("submit", showPage3);
-
+});
 
     document.getElementById("confirmPassword").addEventListener("input", function () {
         var password = document.getElementById("password").value;
@@ -333,31 +377,54 @@ document.getElementById("password").addEventListener("input", function () {
 </script><script>
     document.getElementById('registrationForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent default form submission
-        
-        // Extract form data
-        const formData = new FormData(this);
-        const userData = {
-            email: formData.get('email'),
-            prenom: formData.get('firstName'),
-            nom: formData.get('lastName'),
-            motDePasse: formData.get('password'),
-            dateDeNaissance: formData.get('annee') + '-' + formData.get('mois') + '-' + formData.get('jour'),
-            genre: formData.get('genre'),
-            numeroTelephone: formData.get('phoneNumber'),
-            adresse: formData.get('address'),
-            codePostal: formData.get('postalCode'),
-            ville: formData.get('city'),
-            besoin: formData.get('needs')
-        };
+    
 
-        // Make POST request to backend API
-        fetch('http://localhost:8000/api/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        })
+    // Extract form data based on the selected page
+    const isPage1 = document.getElementById('page1').style.display === 'block';
+    const isPage2 = document.getElementById('page2').style.display === 'block';
+    const isPage3Benevole = document.getElementById('page3').style.display === 'block' && isBenevole;
+    const isPage3Beneficiaire = document.getElementById('page4').style.display === 'block' && !isBenevole;
+
+    let formData;
+    if (isPage1 || isPage2) {
+        // Form data for page 1 and page 2
+        formData = new FormData(this);
+    } else if (isPage3Benevole || isPage3Beneficiaire) {
+        // Form data for page 3 based on the user type (benevole or beneficiaire)
+        formData = new FormData(document.getElementById('page3'));
+
+        // Add specific fields for the benevole
+        if (isBenevole) {
+            userData.permisDeConduire = formData.get('needs'); // Assuming 'needs' is the correct field name
+            userData.langues = formData.get('Langues');
+            userData.competences = formData.get('Compétences');
+            userData.qualites = formData.get('Qualités');
+            userData.messageCandidature = formData.get('message_candidature');
+        }
+    }
+
+    const userData = {
+        email: formData.get('email'),
+        prenom: formData.get('firstName'),
+        nom: formData.get('lastName'),
+        motDePasse: formData.get('password'),
+        dateDeNaissance: formData.get('annee') + '-' + formData.get('mois') + '-' + formData.get('jour'),
+        genre: formData.get('genre'),
+        numeroTelephone: formData.get('phoneNumber'),
+        adresse: formData.get('address'),
+        codePostal: formData.get('postalCode'),
+        ville: formData.get('city'),
+        besoin: isBenevole ? formData.get('needsBenevole') : formData.get('needs')
+    };
+
+    // Make POST request to backend API
+    fetch('http://localhost:8000/api/volunteer/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+    })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Signup failed');
@@ -372,9 +439,10 @@ document.getElementById("password").addEventListener("input", function () {
         .catch(error => {
             // Handle signup error
             console.error('Error:', error);
-            // Show error message to user
+            // Show error message to the user
         });
-    });
+});
+
 </script>
 
 <style>
