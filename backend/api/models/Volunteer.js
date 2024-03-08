@@ -14,8 +14,9 @@ const Volunteer = sequelize.define('benevoles', {
   code_postal: { type: Sequelize.STRING(5) },
   date_adhesion: { type: Sequelize.DATE },
   statut: { type: Sequelize.STRING(20) },
-  sexe: { type: Sequelize.STRING },
-  message_candidature: { type: Sequelize.STRING }
+  genre: { type: Sequelize.STRING },
+  message_candidature: { type: Sequelize.STRING },
+  date_inscription: { type: Sequelize.DATE }
 
 }, 
 {
