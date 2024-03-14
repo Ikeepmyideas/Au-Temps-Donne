@@ -5,6 +5,7 @@ const Beneficiary = require('../models/Beneficiary');
 
 const Lieu= require('../models/Lieu');
 const Activity = require('../models/Activity');
+const ActivityPrive = require('../models/ActivityPrivate');
 const Service = require('../models/Service');
 const sequelize = require('../config/db'); 
 const { Op } = require('sequelize'); 
@@ -94,7 +95,20 @@ exports.deleteVolunteer = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression du bénévole" });
   }
 };
-
+exports.deleteBeneficiary = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const beneficiary = await Beneficiary.findOne({ where: { email } });
+    if (!beneficiary) {
+      return res.status(404).json({ message: "Beneficiaire introuvable" });
+    }
+    await Beneficiary.destroy({ where: { email } });
+    res.status(200).json({ message: "Beneficiaire supprimé avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du Beneficiaire :", error);
+    res.status(500).json({ message: "Erreur lors de la suppression du Beneficiaire" });
+  }
+};
 exports.getAllVolunteers = async (req, res) => {
   try {
     const volunteers = await Volunteer.findAll();
@@ -104,7 +118,15 @@ exports.getAllVolunteers = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur." });
   }
 };
-
+exports.getAllBeneficiaires = async (req, res) => {
+  try {
+    const beneficiary = await Beneficiary.findAll();
+    res.json(beneficiary);
+  } catch (error) {
+    console.error("Erreur lors de la récupération de la liste des beneficiaire :", error);
+    res.status(500).json({ message: "Erreur serveur." });
+  }
+};
 exports.getVolunteer = async (req, res) => {
   try {
     const { nom, prenom } = req.query;
@@ -138,48 +160,47 @@ exports.getLatestVolunteers = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur." });
   }
 };
-
-exports.getAllLatestVolunteers = async (req, res) => {
-  try {
-    const allLatestVolunteers = await Volunteer.findAll({
-      order: [['date_adhesion', 'DESC']],
-    });
-    res.json(allLatestVolunteers);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des derniers bénévoles :", error);
-    res.status(500).json({ message: "Erreur serveur." });
-  }
-};
-
-exports.getAllLatestBeneficiaries = async (req, res) => {
-  try {
-    const allLatestBeneficiaries = await Beneficiary.findAll({
-      order: [['dateInscription', 'DESC']], // Correction ici pour utiliser 'dateInscription'
-    });
-    res.json(allLatestBeneficiaries);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des derniers bénéficiaires :", error); // Correction du message d'erreur pour qu'il soit correct
-    res.status(500).json({ message: "Erreur serveur." });
-  }
-};
-
 exports.getAllLatestVolunteersAndBeneficiaries = async (req, res) => {
   try {
     const allLatestVolunteers = await Volunteer.findAll({
       order: [['date_adhesion', 'DESC']],
-      limit: 10 
-    }).then(volunteers => volunteers.map(v => ({ ...v.toJSON(), type: 'Bénévole' }))); // Convertir en JSON et ajouter le type
+      limit: 6
+    }).then(volunteers => volunteers.map(v => ({ ...v.toJSON(), type: 'Bénévole' }))); 
 
     const allLatestBeneficiaries = await Beneficiary.findAll({
-      order: [['dateInscription', 'DESC']],
-      limit: 10 
+      order: [['date_inscription', 'DESC']],
     }).then(beneficiaries => beneficiaries.map(b => ({ ...b.toJSON(), type: 'Bénéficiaire' }))); 
 
     const combinedList = [...allLatestVolunteers, ...allLatestBeneficiaries];
 
     combinedList.sort((a, b) => {
-      let dateA = new Date(a.date_adhesion || a.dateInscription); 
-      let dateB = new Date(b.date_adhesion || b.dateInscription);
+      let dateA = new Date(a.date_adhesion || a.date_inscription); 
+      let dateB = new Date(b.date_adhesion || b.date_inscription);
+      return dateB - dateA; 
+    });
+
+    res.json(combinedList);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des derniers bénévoles et bénéficiaires :", error);
+    res.status(500).json({ message: "Erreur serveur." });
+  }
+};
+
+exports.getAllVolunteersAndBeneficiaries = async (req, res) => {
+  try {
+    const allLatestVolunteers = await Volunteer.findAll({
+      order: [['date_adhesion', 'DESC']],
+    }).then(volunteers => volunteers.map(v => ({ ...v.toJSON(), type: 'Bénévole' }))); // Convertir en JSON et ajouter le type
+
+    const allLatestBeneficiaries = await Beneficiary.findAll({
+      order: [['date_inscription', 'DESC']],
+    }).then(beneficiaries => beneficiaries.map(b => ({ ...b.toJSON(), type: 'Bénéficiaire' }))); 
+
+    const combinedList = [...allLatestVolunteers, ...allLatestBeneficiaries];
+
+    combinedList.sort((a, b) => {
+      let dateA = new Date(a.date_adhesion || a.date_inscription); 
+      let dateB = new Date(b.date_adhesion || b.date_inscription);
       return dateB - dateA; 
     });
 
@@ -234,7 +255,9 @@ exports.updateVolunteerStatus = async (req, res) => {
       return res.status(404).json({ message: "Bénévole introuvable" });
     }
 
-    volunteer.statut = newStatus;
+    volunteer.statut_validation = newStatus;
+    volunteer.date_adhesion = new Date();
+
     await volunteer.save();
 
     res.status(200).json({ message: "Statut du bénévole mis à jour avec succès" });
@@ -252,76 +275,16 @@ exports.updateBeneficiaryStatus = async (req, res) => {
       return res.status(404).json({ message: "Bénéficiaire introuvable" });
     }
 
-    beneficiary.statut = newStatus;
+    beneficiary.statut_validation = newStatus;
+
+    beneficiary.date_adhesion = new Date();
+
     await beneficiary.save();
 
     res.status(200).json({ message: "Statut du Bénéficiaire mis à jour avec succès" });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut du Bénéficiaire :", error);
     res.status(500).json({ message: "Erreur serveur." });
-  }
-};
-exports.createActivity = async (req, res) => {
-  const transaction = await sequelize.transaction();
-  try {
-    const { nom, description, date, heure_debut, heure_fin, lieu, nom_service } = req.body;
-
-    if (!nom || !description || !date || !heure_debut || !heure_fin || !nom_service) {
-      return res.status(400).json({ message: "Tous les champs requis doivent être remplis." });
-    }
-
-    if (!lieu || !lieu.adresse || !lieu.ville || !lieu.code_postal) {
-      await transaction.rollback();
-      return res.status(400).json({ message: "Les informations du lieu sont incomplètes ou absentes." });
-    }
-
-    let id_lieu;
-
-    const [lieuInstance, created] = await Lieu.findOrCreate({
-      where: {
-        adresse: lieu.adresse,
-        ville: lieu.ville,
-        code_postal: lieu.code_postal,
-      },
-      defaults: lieu, 
-      transaction,
-    });
-
-    id_lieu = lieuInstance.id_lieu;
-
-    const chevauchement = await Activity.findOne({
-      where: {
-        id_lieu,
-        date,
-        [Op.or]: [
-          { heure_debut: { [Op.lt]: heure_fin } },
-          { heure_fin: { [Op.gt]: heure_debut } },
-        ],
-      },
-      transaction,
-    });
-
-    if (chevauchement) {
-      await transaction.rollback();
-      return res.status(400).json({ message: "Une activité existe déjà à cet horaire et lieu." });
-    }
-
-    const activity = await Activity.create({
-      nom,
-      description,
-      date,
-      heure_debut,
-      heure_fin,
-      id_lieu,
-      nom_service,
-    }, { transaction });
-
-    await transaction.commit();
-    res.status(201).json({ message: 'Activité créée avec succès', activity });
-  } catch (error) {
-    await transaction.rollback();
-    console.error('Erreur lors de la création de l\'activité:', error);
-    res.status(500).json({ message: 'Erreur lors de la création de l\'activité' });
   }
 };
 
@@ -371,5 +334,189 @@ exports.getAllServices = async (req, res) => {
   } catch (error) {
     console.error('Error fetching services:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+exports.getAllServices = async (req, res) => {
+  try {
+    const services = await Service.findAll();
+    res.status(200).json(services);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des services :', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+exports.createActivityPrive = async (req, res) => {
+
+  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nomBeneficiaire, prenomBeneficiaire, nomBenevole, prenomBenevole, nom_service } = req.body;
+  const t = await sequelize.transaction();
+
+  try {
+    // Récupération des IDs du bénévole et du bénéficiaire
+    const benevoleId = await getBenevoleId(nomBenevole, prenomBenevole);
+    const beneficiaireId = await getBeneficiaireId(nomBeneficiaire, prenomBeneficiaire);
+
+    // Vérification de l'existence d'un événement similaire
+   
+    const existingEvent = await ActivityPrive.findOne({
+      attributes: ['id_benevole', 'id_beneficiaire', 'heure_debut', 'date_activite'],
+      where: {
+        date_activite,
+        heure_debut,
+        [Op.or]: [
+          { id_benevole: benevoleId },
+          { id_beneficiaire: beneficiaireId }
+        ]
+      },
+      transaction: t
+    });
+  
+
+    if (existingEvent) {
+      throw new Error('Un événement avec le même nom et prénom de bénévole/bénéficiaire, la même date et heure existe déjà.');
+    }
+
+    // Recherche ou création du lieu
+    let [lieu, created] = await Lieu.findOrCreate({
+      where: { adresse: adresseComplete, ville, code_postal },
+      defaults: { adresse: adresseComplete, ville, code_postal },
+      transaction: t
+    });
+
+    // Recherche ou création du bénévole
+    const [benevole, benevoleCreated] = await Volunteer.findOrCreate({
+      where: { nom: nomBenevole, prenom: prenomBenevole },
+      defaults: { nom: nomBenevole, prenom: prenomBenevole },
+      transaction: t
+    });
+
+    if (!benevoleCreated && !benevole) {
+      throw new Error('Bénévole non trouvé et impossible à créer.');
+    }
+
+    // Recherche ou création du bénéficiaire
+    const [beneficiaire, beneficiaireCreated] = await Beneficiary.findOrCreate({
+      where: { nom: nomBeneficiaire, prenom: prenomBeneficiaire },
+      defaults: { nom: nomBeneficiaire, prenom: prenomBeneficiaire },
+      transaction: t
+    });
+
+    if (!beneficiaireCreated && !beneficiaire) {
+      throw new Error('Bénéficiaire non trouvé et impossible à créer.');
+    }
+
+    // Création de l'activité privée
+    await ActivityPrive.create({
+      description,
+      date_activite,
+      heure_debut,
+      heure_fin,
+      titre,
+      id_lieu: lieu.id_lieu,
+      id_beneficiaire: beneficiaire.id,
+      id_benevole: benevole.id,
+      nom_service
+    }, { transaction: t });
+
+    // Validation de la transaction
+    await t.commit();
+
+    // Réponse de réussite
+    res.status(201).send('Activité privée ajoutée avec succès.');
+  } catch (error) {
+    // En cas d'erreur, annulation de la transaction
+    await t.rollback();
+    console.error('Erreur lors de l\'ajout de l\'activité privée : ', error);
+    res.status(500).send('Erreur lors de l\'ajout de l\'activité privée : ' + error.message);
+  }
+};
+
+// Fonction pour obtenir l'ID du bénévole
+async function getBenevoleId(nom, prenom) {
+  const benevole = await Volunteer.findOne({ where: { nom, prenom } });
+  if (!benevole) {
+    throw new Error(`Bénévole non trouvé avec le nom ${nom} et le prénom ${prenom}`);
+  }
+  return benevole.id;
+}
+
+async function getBeneficiaireId(nom, prenom) {
+  const beneficiaire = await Beneficiary.findOne({ where: { nom, prenom } });
+  if (!beneficiaire) {
+    throw new Error(`Bénéficiaire non trouvé avec le nom ${nom} et le prénom ${prenom}`);
+  }
+  return beneficiaire.id;
+}
+
+exports.getVolunteerById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const volunteer = await Volunteer.findByPk(id);
+    if (!volunteer) {
+      return res.status(404).send({ message: 'Bénévole non trouvé.' });
+    }
+    res.send({ nom: volunteer.nom, prenom: volunteer.prenom });
+  } catch (error) {
+    console.error('Erreur lors de la récupération du bénévole:', error);
+    res.status(500).send({ message: 'Erreur lors de la récupération des informations du bénévole.' });
+  }
+};
+exports.getBeneficiaryById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const beneficiary = await Beneficiary.findByPk(id);
+    if (!beneficiary) {
+      return res.status(404).send({ message: 'Bénéficiaire non trouvé.' });
+    }
+    res.send({ nom: beneficiary.nom, prenom: beneficiary.prenom });
+  } catch (error) {
+    console.error('Erreur lors de la récupération du bénéficiaire:', error);
+    res.status(500).send({ message: 'Erreur lors de la récupération des informations du bénéficiaire.' });
+  }
+};
+exports.createActivity = async (req, res) => {
+
+  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
+  const t = await sequelize.transaction();
+
+  try {
+    const existingEvent = await Activity.findOne({
+      attributes: ['heure_debut', 'date_activite'],
+      where: {
+        date_activite,
+        heure_debut,
+    
+      },
+      transaction: t
+    });
+  
+
+    if (existingEvent) {
+      throw new Error('Un événement avec le même nom et prénom de bénévole/bénéficiaire, la même date et heure existe déjà.');
+    }
+
+    let [lieu, created] = await Lieu.findOrCreate({
+      where: { adresse: adresseComplete, ville, code_postal },
+      defaults: { adresse: adresseComplete, ville, code_postal },
+      transaction: t
+    });
+
+    await Activity.create({
+      description,
+      date_activite,
+      heure_debut,
+      heure_fin,
+      titre,
+      id_lieu: lieu.id_lieu,
+      nom_service,
+      nb_benevoles
+    }, { transaction: t });
+
+    await t.commit();
+
+    res.status(201).send('Activité privée ajoutée avec succès.');
+  } catch (error) {
+    await t.rollback();
+    console.error('Erreur lors de l\'ajout de l\'activité privée : ', error);
+    res.status(500).send('Erreur lors de l\'ajout de l\'activité privée : ' + error.message);
   }
 };

@@ -16,11 +16,11 @@ router.get('/volunteers', adminController.getAllVolunteers);
 
 router.get('/volunteers/latest-volunteers', adminController.getLatestVolunteers);
 
-router.get('/volunteers/all-latest-volunteers', adminController.getAllLatestVolunteers);
-
-router.get('/beneficiaires/all-latest-beneficiaires', adminController.getAllLatestBeneficiaries);
+router.get('/beneficiaires', adminController.getAllBeneficiaires);
 
 router.post('/beneficiaires/update-status', adminController.updateBeneficiaryStatus);
+
+router.delete('/beneficiaires/delete', adminController.deleteBeneficiary);
 
 router.get('/admins',adminController.getAllAdmins);
 
@@ -30,8 +30,6 @@ router.post('/addAdmin', adminController.addVolunteerToAdmins);
 
 router.post('/volunteers/update-status', adminController.updateVolunteerStatus);
 
-router.post('/addActivity', adminController.createActivity);
-
 router.post('/addFormation', adminController.addFormation);
 
 router.get('/Formations', adminController.getAllFormations);
@@ -40,6 +38,17 @@ router.get('/Activities', adminController.getAllActivities);
 
 router.get('/services', adminController.getAllServices);
 
-router.get('/all', adminController.getAllLatestVolunteersAndBeneficiaries);
+router.get('/all', adminController.getAllVolunteersAndBeneficiaries);
+
+router.get('/all/latest', adminController.getAllLatestVolunteersAndBeneficiaries);
+
+router.post('/addActivityPrive', adminController.createActivityPrive);
+
+router.get('/volunteers/:id', adminController.getVolunteerById);
+
+router.get('/beneficiaires/:id', adminController.getBeneficiaryById);
+
+
+router.post('/addActivity', adminController.createActivity);
 
 module.exports = router;
