@@ -471,31 +471,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-function fetchAdminInfo(email) {
-    const url = new URL('http://127.0.0.1:8000/api/admin');
-    url.searchParams.append('email', email);
-
-    fetch(url, {
-        method: 'GET', 
-        headers: {
-            'Accept': 'application/json',
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Problème de réponse réseau');
-        }
-        return response.json();
-    })
-    .then(adminData => {
-        console.log("Données de l'administrateur récupérées:", adminData);
-        const prenom = adminData.admin ? adminData.admin.prenom : "Admin";
-        document.getElementById('welcome').textContent = `Bienvenue Admin ${prenom}`;
-    })
-    .catch(error => {
-        console.error("Il y a eu un problème avec l'opération fetch: " + error.message);
-    });
-}
 document.addEventListener('DOMContentLoaded', () => {
     const email = sessionStorage.getItem('email');
     if (!email) {

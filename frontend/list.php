@@ -250,7 +250,7 @@ function confirmerSuppression(nom, prenom) {
 
 </script>
 <script>
-fetch('http://localhost:8000/api/admin/volunteers/all-latest-volunteers')
+fetch('http://localhost:8000/api/admin/volunteers')
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');

@@ -78,7 +78,7 @@ $title = 'Dashboard';
         <li <?php if($title === "Messagerie"): ?> class="highlighted" <?php endif; ?>>
             <a class="nav-link" href="#">
                 <img src="assets/messages.png" alt="">
-                <span>Messagerie</span>
+                <span>Maraudes</span>
             </a>  
         </li>
         <li <?php if($title === "Documents"): ?> class="highlighted" <?php endif; ?>>
@@ -110,29 +110,34 @@ $title = 'Dashboard';
     </ul>
   </nav>
 <section id="horiz">
-<div class="nav_img">
-    <img src="assets/fatrows.png" alt="">
-    <a class="nav-link" style="text-decoration: none; color: #94A3B8;font-size: 18px; "href="accueil-admin.php">Board</a>
-</div>
-<div class="nav_img">
-    <img src="assets/1fatrows.png" alt="">
-    <a class="nav-link" style="text-decoration: none; color: #94A3B8;font-size: 18px; "href="list.php">List</a>
-</div>
+    <div class="nav_img">
+        <img src="assets/fatrows.png" alt="">
+        <a class="nav-link" style="text-decoration: none; color: #94A3B8;font-size: 18px; "href="accueil-admin.php">Board</a>
+    </div>
+    <div class="nav_img">
+        <img src="assets/1fatrows.png" alt="">
+        <a class="nav-link" style="text-decoration: none; color: #94A3B8;font-size: 18px; "href="list.php">List</a>
+    </div>
 
-<div class="nav_img">
-    <img src="assets/calendar-light.png" alt="">
-    <a class="nav-link" style="text-decoration: none; color: #94A3B8;font-size: 18px; " href="calender.html">calendar</a>
-</div>
-<div class="search-container">
-    <input type="text" placeholder="Search...">
-    <img height="20px" src="assets/loop.png" alt="Icone Recherche">
-</div>
+    <div class="nav_img">
+        <img src="assets/calendar-light.png" alt="">
+        <a class="nav-link" style="text-decoration: none; color: #94A3B8;font-size: 18px; " href="calender.html">Planning</a>
+    </div>
+    <div class="nav_img">
+        <img src="assets/doc.png" alt="">
+        <a class="nav-link" style="text-decoration: none; color: #94A3B8;font-size: 18px; " href="blog.php">Blog</a>
+    </div>
 
-<div id="right1"><img height="20px" src="assets/chat_.png" alt=""></div>
-<div id="right2"><img height="20px" src="assets/notif.png" alt=""></div>
-<div class="circle">
-    <a href="profil_admin.php"><img src="assets/gojo.jpg">
-</a>
+    <div class="search-container">
+        <input type="text" placeholder="Search...">
+        <img height="20px" src="assets/loop.png" alt="Icone Recherche">
+    </div>
+
+    <div id="right1"><img height="20px" src="assets/chat_.png" alt=""></div>
+    <div id="right2"><img height="20px" src="assets/notif.png" alt=""></div>
+    <div class="circle">
+        <a href="profil_admin.php"><img src="assets/gojo.jpg">
+    </a>
 </div>
 </section>
 <section  class="content">
@@ -245,11 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = sessionStorage.getItem('email'); 
     console.log(email);
 
-    if (email) {
-        fetchAdminInfo(email);
-    } else {
-        console.log("Email non trouvé dans sessionStorage.");
-    }
+
 });
 
 function fetchAdminInfo(email) {

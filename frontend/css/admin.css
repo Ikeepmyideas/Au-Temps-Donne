@@ -145,7 +145,7 @@ div#right1{
       margin-left: 150px;
  }
 
-#horiz div:nth-child(3) {
+#horiz div:nth-child(4) {
     margin-right: 26%;
 }
 
@@ -156,7 +156,7 @@ div#right1{
 }
  .nav-max #horiz div:first-child {
         margin-left: 365px; 
-    }
+}
 
  
 .hr2 {
@@ -722,4 +722,20 @@ input[type="time"] {
   background-color: #C04343; 
   color: #FFF;
   border-color: #BF3E3E;
+}
+.table-main{
+  padding: 15px 20px;
+}
+.blogs-container {
+  display: flex;
+  justify-content: space-between; 
+  padding: 10px 0;
+}
+.blog_box {
+  flex: 1; 
+  margin: 0 10px; 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  text-align: center; 
+  background-color: rgba(248, 128, 128, 0.3); 
 }

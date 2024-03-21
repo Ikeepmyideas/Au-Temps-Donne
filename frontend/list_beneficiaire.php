@@ -273,7 +273,7 @@ fetch('http://localhost:8000/api/admin/beneficiaires')
                     <td>${beneficiaire.nom} ${beneficiaire.prenom}</td>
                     <td>${age}</td>
                     <td>${beneficiaire.email}</td>
-                    <td>${beneficiaire.numeroTelephone}</td> <!-- Assurez-vous que l'attribut correspond à votre modèle de données -->
+                    <td>${beneficiaire.numeroTelephone}</td> 
                     <td class="action">
                         <a href="consulter.php?nom=${encodeURIComponent(beneficiaire.nom)}&prenom=${encodeURIComponent(beneficiaire.prenom)}" class="action-btn details">Consulter</a>
                         <button onclick="confirmerSuppression('${beneficiaire.email}')" class="action-btn refuser">Supprimer</button>
