@@ -7,6 +7,8 @@ const Lieu= require('../models/Lieu');
 const Activity = require('../models/Activity');
 const ActivityPrive = require('../models/ActivityPrivate');
 const Service = require('../models/Service');
+const Blog = require('../models/Blog');
+
 const sequelize = require('../config/db'); 
 const { Op } = require('sequelize'); 
 const jwt = require('jsonwebtoken');
@@ -374,8 +376,6 @@ exports.createActivityPrive = async (req, res) => {
     if (existingEvent) {
       throw new Error('Un événement avec le même nom et prénom de bénévole/bénéficiaire, la même date et heure existe déjà.');
     }
-
-    // Recherche ou création du lieu
     let [lieu, created] = await Lieu.findOrCreate({
       where: { adresse: adresseComplete, ville, code_postal },
       defaults: { adresse: adresseComplete, ville, code_postal },
@@ -404,7 +404,6 @@ exports.createActivityPrive = async (req, res) => {
       throw new Error('Bénéficiaire non trouvé et impossible à créer.');
     }
 
-    // Création de l'activité privée
     await ActivityPrive.create({
       description,
       date_activite,
@@ -417,13 +416,10 @@ exports.createActivityPrive = async (req, res) => {
       nom_service
     }, { transaction: t });
 
-    // Validation de la transaction
     await t.commit();
 
-    // Réponse de réussite
     res.status(201).send('Activité privée ajoutée avec succès.');
   } catch (error) {
-    // En cas d'erreur, annulation de la transaction
     await t.rollback();
     console.error('Erreur lors de l\'ajout de l\'activité privée : ', error);
     res.status(500).send('Erreur lors de l\'ajout de l\'activité privée : ' + error.message);
@@ -518,5 +514,47 @@ exports.createActivity = async (req, res) => {
     await t.rollback();
     console.error('Erreur lors de l\'ajout de l\'activité privée : ', error);
     res.status(500).send('Erreur lors de l\'ajout de l\'activité privée : ' + error.message);
+  }
+};
+exports.createBlog = async (req, res) => {
+  const { titre, contenu, emailAdmin } = req.body;
+
+  try {
+      const admin = await Admin.findOne({ where: { email: emailAdmin } });
+      if (!admin) {
+          return res.status(404).json({ message: "Administrateur non trouvé." });
+      }
+
+      const newBlog = await Blog.create({
+          titre,
+          contenu,
+          auteur: admin.id,
+          date_creation: new Date()
+      });
+
+      res.status(201).json(newBlog);
+  } catch (error) {
+      console.error("Erreur lors de la création du blog :", error);
+      res.status(500).json({ message: "Erreur serveur lors de la création du blog." });
+  }
+};
+
+exports.getAllBlogs = async (req, res) => {
+  try {
+      const blogs = await Blog.findAll({
+          attributes: ['id', 'titre', 'contenu', 'auteur', 'date_creation'],
+          order: [
+              ['date_creation', 'DESC'] 
+          ]
+      });
+
+      if (blogs.length === 0) {
+          return res.status(404).json({ message: "Aucun blog trouvé." });
+      }
+
+      res.status(200).json(blogs);
+  } catch (error) {
+      console.error("Erreur lors de la récupération des blogs :", error);
+      res.status(500).json({ message: "Erreur serveur lors de la récupération des blogs." });
   }
 };

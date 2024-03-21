@@ -48,7 +48,11 @@ router.get('/volunteers/:id', adminController.getVolunteerById);
 
 router.get('/beneficiaires/:id', adminController.getBeneficiaryById);
 
-
 router.post('/addActivity', adminController.createActivity);
+
+router.post('/blogs/create', adminController.createBlog);
+
+
+router.get('/blogs', adminController.getAllBlogs);
 
 module.exports = router;
