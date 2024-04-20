@@ -1,147 +1,107 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { Beneficiary, pool } = require('../models/Beneficiary');
+const multer = require('multer');
+const nodemailer = require('nodemailer');
+const Beneficiary = require('../models/Beneficiary');
 
-module.exports = {
-  signup: async (req, res) => {
-    const { email, prenom, nom, motDePasse, dateDeNaissance, genre, numeroTelephone, adresse, codePostal, ville, besoin } = req.body;
+const storage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, './uploads'); // Destination des fichiers téléchargés
+    },
+    filename: (req, file, callback) => {
+        callback(null, Date.now() + '-' + file.originalname); // Nom du fichier téléchargé
+    },
+});
 
-    if (!email || !prenom || !nom || !motDePasse || !dateDeNaissance || !genre || !numeroTelephone || !adresse || !codePostal || !ville || !besoin) {
-      return res.status(400).json({ error: 'Missing required data' });
-    }
+const upload = multer({ storage: storage }).fields([
+    { name: 'avis_impot', maxCount: 1 }, // Un seul fichier pour le casier judiciaire
+]);
+
+// Fonction pour envoyer un e-mail de bienvenue
+const sendWelcomeEmail = async (email, name) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD,
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USERNAME,
+        to: email,
+
+        subject: 'Bienvenue dans notre communauté de bénéficiaires !',
+        text: `Bonjour ${name},\n\nNous sommes heureux de vous accueillir comme bénéficiaire. Votre engagement est précieux pour nous et nous avons hâte de collaborer ensemble pour faire une différence. Bienvenue dans la communauté !`,
+        html: `<p>Bonjour <strong>${name}</strong>,</p><p>Nous sommes heureux de vous accueillir comme bénéficiaire. Votre engagement est précieux pour nous et nous avons hâte de collaborer ensemble pour faire une différence. Bienvenue dans la communauté !</p>`,
+    };
 
     try {
-      const hashedPassword = await bcrypt.hash(motDePasse, 10); 
+        await transporter.sendMail(mailOptions);
+        console.log('Email de bienvenue envoyé avec succès');
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi de l\'email de bienvenue', error);
+    }
+};
 
-      const beneficiaryData = { email, prenom, nom, motDePasse: hashedPassword, dateDeNaissance, genre, numeroTelephone, adresse, codePostal, ville, besoin };
-      Beneficiary.signup(beneficiaryData, (error, result) => {
-        if (error) {
-          console.error(error);
-          return res.status(500).json({ error: 'Internal server error' });
+const registerBeneficiary = async (req, res, next) => {
+    try {
+        const { nom, prenom, date_de_naissance, email, mot_de_passe, telephone, adresse, ville, code_postal, date_adhesion, genre,besoin } = req.body;
+        
+        let avis_impotURL = null;
+
+        if (req.files && req.files['avis_impot'] && req.files['avis_impot'][0]) {
+            const avis_impotFile = req.files['avis_impot'][0];
+            avis_impotURL = avis_impotFile.path; 
         }
 
-        const token = jwt.sign({ email, id: result.insertId }, 'your-secret-key', { expiresIn: '1h' });
+      
+        const date_inscription = new Date();
 
-        res.status(201).json({ message: 'Signup successful', token });
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  },
-  login: async (req, res) => {
-    const { email, motDePasse } = req.body;
+        const newBeneficiary = await Beneficiary.create({
+            nom,
+            prenom,
+            date_de_naissance,
+            email,
+            mot_de_passe,
+            telephone,
+            adresse,
+            ville,
+            code_postal,
+            date_adhesion,
+            statut_validation: "en attente",
+            genre,
+            avis_impot: avis_impotURL,
+            besoin,
+            date_inscription
 
-    if (!email || !motDePasse) {
-        return res.status(400).json({ error: 'Email and password are required' });
-    }
-
-    try {
-        const beneficiary = await new Promise((resolve, reject) => {
-            Beneficiary.findByEmail(email, (error, beneficiary) => {
-                if (error) {
-                    console.error(error);
-                    reject(error);
-                } else {
-                    resolve(beneficiary);
-                }
-            });
         });
 
-        if (!beneficiary) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
+        // Envoyer un email de bienvenue
+        await sendWelcomeEmail(email, `${prenom} ${nom}`);
 
-        const passwordMatch = await bcrypt.compare(motDePasse, beneficiary.motDePasse);
-        if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
-
-        const token = jwt.sign({ userId: beneficiary.id }, 'your-secret-key', { expiresIn: '1h' });
-
-        res.cookie('access_token', token, { httpOnly: true, maxAge: 36000000 }); // Expires in 1 hour (3600000 ms)
-
-        return res.status(200).json({ message: "Logged in successfully", token });
-        
+        res.status(201).json({ message: 'Inscription réussie', volunteer: newBeneficiary });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-},
-  displayUserInfo: async (req, res) => {
-    try {
-      const token = req.cookies.access_token;
+};
+const getBeneficiaireInfo = async (req, res) => {
+  try {
+    const email = req.params.email; // Assurez-vous que le `email` est passé comme paramètre dans l'URL
+    const beneficiaire = await Beneficiary.findOne({ where: { email } });
 
-      if (!token) {
-          return res.status(401).json({ error: 'Token not provided' });
-      }
+    if (!beneficiaire) {
+      return res.status(404).send('Bénévole non trouvé');
+    }
 
-      jwt.verify(token, 'your-secret-key', async (err, decoded) => {
-          if (err) {
-              return res.status(401).json({ error: 'Invalid token' });
-          }
-
-          const userId = decoded.userId;
-
-          Beneficiary.findById(userId, (error, beneficiary) => {
-              if (error) {
-                  console.error(error);
-                  return res.status(500).json({ error: 'Internal server error' });
-              }
-              if (!beneficiary) {
-                  return res.status(404).json({ error: 'User not found' });
-              }
-
-              return res.status(200).json({ user: beneficiary });
-          });
-      });
+    res.json({
+      nom: beneficiaire.nom,
+      prenom: beneficiaire.prenom,
+      email: beneficiaire.email,
+      avis_impot: beneficiaire.avis_impot, // Renvoie l'URL du dossier
+    });
   } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal server error' });
-  }
-},
-  updateUserInfo: async (req, res) => {
-    try {
-      const userId = req.user.userId;
-      const { prenom, nom, dateDeNaissance, genre, numeroTelephone, adresse, codePostal, ville, besoin } = req.body;
-  
-      Beneficiary.update(userId, { prenom, nom, dateDeNaissance, genre, numeroTelephone, adresse, codePostal, ville, besoin }, (error, beneficiary) => {
-        if (error) {
-          console.error(error);
-          return res.status(500).json({ error: 'Internal server error' });
-        }
-        if (!beneficiary) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-  
-        return res.status(200).json({ user: beneficiary });
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  },
-
- logout(req, res) {
-    return res
-      .clearCookie("access_token")
-      .status(200)
-      .json({ message: "Successfully logged out 😏 🍀" });
-  },
-
- getAllArticles: async (req, res) => {
-    try {
-      const sql = 'SELECT * FROM Article';
-      pool.query(sql, (error, results) => {
-        if (error) {
-          console.error('Erreur lors de la récupération des articles :', error);
-          return res.status(500).json({ error: 'Erreur lors de la récupération des articles' });
-        }
-        res.status(200).json(results);
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
+    console.error('Erreur lors de la récupération des informations du bénévole:', error);
+    res.status(500).send('Erreur serveur');
   }
 };
+module.exports = { upload, registerBeneficiary, getBeneficiaireInfo };
