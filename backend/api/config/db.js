@@ -4,6 +4,7 @@ const databaseUrl = process.env.DATABASE_URL;
 
 const sequelize = new Sequelize(databaseUrl, {
   dialect: 'mysql',
+  logging: false,
 });
 
 sequelize.authenticate().then(() => {
