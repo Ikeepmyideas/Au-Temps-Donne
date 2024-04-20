@@ -6,7 +6,7 @@ import Dashboard from './pages/dashboard';
 import Status from './pages/status';
 import List from './pages/list';
 import BeneficiaryList from './pages/listBeneficiaire';
-import MembreList  from './pages/membres';
+import MembreList from './pages/membres';
 import Event from './pages/events';
 import AllEvent from  "./pages/allEvents";
 import Activiteprv from  "./pages/activite_prv";
@@ -14,11 +14,13 @@ import EventprvDetails from './pages/activitePriveDetails';
 import EventDetails from  './pages/eventDetails';
 import ParticipantsList from './pages/volunteers';
 import ParticipantsBenefList from './pages/beneficiary';
+
 WebFont.load({
   google: {
     families: ['Inter:wght@400;700']
   }
 });
+
 function App() {
   return (
     <Router>
