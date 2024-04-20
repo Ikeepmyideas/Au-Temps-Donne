@@ -10,7 +10,8 @@
     "sequelize": "^6.37.3"
   },
   "scripts": {
-    "start": "node backend/api/server.js"
+    "start": "node backend/api/server.js",
+    "install": "npm install && npm install pg"
   }
 }
 
