@@ -35,4 +35,4 @@ sequelize.sync()
   });
 
 // Export models for use in other parts of the project
-module.exports = models;
+module.exports = sequelize;
