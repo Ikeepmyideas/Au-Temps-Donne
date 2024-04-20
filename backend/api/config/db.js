@@ -23,7 +23,7 @@ function importModels(directory) {
 }
 
 // Dynamically import all model files from the 'models' directory
-const models = importModels(path.join(__dirname, 'models'));
+const models = importModels(path.join(__dirname, '../models'));
 
 // Synchronize all models with the database
 sequelize.sync()
