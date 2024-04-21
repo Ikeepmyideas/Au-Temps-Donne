@@ -3,10 +3,8 @@ const router = express.Router();
 const upload = require('../multerConfig');
 
 const { registerBeneficiary } = require('../controllers/beneficiaryController');
-const { login } = require('../controllers/beneficiaryController');
 const {getBeneficiaireInfo} = require('../controllers/beneficiaryController');
 
-router.post('/login',login);
 router.post('/registerBeneficiary', upload, registerBeneficiary);
 router.get('/info/:email', getBeneficiaireInfo);
 
