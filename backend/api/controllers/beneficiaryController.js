@@ -1,6 +1,34 @@
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const Beneficiary = require('../models/Beneficiary');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if user exists
+        const beneficiary = await Beneficiary.findOne({ where: { email } });
+        if (!beneficiary) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if password matches
+        const passwordMatch = await bcrypt.compare(password, beneficiary.mot_de_passe);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Invalid password' });
+        }
+
+        // Create and send JWT token
+        const token = jwt.sign({ id: beneficiary.id, email: beneficiary.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(200).json({ message: 'Login successful', token });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
