@@ -1,6 +1,6 @@
 const express = require('express');
-const router = express.Router();
 const upload = require('../multerConfig');
+const router = express.Router();
 
 const { registerBeneficiary } = require('../controllers/beneficiaryController');
 const {getBeneficiaireInfo} = require('../controllers/beneficiaryController');
