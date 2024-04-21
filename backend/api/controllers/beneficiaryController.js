@@ -1,8 +1,36 @@
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
 const Beneficiary = require('../models/Beneficiary');
 
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
+        const beneficiary = await Beneficiary.findOne({ where: { email } });
+        if (!beneficiary) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (password !== beneficiary.mot_de_passe) {
+            return res.status(401).json({ error: 'Invalid password' });
+        }
+
+        const token = jwt.sign({ id: beneficiary.id, email: beneficiary.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 3600000, 
+            sameSite: 'strict'
+        });
+
+        res.status(200).json({ message: 'Login successful' });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
         callback(null, './uploads'); // Destination des fichiers téléchargés
