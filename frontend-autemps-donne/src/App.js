@@ -14,6 +14,10 @@ import EventprvDetails from './pages/activitePriveDetails';
 import EventDetails from  './pages/eventDetails';
 import ParticipantsList from './pages/volunteers';
 import ParticipantsBenefList from './pages/beneficiary';
+import Home from './pages/home';
+import Signup from './pages/signup';
+import SignupSuccess from './pages/signup_success';
+
 WebFont.load({
   google: {
     families: ['Inter:wght@400;700']
@@ -36,6 +40,10 @@ function App() {
         <Route path="/volunteers/:eventId" element={<ParticipantsList />} /> 
         <Route path="/beneficiaires/:eventId" element={<ParticipantsBenefList />} /> 
         <Route path="/activiteprv_details/:eventId" element={<EventprvDetails />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup_success" element={<SignupSuccess />} />
+
       </Routes>
     </Router>
   );

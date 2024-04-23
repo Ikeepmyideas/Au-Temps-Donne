@@ -10,15 +10,21 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 function EventprvDetails() {
-    const { eventId } = useParams();
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate(); 
+    const { eventId } = useParams();
     const [event, setEvent] = useState(null);
-    const [editMode, setEditMode] = useState(false);
     const [participants, setParticipants] = useState([]);
     const [participantsBenef, setParticipantsBenef] = useState([]);
     const [mode, setMode] = useState('view');
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [volunteers, setVolunteers] = useState([]);
+    const [beneficiaries, setBeneficiaries] = useState([]);
+    const [selectedVolunteer, setSelectedVolunteer] = useState('');
+    const [selectedBeneficiary, setSelectedBeneficiary] = useState('');
+    const [editMode, setEditMode] = useState(false);
+
+
     const [formData, setFormData] = useState({
         titre: '',
         description: '',
@@ -54,6 +60,32 @@ function EventprvDetails() {
                 console.error('Erreur lors de la récupération des détails de l’événement:', error);
             });
     };
+
+    const fetchVolunteers = () => {
+        fetch(`http://127.0.0.1:8000/api/admin/activites/volunteers`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch participants');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (isMounted) {
+                    setVolunteers(data);
+                    setIsLoading(false);
+                }
+            })
+            .catch(error => {
+                if (isMounted) {
+                    console.error('Error fetching participants:', error);
+                    setError(error.message);
+                    setIsLoading(false);
+                }
+            });
+    };
+    
+
+    
 
     useEffect(() => {
         fetchEventDetails();
@@ -263,32 +295,11 @@ function EventprvDetails() {
         doc.save('details_evenement_participants.pdf');
     };
     
- /*
-    const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/registrations/${eventId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch participants');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setParticipants(data);
-            })
-            .catch(error => {
-                console.error('Error fetching participants:', error);
-            });
-    };
-    
-    useEffect(() => {
-        fetchEventDetails();
-        fetchParticipants();
-    }, [eventId]);
-*/
     if (!event) {
         return <div>Loading...</div>;
     }
 
+    
     return (
         <>
             <NavMenu />
@@ -383,6 +394,39 @@ function EventprvDetails() {
                                             />
                                         </label>
                                             </div>
+                                            <div className="event-group">
+  <div className="event-child">
+    <label>Volunteer:
+      <select
+        name="selectedVolunteer"
+        value={selectedVolunteer}
+        onChange={e => fetchVolunteers(e.target.value)}
+      >
+        {volunteers.map(volunteer => (
+          <option key={volunteer.id} value={volunteer.id}>
+            {volunteer.nom} {volunteer.prenom}
+          </option>
+        ))}
+      </select>
+    </label>
+  </div>
+  <div className="event-child">
+    <label>Beneficiary:
+      <select
+        name="selectedBeneficiary"
+        value={selectedBeneficiary}
+        onChange={e => setSelectedBeneficiary(e.target.value)}
+      >
+        {beneficiaries.map(beneficiary => (
+          <option key={beneficiary.id} value={beneficiary.id}>
+            {beneficiary.nom} {beneficiary.prenom}
+          </option>
+        ))}
+      </select>
+    </label>
+  </div>
+</div>
+
                                         
                                         
                                         <button className="btn_act" type="submit">Enregistrer</button>
@@ -403,9 +447,10 @@ function EventprvDetails() {
                                     <div className="infos">
                                         <div>
                                             <p id="service">{event.nom_service}</p>
-                                            <h2>{event.titre}</h2>
+                                            <h3>{event.titre}</h3>
                                             <p className="p_details">Description: {event.description || 'No description provided'}</p>
-                                        
+                                            <p className="p_details">Bénévole: {event.volunteer.nom }  {event.volunteer.prenom }</p>
+                                            <p className="p_details">Bénéficiaire: {event.beneficiary.nom }  {event.beneficiary.prenom }</p>
                                         </div>
                                         <div>
                                         <div className="heure_d">
