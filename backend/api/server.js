@@ -2,14 +2,35 @@ const http = require('http');
 const express = require('express');
 const app = express();
 const sequelize = require('./config/db');
+const bodyParser = require('body-parser');
 const adminRoutes = require('./routes/adminRoutes');
 const volunteerRoutes = require('./routes/volunteerRoutes');
 const beneficiaryRoutes = require('./routes/beneficiaryRoutes');
+const partenaireRoutes = require('./routes/partenaireRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
+const cookieParser = require('cookie-parser');
+
+// Use cookie-parser middleware
+app.use(cookieParser());
+
+// Middleware setup
+app.use(bodyParser.json());
+app.use(cookieParser());
 
 require('dotenv').config();
 
+const cors = require('cors');
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
+const corsOptions = {
+  origin: 'http://localhost:3000', // Adjust this to match your frontend origin
+  credentials: true,
+};
 
+// Enable CORS with the specified options
+app.use(cors(corsOptions));
 
 const port = process.env.PORT || 8000;
 const logger = require('./middleware/logger');
@@ -35,7 +56,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api/admin', adminRoutes);
 app.use('/api/volunteer', volunteerRoutes);
 app.use('/api/beneficiary', beneficiaryRoutes);
+app.use('/api/partenaire', partenaireRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.get('/debug', (req, res) => {
+  console.log('Request Headers - Cookie:', req.headers.cookie);
+  console.log('Parsed Cookies:', req.cookies);
+  res.send('Check the server console for cookie information.');
+});
+
 
 app.get('/api/data', (req, res) => {
   try {

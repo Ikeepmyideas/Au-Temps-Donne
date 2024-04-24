@@ -1,22 +1,13 @@
 const { Sequelize } = require('sequelize');
-
-const databaseUrl = process.env.DATABASE_URL;
-
-const sequelize = new Sequelize(databaseUrl, {
+const sequelize = new Sequelize('au_temps_donne', 'root', '', {
+  host: 'localhost',
   dialect: 'mysql',
-  logging: false,
 });
 
 sequelize.authenticate().then(() => {
-  console.log('Connection successful.');
+  console.log('Connexion réussie.');
 }).catch(err => {
-  console.error('Connection failed:', err);
-});
-
-sequelize.sync({ force: false }).then(() => {
-  console.log('Database synchronization successful.');
-}).catch(err => {
-  console.error('Database synchronization failed:', err);
+  console.error('Erreur de connexion:', err);
 });
 
 module.exports = sequelize;

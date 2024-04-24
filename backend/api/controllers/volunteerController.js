@@ -1,6 +1,7 @@
 const multer = require('multer');
 const Volunteer = require('../models/Volunteer');
 const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
 
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
@@ -94,25 +95,52 @@ const registerVolunteer = async (req, res, next) => {
     }
 };
 
-module.exports = { upload, registerVolunteer };
 
 
 
-const loginVolunteer = async (req, res, next) => {
+const loginVolunteer = async (req, res) => {
   try {
-    const { email, mot_de_passe } = req.body;
-    const volunteer = await Volunteer.findOne({ where: { email, mot_de_passe } });
-    
-    if (volunteer) {
-      res.status(200).json({message : ' Connexion reussie'});
-    } else {
-      res.status(401).json({ error: ' Identifiants invalides' });
-    }
+      const { email, password } = req.body;
+
+      // Check if email and password are provided
+      if (!email || !password) {
+          return res.status(400).json({ error: 'Email and password are required' });
+      }
+
+      // Find the volunteer by email
+      const volunteer = await Volunteer.findOne({ where: { email } });
+      if (!volunteer) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Check if the provided password matches the stored password
+      if (password !== volunteer.mot_de_passe) {
+          return res.status(401).json({ error: 'Invalid password' });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign({ id: volunteer.id, email: volunteer.email }, 'your_secret_key_here', { expiresIn: '1h' });
+
+      // Set the token as a cookie in the response
+      res.cookie('access_token', token, {
+          httpOnly: true,
+          maxAge: 3600000, // 1 hour
+          sameSite: 'strict',
+          path: '/', // Set the cookie path to '/'
+          //secure: true // Add 'secure: true' if your app is served over HTTPS
+      });
+
+      // Respond with a success message
+      res.status(200).json({ message: 'Login successful' });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error during login:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+module.exports = { upload, registerVolunteer ,loginVolunteer };
+
 
 const updateVolunteerInfo = async (req, res, next) => {
   try {

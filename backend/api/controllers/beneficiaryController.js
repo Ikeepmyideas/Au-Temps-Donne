@@ -1,7 +1,139 @@
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+
 const jwt = require('jsonwebtoken');
 const Beneficiary = require('../models/Beneficiary');
+const ActivitePrive = require('../models/ActivityPrivate');
+
+
+// Function to generate a JWT token
+const generateToken = (id, email) => {
+    return jwt.sign({ id, email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+};
+
+
+const getActivitePriveForLoggedInUser = async (req, res) => {
+    try {
+        const accessToken = req.cookies.access_token;
+        
+        // Decoding the access token to extract the user ID
+        const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+        const userId = decodedToken.id;
+
+        // Fetching activities for the logged-in user based on their ID
+        const activites = await ActivitePrive.findAll({ where: { id_beneficiaire: userId } });
+        
+        res.status(200).json({ activites });
+    } catch (error) {
+        console.error('Error getting activities for logged-in user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const updateBeneficiary = async (id, updatedData) => {
+    try {
+      // Find the Beneficiary record by ID
+      const beneficiary = await Beneficiary.findByPk(id);
+  
+      if (!beneficiary) {
+        throw new Error('Beneficiary not found');
+      }
+  
+      // Update the Beneficiary record with the updatedData
+      await beneficiary.update(updatedData);
+  
+      // Return the updated Beneficiary record
+      return beneficiary;
+    } catch (error) {
+      throw new Error(`Failed to update beneficiary: ${error.message}`);
+    }
+  };
+
+// Middleware to authenticate requests
+const authMiddleware = (req, res, next) => {
+    const token = req.cookies.access_token;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized: No token provided' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        console.error(error);
+        return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+};
+
+// Function to get user info
+const getUserInfo = async (req, res) => {
+    try {
+        const token = req.cookies.access_token;
+
+        if (!token) {
+            return res.status(401).json({ error: 'No token found' });
+        }
+
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        if (!decoded) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+
+        const beneficiary = await Beneficiary.findByPk(decoded.id);
+        if (!beneficiary) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ beneficiary });
+    } catch (error) {
+        console.error('Error getting user info:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+// Function for user login
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Vérifier si l'email et le mot de passe sont fournis
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
+        // Trouver le bénéficiaire par email
+        const beneficiary = await Beneficiary.findOne({ where: { email } });
+        if (!beneficiary) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Vérifier si le mot de passe correspond
+        if (password !== beneficiary.mot_de_passe) {
+            return res.status(401).json({ error: 'Invalid password' });
+        }
+
+        // Generate JWT token
+        const token = generateToken(beneficiary.id, beneficiary.email);
+
+        // Set the token as a cookie in the response
+        res.cookie('access_token', token, {
+            httpOnly: true,
+            maxAge: 3600000, // 1 hour
+            sameSite: 'strict',
+            path: '/', // Set the cookie path to '/'
+            //secure: true // Add 'secure: true' if your app is served over HTTPS
+        });
+
+        // Respond with a success message
+        res.status(200).json({ message: 'Login successful' });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 
 
 const storage = multer.diskStorage({
@@ -86,24 +218,7 @@ const registerBeneficiary = async (req, res, next) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-const getBeneficiaireInfo = async (req, res) => {
-  try {
-    const email = req.params.email; // Assurez-vous que le `email` est passé comme paramètre dans l'URL
-    const beneficiaire = await Beneficiary.findOne({ where: { email } });
 
-    if (!beneficiaire) {
-      return res.status(404).send('Bénévole non trouvé');
-    }
 
-    res.json({
-      nom: beneficiaire.nom,
-      prenom: beneficiaire.prenom,
-      email: beneficiaire.email,
-      avis_impot: beneficiaire.avis_impot, // Renvoie l'URL du dossier
-    });
-  } catch (error) {
-    console.error('Erreur lors de la récupération des informations du bénévole:', error);
-    res.status(500).send('Erreur serveur');
-  }
-};
-module.exports = { upload, registerBeneficiary, getBeneficiaireInfo };
+  
+module.exports = { login, authMiddleware ,upload, registerBeneficiary, getUserInfo, updateBeneficiary, getActivitePriveForLoggedInUser };

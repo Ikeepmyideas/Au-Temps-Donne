@@ -1,22 +1,11 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const Sequelize = require('sequelize');
 const sequelize = require('../config/db');
 
-const Lieu = sequelize.define('Lieu', {
-  id_lieu: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  },
-  adresse: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  ville: {
-    type: DataTypes.STRING
-  },
-  code_postal: {
-    type: DataTypes.STRING(5)
-  }
+const Lieu = sequelize.define('lieu', {
+  id_lieu: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
+  adresse: { type: Sequelize.STRING, allowNull: false },
+  ville: { type: Sequelize.STRING },
+  code_postal: { type: Sequelize.STRING(5) }
 }, {
   tableName: 'lieux',
   timestamps: false

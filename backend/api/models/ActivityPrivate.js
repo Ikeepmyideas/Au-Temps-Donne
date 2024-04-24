@@ -21,7 +21,7 @@ const ActivityPrivate = sequelize.define('activites_prives', {
   timestamps: false
 });
 
-ActivityPrivate.belongsTo(Lieu, { foreignKey: 'adresse' });
+//ActivityPrivate.belongsTo(Lieu, { foreignKey: 'adresse' });
 ActivityPrivate.belongsTo(Beneficiary, { foreignKey: 'id_benevole' });
 ActivityPrivate.belongsTo(Volunteer, { foreignKey: 'id_beneficiaire' });
 

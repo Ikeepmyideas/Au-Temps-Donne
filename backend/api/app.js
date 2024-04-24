@@ -1,16 +1,40 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const beneficiaryRoutes = require('./routes/beneficiaryRoutes');
+const cors = require('cors');
 const defaultRoute = require('./routes/defaultRoute');
 const corsMiddleware = require('./middleware/cors');
-const volunteersRoutes = require("./routes/volunteersRoutes");
+const volunteersRoutes = require("./routes/volunteerRoutes");
+const express = require('express');
 
-const app = express();
 
-app.use((req,res,next)=>{
-    res.status(200).json({
-        message: 'It is working !'
-    });
+require('dotenv').config();
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+  }));
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true
+};
+
+app.use(cors(corsOptions));
+
+// Middleware CORS
+app.use(corsMiddleware);
+
+// Middleware to parse request bodies
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Test route to check if the server is running
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Server is running!' });
 });
-app.use('/volunteersRoutes',volunteersRoutes);
+
+// Routes
+// Add your routes here
+
+//app.use('/volunteers', volunteersRoutes);
+app.use('/', defaultRoute);
+
 module.exports = app;
