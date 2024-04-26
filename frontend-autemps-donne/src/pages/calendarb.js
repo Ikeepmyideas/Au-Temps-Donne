@@ -32,7 +32,7 @@ function Calendarb() {
   useEffect(() => {
     async function fetchActivities() {
       try {
-        const response = await fetch('http://localhost:8000/api/beneficiary/activites_prives',{       
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/activites_prives',{       
        method: 'GET',
         credentials: 'include'
       });
@@ -88,7 +88,7 @@ function Calendarb() {
 
   const logout = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/beneficiary/logout', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
         method: 'GET',
         credentials: 'include'
       });
@@ -106,7 +106,7 @@ function Calendarb() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const profileImageResponse = await fetch('http://localhost:8000/api/beneficiary/protected', {
+        const profileImageResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/protected', {
           method: 'GET',
           credentials: 'include'
         });
@@ -119,7 +119,7 @@ function Calendarb() {
         const profileImage = profileImageData.profileImagePath;
         setProfileImagePath(profileImage);
 
-        const userInfoResponse = await fetch('http://localhost:8000/api/beneficiary/userinfo', {
+        const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
           method: 'GET',
           credentials: 'include'
         });
