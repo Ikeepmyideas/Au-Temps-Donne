@@ -9,7 +9,7 @@ function LoginForm() {
 
     const handleBeneficiaryLogin = async () => {
         try {
-            const response = await fetch("http://localhost:8000/api/beneficiary/login", {
+            const response = await fetch("https://au-temps-donne-api.onrender.com/api/beneficiary/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -33,7 +33,7 @@ function LoginForm() {
 
     const handleVolunteerLogin = async () => {
         try {
-            const response = await fetch("http://localhost:8000/api/volunteer/login", {
+            const response = await fetch("https://au-temps-donne-api.onrender.com/api/volunteer/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
