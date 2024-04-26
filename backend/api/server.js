@@ -21,11 +21,11 @@ require('dotenv').config();
 
 const cors = require('cors');
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://au-temps-donne-frontend.onrender.com',
   credentials: true
 }));
 const corsOptions = {
-  origin: 'http://localhost:3000', // Adjust this to match your frontend origin
+  origin: 'https://au-temps-donne-frontend.onrender.com',
   credentials: true,
 };
 
