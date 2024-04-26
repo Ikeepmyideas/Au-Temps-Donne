@@ -5,6 +5,7 @@ const defaultRoute = require('./routes/defaultRoute');
 const corsMiddleware = require('./middleware/cors');
 const volunteersRoutes = require("./routes/volunteerRoutes");
 const express = require('express');
+const cookieParser = require('cookie-parser');
 
 
 require('dotenv').config();
@@ -19,7 +20,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
+app.use(cookieParser());
 // Middleware CORS
 app.use(corsMiddleware);
 
