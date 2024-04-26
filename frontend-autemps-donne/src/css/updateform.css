@@ -1,0 +1,65 @@
+.update-profile-form-body{
+.update-profile-form-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    height: 90%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 800px;
+  }
+  .update-profile-form {
+    display: flex;
+    border: none;
+    margin-top: 50px;
+    text-decoration: none;
+    box-shadow: none;
+    flex-direction: column;
+    background-color: white;
+    width: 800px;
+}
+input[type="text"], input[type="date"], input[type="time"], select, textarea {
+    width: 250px;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    font-weight: bold;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  #besoin{
+    width: 325%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+  
+  .submit-button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }
+  }

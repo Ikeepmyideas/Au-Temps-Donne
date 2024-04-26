@@ -46,6 +46,9 @@ function Dashboard() {
 
   return (
     <>
+    <body class="adminbody">
+      
+   
       <NavMenu />
       <section className="content">
         <section className="tables">
@@ -78,7 +81,7 @@ function Dashboard() {
           <h3 className="title_dashboard">À venir</h3>
           <p id="date"></p>
         </div>
-      </section>
+      </section> </body>
     </>
   );
 }

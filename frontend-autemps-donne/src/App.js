@@ -6,7 +6,7 @@ import Dashboard from './pages/dashboard';
 import Status from './pages/status';
 import List from './pages/list';
 import BeneficiaryList from './pages/listBeneficiaire';
-import MembreList from './pages/membres';
+import MembreList  from './pages/membres';
 import Event from './pages/events';
 import AllEvent from  "./pages/allEvents";
 import Activiteprv from  "./pages/activite_prv";
@@ -14,7 +14,22 @@ import EventprvDetails from './pages/activitePriveDetails';
 import EventDetails from  './pages/eventDetails';
 import ParticipantsList from './pages/volunteers';
 import ParticipantsBenefList from './pages/beneficiary';
-import Signup from './pages/signupb';
+import Signupb from './pages/signupb';
+import Loginb from './pages/loginb';
+import Dashboardb from './pages/homepageb';
+import Profileb from './pages/profileb';
+import UpdateProfileForm from './pages/UpdateProfileForm';
+import Calendarb from './pages/calendarb';
+import Dashboardv from './pages/dashboardv';
+import Loginc from './pages/loginc';
+import Dashboardc from './pages/dashboardc';
+import Home from './pages/home';
+import Signup from './pages/signup';
+import SignupSuccess from './pages/signup_success';
+
+
+
+
 
 
 WebFont.load({
@@ -22,12 +37,22 @@ WebFont.load({
     families: ['Inter:wght@400;700']
   }
 });
-
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/signup" element={<Signup />} /> 
+      <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup_success" element={<SignupSuccess />} />
+      <Route path="/Dashboardc" element={<Dashboardc />} />
+      <Route path="/Loginc" element={<Loginc />} />
+      <Route path="/Dashboardv" element={<Dashboardv />} />
+      <Route path="/Calendarb" element={<Calendarb />} />
+      <Route path="/UpdateProfileFormb" element={<UpdateProfileForm />} />
+        <Route path="/dashboardb" element={<Dashboardb />} />
+        <Route path="/profileb" element={<Profileb />} />
+        <Route path="/signupb" element={<Signupb />} />
+        <Route path="/loginb" element={<Loginb />} />  
         <Route path="/login" element={<Login />} /> 
         <Route path="/dashboard" element={<Dashboard />} /> 
         <Route path="/status" element={<Status />} /> 

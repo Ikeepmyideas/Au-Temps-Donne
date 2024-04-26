@@ -6,12 +6,12 @@ html{
   scroll-behavior: smooth;
   margin-right: 0;
 }
-body {
+.adminbody {
     margin: 0px;
     padding: 0;
     font-family: 'Inter';
     border-radius: 10px;
-}
+
 span#current-month-year {
     FONT-SIZE: 28px;
     font-family: 'Inter';
@@ -176,7 +176,6 @@ div#right1{
 * {
   padding: 0; margin: 0;  
   font-family: 'Roboto';
-  font-size: 1.1rem;
 }
 
 body {
@@ -666,14 +665,13 @@ td.action{
 }
 label {
   font-weight: bold;
-  color: #333;
   font-size: 16px;
 }
 
 input[type="text"],
 input[type="date"],
 input[type="time"],
-select,
+
 
 textarea {
   width: 100%;
@@ -1124,4 +1122,5 @@ input[type="time"] {
 }
 .btn-link:hover {
   background-color: #C04343;
+}
 }

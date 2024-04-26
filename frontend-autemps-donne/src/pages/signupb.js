@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   return (
     <>
-    <body>
+    <body class="signupbbody">
         <header>
             <img src={logo} alt="Your Logo" class="logo"/>
         </header>
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div></center>
             
             <center> <h1>Inscription</h1></center>
-                <center> <p><strong>Déjà un compte chez nous ? <a href="">Connectez-vous</a></strong></p></center>
+                <center> <p><strong>Déjà un compte chez nous ? <a href="/loginb">Connectez-vous</a></strong></p></center>
 
                 <center>
                     <label class="switch">

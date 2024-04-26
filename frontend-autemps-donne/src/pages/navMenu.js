@@ -136,7 +136,7 @@ function NavMenu() {
       </div>
       <div className="nav_img">
         <img src={calendar} alt="Calendar Icon"/>
-        <Link className="nav-link" to="/calendar">Calendar</Link>
+        <Link className="nav-link" to="/calendabr">Calendar</Link>
       </div>
       <div className="nav_img">
         <img src={blog} alt="Blog Icon"/>
