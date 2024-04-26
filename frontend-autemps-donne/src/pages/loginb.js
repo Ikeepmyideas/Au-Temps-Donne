@@ -54,7 +54,7 @@ function LoginForm() {
         }
     };
 
-    const handleSubmit = async (event) => {
+const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!email || !password) {
@@ -74,8 +74,13 @@ function LoginForm() {
         });
 
         if (beneficiaryResponse.ok) {
-            window.location.href = '/Dashboardb';
-            return;
+            const setCookieHeader = beneficiaryResponse.headers.get('Set-Cookie');
+            if (setCookieHeader) {
+                window.location.href = '/Dashboardb';
+                return;
+            } else {
+                console.warn('Beneficiary login successful, but cookie not set');
+            }
         } else {
             throw new Error('Failed to log in. Please check your credentials and try again.');
         }
@@ -95,8 +100,13 @@ function LoginForm() {
         });
 
         if (volunteerResponse.ok) {
-            window.location.href = '/dashboardv';
-            return;
+            const setCookieHeader = volunteerResponse.headers.get('Set-Cookie');
+            if (setCookieHeader) {
+                window.location.href = '/dashboardv';
+                return;
+            } else {
+                console.warn('Volunteer login successful, but cookie not set');
+            }
         } else {
             throw new Error('Failed to log in. Please check your credentials and try again.');
         }
@@ -105,6 +115,7 @@ function LoginForm() {
         setError('Failed to log in. Please check your credentials and try again.');
     }
 };
+
 
     
     return (
