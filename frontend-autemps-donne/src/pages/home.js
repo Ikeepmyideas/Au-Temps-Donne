@@ -143,7 +143,7 @@ function Home() {
           <ion-icon name="search-outline"></ion-icon>
         </button>
       
-        <form action="../connexion/login.html">
+        <form action="./loginb">
           <button type="submit" class="btn btn-primary">
               <span>Connexion</span>
               <ion-icon name="enter-outline" aria-hidden="true"></ion-icon>
