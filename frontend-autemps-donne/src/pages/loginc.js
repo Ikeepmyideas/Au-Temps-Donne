@@ -10,7 +10,7 @@ function Loginc() {
         e.preventDefault();
     
         try {
-            const response = await fetch('http://localhost:8000/api/partenaire/login', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
