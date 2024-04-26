@@ -127,7 +127,7 @@ const loginVolunteer = async (req, res) => {
           maxAge: 3600000, // 1 hour
           sameSite: 'strict',
           path: '/', // Set the cookie path to '/'
-          //secure: true // Add 'secure: true' if your app is served over HTTPS
+          secure: true // Add 'secure: true' if your app is served over HTTPS
       });
 
       // Respond with a success message
