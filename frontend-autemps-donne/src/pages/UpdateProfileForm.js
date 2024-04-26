@@ -47,7 +47,7 @@ function UpdateProfileForm() {
                 besoin: updatedUserInfo.besoin.join(', ') // Convert array to comma-separated string
             };
     
-            const response = await fetch('http://localhost:8000/api/beneficiary/beneficiary', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/beneficiary', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -95,7 +95,7 @@ function UpdateProfileForm() {
 
     const logout = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/beneficiary/logout', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -113,7 +113,7 @@ function UpdateProfileForm() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const profileImageResponse = await fetch('http://localhost:8000/api/beneficiary/protected', {
+                const profileImageResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/protected', {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -126,7 +126,7 @@ function UpdateProfileForm() {
                 const profileImage = profileImageData.profileImagePath;
                 setProfileImagePath(profileImage);
 
-                const userInfoResponse = await fetch('http://localhost:8000/api/beneficiary/userinfo', {
+                const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
                     method: 'GET',
                     credentials: 'include'
                 });
