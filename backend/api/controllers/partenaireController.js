@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const Partenaire = require('../models/Partenaire');
 const nodemailer = require('nodemailer');
@@ -33,7 +33,7 @@ const registerPartenaire = async (req, res) => {
         const { nom, email, password, telephone, adresse } = req.body;
         
         // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await argon2.hash(password);
 
         // Create the partenaire
         const newPartenaire = await Partenaire.create({
@@ -65,10 +65,11 @@ const loginPartenaire = async (req, res) => {
         }
 
         // Compare the provided password with the stored password
-        const validPassword = await bcrypt.compare(password, partenaire.password);
+        const validPassword = await argon2.verify(partenaire.password, password);
         if (!validPassword) {
             return res.status(401).json({ error: 'Invalid password' });
         }
+
 
         // Generate JWT token
         const token = jwt.sign({ id: partenaire.id, email: partenaire.email }, 'your_secret_key_here', { expiresIn: '1h' });
