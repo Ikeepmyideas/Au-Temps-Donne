@@ -54,21 +54,58 @@ function LoginForm() {
         }
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    const handleSubmit = async (event) => {
+    event.preventDefault();
 
-        
-        if (!email || !password) {
-            setError('Email and password are required');
+    if (!email || !password) {
+        setError('Email and password are required');
+        return;
+    }
+
+    try {
+        // Handle beneficiary login
+        const beneficiaryResponse = await fetch("https://au-temps-donne-api.onrender.com/api/beneficiary/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include' 
+        });
+
+        if (beneficiaryResponse.ok) {
+            window.location.href = '/Dashboardb';
             return;
+        } else {
+            throw new Error('Failed to log in. Please check your credentials and try again.');
         }
+    } catch (beneficiaryError) {
+        console.error('There was a problem with the beneficiary login:', beneficiaryError);
+    }
 
-        
-        handleBeneficiaryLogin();
+    try {
+        // Handle volunteer login
+        const volunteerResponse = await fetch("https://au-temps-donne-api.onrender.com/api/volunteer/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include' 
+        });
 
-        
-        handleVolunteerLogin();
-    };
+        if (volunteerResponse.ok) {
+            window.location.href = '/dashboardv';
+            return;
+        } else {
+            throw new Error('Failed to log in. Please check your credentials and try again.');
+        }
+    } catch (volunteerError) {
+        console.error('There was a problem with the volunteer login:', volunteerError);
+        setError('Failed to log in. Please check your credentials and try again.');
+    }
+};
+
     
     return (
         <body class='loginbbody'>
