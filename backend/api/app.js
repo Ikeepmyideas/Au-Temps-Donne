@@ -8,13 +8,14 @@ const express = require('express');
 
 
 require('dotenv').config();
+
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://au-temps-donne-frontend.onrender.com',
     credentials: true
   }));
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    credentials: true
+    origin: 'https://au-temps-donne-frontend.onrender.com',
+    credentials: true 
 };
 
 app.use(cors(corsOptions));
