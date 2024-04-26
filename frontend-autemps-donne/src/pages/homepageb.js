@@ -26,7 +26,7 @@ function Dashboardb() {
   const [articles, setArticles] = useState([]);
   const logout = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/beneficiary/logout', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
         method: 'GET',
         credentials: 'include'
       });
@@ -47,7 +47,7 @@ function Dashboardb() {
    
     async function fetchData() {
       try {
-        const response = await fetch('http://localhost:8000/api/beneficiary/protected', {
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/protected', {
           method: 'GET',
           credentials: 'include' // Include cookies in the request
         });
@@ -74,7 +74,7 @@ function Dashboardb() {
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const response = await fetch('http://localhost:8000/api/beneficiary/articles');
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/articles');
         if (!response.ok) {
           if (response.status === 401 || response.status === 403) {
             // Unauthorized, redirect or show error message
