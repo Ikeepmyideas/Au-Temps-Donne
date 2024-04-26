@@ -4,8 +4,8 @@ const upload = require('../multerConfig');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 router.use(cors({
-    origin: 'http://localhost:3000', // Replace with your frontend URL
-    credentials: true // Allow credentials (cookies)
+    origin: 'https://au-temps-donne-frontend.onrender.com',
+    credentials: true 
   }));
 const { registerBeneficiary } = require('../controllers/beneficiaryController');
 const { login} = require('../controllers/beneficiaryController');
