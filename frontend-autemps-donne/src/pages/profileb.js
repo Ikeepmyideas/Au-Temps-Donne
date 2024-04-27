@@ -15,92 +15,77 @@ import chat from '../assets/chat_.png';
 import notif from '../assets/notif.png';
 
 function Profileb() {
-  const [profileImagePath, setProfileImagePath] = useState('');
-  const [userInfo, setUserInfo] = useState(null);
-  const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [updatedUserInfo, setUpdatedUserInfo] = useState({
-    nom: '',
-    prenom: '',
-    // Add more fields as needed
-  });
+const [userInfo, setUserInfo] = useState(null);
+const [error, setError] = useState(null);
+const [showForm, setShowForm] = useState(false);
+const [updatedUserInfo, setUpdatedUserInfo] = useState({
+  nom: '',
+  prenom: '',
+  // Add more fields as needed
+});
 
-  const handleExportData = () => {
-    // Logic to export data
-  };
+const handleOpenUpdateForm = () => {
+  setShowForm(true);
+};
 
-  const handleOpenUpdateForm = () => {
-    setShowForm(true);
-  };
+const handleCloseUpdateForm = () => {
+  setShowForm(false);
+};
 
-  const handleCloseUpdateForm = () => {
-    setShowForm(false);
-  };
+const handleUpdateUserInfo = async (updatedUserInfo) => {
+  // Logic to update user information
+  // Send updatedUserInfo to the server to update the user's information
+  console.log('Updated user info:', updatedUserInfo);
+  // Close the form after updating
+  setShowForm(false);
+};
 
-  const handleUpdateUserInfo = async (updatedUserInfo) => {
-    // Logic to update user information
-    // Send updatedUserInfo to the server to update the user's information
-    console.log('Updated user info:', updatedUserInfo);
-    // Close the form after updating
-    setShowForm(false);
-  };
+const handleSubmit = (e) => {
+  e.preventDefault();
+  handleUpdateUserInfo(updatedUserInfo);
+};
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleUpdateUserInfo(updatedUserInfo);
-  };
+const logout = async () => {
+  try {
+    const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
+      method: 'GET',
+      credentials: 'include'
+    });
 
-  const logout = async () => {
+    if (response.ok) {
+      window.location.href = '/loginb';
+    } else {
+      console.error('Logout failed:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error logging out:', error);
+  }
+};
+
+useEffect(() => {
+  async function fetchData() {
     try {
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
+      const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
         method: 'GET',
         credentials: 'include'
       });
 
-      if (response.ok) {
-        window.location.href = '/loginb';
-      } else {
-        console.error('Logout failed:', response.statusText);
+      if (!userInfoResponse.ok) {
+        throw new Error('Failed to fetch user info');
       }
+
+      const userData = await userInfoResponse.json();
+      setUserInfo(userData.beneficiary);
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error('Error fetching user info:', error);
+      setError('Failed to fetch user info');
     }
-  };
+  }
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const profileImageResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/protected', {
-          method: 'GET',
-          credentials: 'include'
-        });
+  fetchData();
+}, []);
 
-        if (!profileImageResponse.ok) {
-          throw new Error('Failed to fetch profile image');
-        }else{
 
-        const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
-          method: 'GET',
-          credentials: 'include'
-        });
-
-        if (!userInfoResponse.ok) {
-          throw new Error('Failed to fetch user info');
-        }
-
-        const userData = await userInfoResponse.json();
-        setUserInfo(userData.beneficiary);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to fetch data');
-        
-        //window.location.href = '/loginb';
-      }
-    }
-
-    fetchData();
-  }, []);
 
 
   if (error) {
