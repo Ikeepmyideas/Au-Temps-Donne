@@ -17,7 +17,6 @@ import notif from '../assets/notif.png';
 function Profileb() {
   const [profileImagePath, setProfileImagePath] = useState('');
   const [userInfo, setUserInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [updatedUserInfo, setUpdatedUserInfo] = useState({
