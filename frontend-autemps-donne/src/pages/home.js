@@ -63,9 +63,8 @@ function Home() {
     }, []);
   return (
     <>
-    <body class="homebody">
-      <div lang="en" id="html_home">
-      <div className="body">
+      <html lang="en" id="html_home">
+      <body>
         <header class="header"  data-header>
           <div class="container">
             <div class="div_logo">
@@ -143,7 +142,7 @@ function Home() {
           <ion-icon name="search-outline"></ion-icon>
         </button>
       
-        <form action="./loginb">
+        <form action="../connexion/login.html">
           <button type="submit" class="btn btn-primary">
               <span>Connexion</span>
               <ion-icon name="enter-outline" aria-hidden="true"></ion-icon>
@@ -316,215 +315,10 @@ function Home() {
 
                 </div>
             </section>
-            <section class="section cta">
-                <div class="container">
+     
+     
 
-                <div class="cta-content">
-                    <h2 class="h2 section-title">45+ Partenaires</h2>
-
-                    <button class="btn btn-outline">
-                    <span>Devenir Partenaires</span>
-
-                    <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
-                    </button>
-                </div>
-                <figure class="cta-banner">
-                    <img src={partenaire}width="520" height="228" loading="lazy" alt="Fox"
-                    class="img-cover" />
-                </figure>
-
-                </div>
-            </section>
-            <section class="section service" id="service">
-        <div class="container">
-          <h2 class="h2 section-title">
-             <strong>Comment nous aider ?</strong>
-          </h2>
-
-          <ul class="service-list">
-
-            <li>
-              <div class="service-card">
-
-                <div class="card-icon">
-                  <ion-icon name="people-outline"></ion-icon>
-                </div>
-
-                <h3 class="h3 card-title">Bénévolat</h3>
-
-                <p class="card-text">
-                  Tempor incididunt ut labores
-                  dolore magna suspene
-                </p>
-
-                <a href="#" class="btn-link">
-                  <span>Read More</span>
-
-                  <ion-icon name="arrow-forward" aria-hidden="true"></ion-icon>
-                </a>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="service-card">
-
-                <div class="card-icon">
-                  <ion-icon name="cash-outline"></ion-icon>
-                </div>
-
-                <h3 class="h3 card-title">Dons</h3>
-
-                <p class="card-text">
-                  Tempor incididunt ut labores
-                  dolore magna suspene
-                </p>
-
-                <a href="#" class="btn-link">
-                  <span>Read More</span>
-
-                  <ion-icon name="arrow-forward" aria-hidden="true"></ion-icon>
-                </a>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="service-card">
-
-                <div class="card-icon">
-                  <ion-icon name="swap-horizontal-outline"></ion-icon>
-                </div>
-
-                <h3 class="h3 card-title">Partenariat</h3>
-
-                <p class="card-text">
-                  Tempor incididunt ut labores
-                  dolore magna suspene
-                </p>
-
-                <a href="#" class="btn-link">
-                  <span>Read More</span>
-
-                  <ion-icon name="arrow-forward" aria-hidden="true"></ion-icon>
-                </a>
-
-              </div>
-            </li>
-          </ul>
-
-        </div>
-      </section>
-      <section class="section donate" id="donate">
-        <div class="container">
-
-          <ul class="donate-list">
-
-            <li>
-              <div class="donate-card">
-                <figure class="card-banner">
-                  <img src="../assets/images/7-Maraude-alimentaire-2.jpeg" width="520" height="325" loading="lazy" alt="RoadHelp"
-                    class="img-cover"/>
-                </figure>
-                <div class="card-content">
-
-                  <div class="progress-wrapper">
-                    <p class="progress-text">
-                      <span>Collecté</span>
-
-                      <data value="256">256€</data>
-                    </p>
-
-                    <data class="progress-value" value="83">83%</data>
-                  </div>
-
-                  <div class="progress-box">
-                    <div class="progress"></div>
-                  </div>
-
-                  <h3 class="h3 card-title">Dons pour materiel scolaire</h3>
-
-                  <div class="card-wrapper">
-
-                    <p class="card-wrapper-text">
-                      <span>Objectif</span>
-
-                      <data class="green" value="34562">2562€</data>
-                    </p>
-
-                    <p class="card-wrapper-text">
-                      <span>Restant</span>
-
-                      <data class="yellow" value="562">1162€</data>
-                    </p>
-
-        
-                    <button class="btn btn-secondary">
-                      <span>Donner</span>
   
-                      <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
-                    </button>
-  
-                  </div>
-                  </div>
-                  </div>
-              </li>
-              
-
-
-            <li>
-              <div class="donate-card">
-                <figure class="card-banner">
-                  <img src="../assets/images/7-Maraude-alimentaire-2.jpeg" width="520" height="325" loading="lazy" alt="RoadHelp"
-                    class="img-cover"/>
-                </figure>
-                <div class="card-content">
-
-                  <div class="progress-wrapper">
-                    <p class="progress-text">
-                      <span>Collecté</span>
-
-                      <data value="256">256€</data>
-                    </p>
-
-                    <data class="progress-value" value="83">83%</data>
-                  </div>
-
-                  <div class="progress-box">
-                    <div class="progress"></div>
-                  </div>
-
-                  <h3 class="h3 card-title">Dons pour materiel scolaire</h3>
-
-                  <div class="card-wrapper">
-
-                    <p class="card-wrapper-text">
-                      <span>Objectif</span>
-
-                      <data class="green" value="34562">2562€</data>
-                    </p>
-
-                    <p class="card-wrapper-text">
-                      <span>Restant</span>
-
-                      <data class="yellow" value="562">1162€</data>
-                    </p>
-
-        
-                    <button class="btn btn-secondary">
-                      <span>Donner</span>
-  
-                      <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
-                    </button>
-  
-                  </div>
-                </div>
-                </div>
-              </li>
-
-            </ul>
-          </div>
-        </section>
         <section>
             <div class="newsletter">
                 <h1 class="title_newletter">Abonnez-vous à notre newsletter !</h1>
@@ -584,8 +378,8 @@ function Home() {
         </div>
     </footer>
 
-        </div>
-        </div></body>
+        </body>
+        </html>
     </>
   );
 }
