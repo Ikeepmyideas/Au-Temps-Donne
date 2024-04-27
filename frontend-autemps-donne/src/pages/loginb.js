@@ -18,8 +18,8 @@ function LoginForm() {
                 credentials: 'include' 
             });
 
-        if (beneficiaryResponse.ok) {
-            const json = await beneficiaryResponse.json();
+        if (response.ok) {
+            const json = await response.json();
             localStorage.setItem('accessToken', json.accessToken);
             window.location.href = '/Dashboardb';
             return;
