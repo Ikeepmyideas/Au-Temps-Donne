@@ -21,7 +21,7 @@ function LoginForm() {
         if (response.ok) {
             const json = await response.json();
             localStorage.setItem('accessToken', json.accessToken);
-            //window.location.href = '/Dashboardb';
+            window.location.href = '/Dashboardb';
             return;
         } else {
             throw new Error('Failed to log in. Please check your credentials and try again.');
@@ -46,7 +46,7 @@ function LoginForm() {
             if (response.ok) {
             const json = await response.json();
             localStorage.setItem('accessToken', json.accessToken);
-           // window.location.href = '/Dashboardv';
+            window.location.href = '/Dashboardv';
             return;
 
             } else {
