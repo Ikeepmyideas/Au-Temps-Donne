@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../css/home.css';
+import '../css/signup.css';  
+import '../css/admin.css';
+
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import img1 from '../assets/img1.png';
