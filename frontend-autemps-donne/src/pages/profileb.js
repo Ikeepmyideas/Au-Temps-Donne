@@ -69,44 +69,53 @@ function Profileb() {
   };
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const profileImageResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/protected', {
-          method: 'GET',
-          credentials: 'include'
-        });
-
-        if (!profileImageResponse.ok) {
-          throw new Error('Failed to fetch profile image');
-        }
-
-        const profileImageData = await profileImageResponse.json();
-        const profileImage = profileImageData.profileImagePath;
-        setProfileImagePath(profileImage);
-
-        const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
-          method: 'GET',
-          credentials: 'include'
-        });
-
-        if (!userInfoResponse.ok) {
-          throw new Error('Failed to fetch user info');
-        }
-
-        const userData = await userInfoResponse.json();
-        setUserInfo(userData.beneficiary);
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to fetch data');
-        setLoading(false);
-        //window.location.href = '/loginb';
-      }
+async function fetchData() {
+  try {
+    // Vérifier si un jeton est présent dans le stockage local
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      // Rediriger vers la page de connexion si aucun jeton n'est trouvé
+      window.location.href = '/loginb';
+      return;
     }
 
-    fetchData();
-  }, []);
+    const profileImageResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/protected', {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (!profileImageResponse.ok) {
+      throw new Error('Failed to fetch profile image');
+    }
+
+    const profileImageData = await profileImageResponse.json();
+    const profileImage = profileImageData.profileImagePath;
+    setProfileImagePath(profileImage);
+
+    const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (!userInfoResponse.ok) {
+      throw new Error('Failed to fetch user info');
+    }
+
+    const userData = await userInfoResponse.json();
+    setUserInfo(userData.beneficiary);
+
+    setLoading(false);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    setError('Failed to fetch data');
+    setLoading(false);
+  }
+}
+
+useEffect(() => {
+  fetchData();
+}, []);
+
 
   if (loading) {
     return <div>Loading...</div>;
