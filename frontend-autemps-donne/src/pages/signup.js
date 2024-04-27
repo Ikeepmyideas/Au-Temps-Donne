@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/signup.css';  
 import '../css/home.css';
+import '../css/admin.css';
 import logo from '../assets/logo.png';  
 
 function Signup() {
