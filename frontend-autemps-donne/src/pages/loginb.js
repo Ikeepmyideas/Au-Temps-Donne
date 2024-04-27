@@ -73,17 +73,6 @@ const handleSubmit = async (event) => {
             credentials: 'include' 
         });
 
-        if (beneficiaryResponse.ok) {
-            const setCookieHeader = beneficiaryResponse.headers.get('Set-Cookie');
-            if (setCookieHeader) {
-                window.location.href = '/Dashboardb';
-                return;
-            } else {
-                console.warn('Beneficiary login successful, but cookie not set');
-            }
-        } else {
-            throw new Error('Failed to log in. Please check your credentials and try again.');
-        }
     } catch (beneficiaryError) {
         console.error('There was a problem with the beneficiary login:', beneficiaryError);
     }
@@ -99,17 +88,7 @@ const handleSubmit = async (event) => {
             credentials: 'include' 
         });
 
-        if (volunteerResponse.ok) {
-            const setCookieHeader = volunteerResponse.headers.get('Set-Cookie');
-            if (setCookieHeader) {
-                window.location.href = '/dashboardv';
-                return;
-            } else {
-                console.warn('Volunteer login successful, but cookie not set');
-            }
-        } else {
-            throw new Error('Failed to log in. Please check your credentials and try again.');
-        }
+
     } catch (volunteerError) {
         console.error('There was a problem with the volunteer login:', volunteerError);
         setError('Failed to log in. Please check your credentials and try again.');
