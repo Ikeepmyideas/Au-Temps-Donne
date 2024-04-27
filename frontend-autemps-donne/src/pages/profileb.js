@@ -80,10 +80,6 @@ function Profileb() {
           throw new Error('Failed to fetch profile image');
         }
 
-        const profileImageData = await profileImageResponse.json();
-        const profileImage = profileImageData.profileImagePath;
-        setProfileImagePath(profileImage);
-
         const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
           method: 'GET',
           credentials: 'include'
