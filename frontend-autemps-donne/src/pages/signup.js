@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/signup.css';  
+import '../css/home.css';
 import logo from '../assets/logo.png';  
 
 function Signup() {
@@ -53,7 +54,7 @@ function Signup() {
 
     const fetchServices = async () => {
         try {
-            const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/services', {
+            const response = await fetch('http://127.0.0.1:8000/api/admin/services', {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' },
             });
@@ -79,7 +80,7 @@ function Signup() {
         else {
             try {
                 const formDataToSend = createFormData();
-                const response = await fetch(`https://au-temps-donne-api.onrender.com/api/${role === 'beneficiary' ? 'beneficiary/registerBeneficiary' : 'volunteer/registerVolunteer'}`, {
+                const response = await fetch(`http://127.0.0.1:8000/api/${role === 'beneficiary' ? 'beneficiary/registerBeneficiary' : 'volunteer/registerVolunteer'}`, {
                     method: 'POST',
                     body: formDataToSend,
                 });
@@ -108,10 +109,6 @@ function Signup() {
 
     return (
         <>
-        <body class="signupbody">
-
-                <div className={`signup-page ${currentPage === 1 ? 'form-page-1' : 'form-page-2'}`}>
-
             <header>
                 <img src={logo} alt="Your Logo" className="logo" />
             </header>
@@ -357,7 +354,6 @@ function Signup() {
                     </div>
                )}
             </div>
-            </div></body>
         </>
     );
 }
