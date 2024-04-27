@@ -78,7 +78,7 @@ function Profileb() {
 
         if (!profileImageResponse.ok) {
           throw new Error('Failed to fetch profile image');
-        }
+        }else{
 
         const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
           method: 'GET',
@@ -91,12 +91,12 @@ function Profileb() {
 
         const userData = await userInfoResponse.json();
         setUserInfo(userData.beneficiary);
-
+        }
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to fetch data');
-        setLoading(false);
+        
         //window.location.href = '/loginb';
       }
     }
@@ -104,9 +104,6 @@ function Profileb() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   if (error) {
     return <div>Error: {error}</div>;
