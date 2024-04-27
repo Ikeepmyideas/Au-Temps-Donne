@@ -101,7 +101,7 @@ function Profileb() {
         console.error('Error fetching data:', error);
         setError('Failed to fetch data');
         setLoading(false);
-        window.location.href = '/loginb';
+        //window.location.href = '/loginb';
       }
     }
 
