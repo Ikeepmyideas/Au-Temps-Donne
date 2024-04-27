@@ -91,7 +91,6 @@ function Profileb() {
         const userData = await userInfoResponse.json();
         setUserInfo(userData.beneficiary);
         }
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to fetch data');
