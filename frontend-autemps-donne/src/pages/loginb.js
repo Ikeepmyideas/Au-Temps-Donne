@@ -17,14 +17,15 @@ function LoginForm() {
                 body: JSON.stringify({ email, password }),
                 credentials: 'include' 
             });
-    
-            if (!response.ok) {
-                throw new Error('Failed to log in. Please check your credentials and try again.');
-            }
-    
-            
-            window.location.href = '/Dashboardb'; 
-    
+
+        if (beneficiaryResponse.ok) {
+            const json = await beneficiaryResponse.json();
+            localStorage.setItem('accessToken', json.accessToken);
+            window.location.href = '/Dashboardb';
+            return;
+        } else {
+            throw new Error('Failed to log in. Please check your credentials and try again.');
+        }
         } catch (error) {
             console.error('There was a problem with the beneficiary login:', error);
             setError('Failed to log in. Please check your credentials and try again.');
@@ -41,62 +42,33 @@ function LoginForm() {
                 body: JSON.stringify({ email, password }),
                 credentials: 'include' 
             });
-    
-            if (!response.ok) {
+
+            if (response.ok) {
+            const json = await response.json();
+            localStorage.setItem('accessToken', json.accessToken);
+            window.location.href = '/Dashboardv';
+            return;
+
+            } else {
                 throw new Error('Failed to log in. Please check your credentials and try again.');
             }
-    
-            window.location.href = '/dashboardv'; 
-    
         } catch (error) {
             console.error('There was a problem with the volunteer login:', error);
             setError('Failed to log in. Please check your credentials and try again.');
         }
     };
 
-const handleSubmit = async (event) => {
-    event.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
-    if (!email || !password) {
-        setError('Email and password are required');
-        return;
-    }
+        if (!email || !password) {
+            setError('Email and password are required');
+            return;
+        }
 
-    try {
-        // Handle beneficiary login
-        const beneficiaryResponse = await fetch("https://au-temps-donne-api.onrender.com/api/beneficiary/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include' 
-        });
-
-    } catch (beneficiaryError) {
-        console.error('There was a problem with the beneficiary login:', beneficiaryError);
-    }
-
-    try {
-        // Handle volunteer login
-        const volunteerResponse = await fetch("https://au-temps-donne-api.onrender.com/api/volunteer/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include' 
-        });
-
-
-    } catch (volunteerError) {
-        console.error('There was a problem with the volunteer login:', volunteerError);
-        setError('Failed to log in. Please check your credentials and try again.');
-    }
-};
-
-
-    
+        handleBeneficiaryLogin();
+        handleVolunteerLogin();
+    };
     return (
         <body class='loginbbody'>
             
