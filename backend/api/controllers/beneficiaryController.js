@@ -121,7 +121,7 @@ const login = async (req, res) => {
         res.cookie('access_token', token, {
             httpOnly: true,
             maxAge: 3600000, // 1 hour
-            sameSite: 'strict',
+            sameSite: 'none',
             path: '/', // Set the cookie path to '/'
             secure: true // Add 'secure: true' if your app is served over HTTPS
         });
