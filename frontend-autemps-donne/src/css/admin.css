@@ -6,12 +6,12 @@ html{
   scroll-behavior: smooth;
   margin-right: 0;
 }
-.adminbody {
+body {
     margin: 0px;
     padding: 0;
     font-family: 'Inter';
     border-radius: 10px;
-
+}
 span#current-month-year {
     FONT-SIZE: 28px;
     font-family: 'Inter';
@@ -1123,4 +1123,7 @@ input[type="time"] {
 .btn-link:hover {
   background-color: #C04343;
 }
+.add_user{
+  margin-top: 20px;
+  margin-left: 7px;
 }
