@@ -5,7 +5,7 @@ from mysql.connector import Error
 import configparser
 from tkinter import ttk 
 from PIL import Image, ImageTk
-import pyttsx3
+import pyttsx3 
 
 
 
