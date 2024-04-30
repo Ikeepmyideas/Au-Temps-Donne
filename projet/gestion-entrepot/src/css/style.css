@@ -1,0 +1,268 @@
+html{
+    scroll-behavior: smooth;
+    margin-bottom: 50px;
+
+  }
+.password-strength {
+    height: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: #ddd;
+    overflow: hidden;
+}
+
+#passwordStrength {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    border-radius: 10px;
+    overflow: hidden;
+    background:
+    url('../assets/background.png') no-repeat center top fixed,
+    url('../assets/point1.png') no-repeat top fixed,
+    url('../assets/point2.png') no-repeat bottom fixed;
+
+
+    background-size: cover;
+    font-size: 16px;
+    padding-bottom: 50px;
+
+}
+body {
+    max-height: 100vh; 
+    overflow-y: auto;
+    padding-bottom: 100px;
+
+}
+
+
+p{
+    color: #7A7777;
+    font-family: 'Robotto', sans-serif;
+    font-size: 15px;
+    margin-top: -5px;
+}
+
+p a{
+    text-decoration: none;
+    color: #D23939;
+}
+
+
+.line {
+    flex: 1;
+    height: 2px;
+}
+
+.dot, .line {
+    width: 10px;
+    height: 10px;
+    background-color: #FCD1D1; 
+    border-radius: 50%;
+    margin: 0 5px; 
+}
+
+.dot:first-child, .dot.second {
+    background-color: #D23939; 
+}
+
+.line, .line.second {
+    flex: 1;
+    height: 2px;
+    background-color: #FCD1D1; /* Default color for lines on page 2 */
+}
+
+.line.first {
+    background-color: #D23939; /* Color for the second line on page 2 */
+}
+h1{
+    color: #F96262;
+    font-family: 'Robotto', sans-serif;
+    font-size: 31px;
+}
+h2{
+    color: #F96262;
+
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    max-width: 100px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(2px 2px 1px rgb(128, 128, 128));
+    margin-right: 20px;
+}
+
+/* style page d'inscription 
+*/
+.form-box{
+    width:600px;
+	height:400px;
+	position:relative;
+    margin: 0 auto;
+    margin-bottom: 50px; 
+    max-width: 500px;
+    padding: 20px;
+    background-color: #FAFAFA;
+    border: 1px solid #ccc;
+    border-radius: 11px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+.form-box-reset{
+    width:450px;
+	height:800px;
+	position:relative;
+	margin-top: 100px;
+	background:rgba(227, 212, 207,0.5);
+    box-shadow: 0 0 10px 0px #e3d4cf;
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.button-box{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+	width:250px;
+	margin:35px auto;
+	position:relative;
+	box-shadow: 0 0 10px 4px #e3d4cf;
+	border-radius: 30px;
+    background-color: rgba(196, 196, 196, 0.21);
+
+}
+.toggle-btn{
+	padding:10px 30px;
+	cursor:pointer;
+	background:transparent;
+	border:0;
+	outline: none;
+	position: relative;
+    border-radius: 30px;
+    width: 140px;
+
+}
+#btn{
+	top: 0;
+	left:0;
+	position: absolute;
+	width: 140px;
+	height: 100%;
+	background: #D23939;
+	border-radius: 30px;
+	transition: .5s;
+}
+.input-group-beneficiary{
+	position:absolute;
+	transition:.5s;
+    padding-left: 25px;
+}
+.input-group-volunteer
+{
+	position:absolute;
+	transition:0.5s;
+}
+.submit-btn {
+    width: 150px;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: block;
+    margin: 0px;
+    margin-top: 30px;
+    background: #D23939;
+    box-shadow: 0 0 10px 4px #e3d4cf;
+    border: 0;
+    outline: none;
+    border-radius: 30px;
+    color: white;
+    transition: background-color 0.3s; 
+}
+.submit-btn:hover {
+    background-color: #9c1f1f; 
+}
+
+.submit-btn-reset{
+    width: 260px;
+	padding: 10px 30px;
+	cursor: pointer;
+	display: block;
+	margin: 0px;
+    margin-top: 30px;
+	background: #f7f2f2;
+    box-shadow: 0 0 20px 9px #e3d4cf;
+	border: 0;
+	outline: none;
+	border-radius: 30px;
+}
+
+#icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+}
+#form{
+    height: 800px;
+}
+
+label{
+    width: 209%;
+}
+
+.input-group.email,
+.input-group.password {
+    width: 100%;
+}
+
+
+
+label#endo {
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #F96262;
+}
+
+
+
+label {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    color: #F96262;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 16px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    background-color: rgba(196, 196, 196, 0.21);
+    border: none;
+    border-radius: 4px;
+    color: #F96262; 
+}
+
+@media screen and (max-width: 600px) {
+    .logo {
+        max-width: 70px;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+}

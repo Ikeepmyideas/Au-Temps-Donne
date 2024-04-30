@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription</title>
+    <!-- Include CSS stylesheets and fonts -->
+    <link rel="stylesheet" type="text/css" href="css/signup.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <!-- Header section -->
+    <header>
+        <img src="assets/logo.png" alt="Your Logo" class="logo">
+    </header>
+
+    <!-- Registration Form Section -->
+    <div class="form-box" id="benevole">
+        <!-- Progress Bar -->
+        <center>
+            <div class="breadcrumb">
+                <div class="dot"></div>
+                <div class="line"></div>
+                <div class="dot"></div>
+                <div class="line"></div>
+                <div class="dot"></div>
+            </div>
+        </center>
+
+        <!-- Page 1: Registration Form Selection -->
+        <div id="page1">
+            <center>
+                <h1>Inscription</h1>
+            </center>
+            <center>
+                <p><strong>Déjà un compte chez nous ? <a href="#">Connectez-vous</a></strong></p>
+            </center>
+
+            <!-- Toggle Buttons for Beneficiary and Volunteer -->
+            <div class="button-box">
+                <div id="btn"></div>
+                <button type="button" onclick="beneficiary()" class="toggle-btn" id="beneficiary-button" style="color:white;">Bénéficiaire</button>
+                <button type="button" onclick="volunteer()" class="toggle-btn" id="volunteer-button" style="color:#F96262;">Bénévole</button>
+            </div>
+
+            <!-- Beneficiary Registration Form -->
+            <form id="register" class="input-group-beneficiary" method="POST">
+                <div class="form-group">
+                    <div class="input-group email">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email-b" name="email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="prenom">Prénom:</label>
+                        <input type="text" id="firstName-b" name="prenom" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="nom">Nom:</label>
+                        <input type="text" id="lastName-b" name="nom" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="mot_de_passe">Mot de passe:</label>
+                        <input type="password" id="password-b" name="mot_de_passe" required>
+                        <div class="password-strength">
+                            <div id="passwordStrength"></div>
+                        </div>                
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirmation de mot de passe:</label>
+                        <input type="password" id="confirmPassword-b" name="confirmPassword" required>
+                        <small id="passwordMatchMessage"></small>
+                    </div>
+                </div>
+                <center> <button type="button" class="submit-btn" onclick="showPage(4)">Suivant</button></center>
+            </form>
+
+            <!-- Volunteer Registration Form -->
+            <form id="register-volunteer" class="input-group-volunteer" method="POST">
+                <div class="form-group">
+                    <div class="input-group email">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="prenom">Prénom:</label>
+                        <input type="text" id="firstName" name="prenom" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="nom">Nom:</label>
+                        <input type="text" id="lastName" name="nom" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="mot_de_passe">Mot de passe:</label>
+                        <input type="password" id="password" name="mot_de_passe" required>
+                        <div class="password-strength">
+                            <div id="passwordStrength2"></div>
+                        </div>                
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirmation de mot de passe:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <small id="passwordMatchMessage2"></small>
+                    </div>
+                </div>
+                <center> <button type="button" class="submit-btn" onclick="showPage(2)">Suivant</button></center>
+            </form>
+        </div>
+        <div id="page4" style="display: none;">
+            <form class="form-group" id="register-beneficiary-page2" class="input-group-volunteer" method="POST" enctype="multipart/form-data">
+                    <div class="form-group" id="info_group">
+                        <div class="input-group">
+                            <label for="telephone">Numéro de téléphone:</label>
+                            <input type="tel" id="phoneNumber-b" name="telephone" pattern="[0-9]{10}" required>
+                        </div>
+                        <!-- Gender selection -->
+                        <div class="input-group" id="genre_grp">
+                            <label for="genre">Genre:</label>
+                            <select id="genre-b" name="genre" required>
+                                <option value="homme">Homme</option>
+                                <option value="femme">Femme</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dob">Date de naissance:</label>
+                        <div class="dob-group">
+                            <div class="inpu-group">
+                                <label for="jour">Jour:</label>
+                                <input type="number" id="jour-b" name="jour" min="1" max="31" required>
+                            </div>
+                            <div class="inpu-group" id="grp">
+                                <label for="mois">Mois:</label>
+                                <select id="mois-b" name="mois" required>
+                                    <option></option>
+                                    <option value="1">Janvier</option>
+                                    <option value="2">Février</option>
+                                    <option value="3">Mars</option>
+                                    <option value="4">Avril</option>
+                                    <option value="5">Mai</option>
+                                    <option value="6">Juin</option>
+                                    <option value="7">Juillet</option>
+                                    <option value="8">Août</option>
+                                    <option value="9">Septembre</option>
+                                    <option value="10">Octobre</option>
+                                    <option value="11">Novembre</option>
+                                    <option value="12">Décembre</option>
+                                </select>
+                            </div>
+                            <div class="inpu-group" id="grp">
+                                <label for="annee">Année:</label>
+                                <input type="number" id="annee-b" name="annee" min="1900" max="2024" required>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Address -->
+                    <fieldset>
+                        <div class="input-group">
+                            <label for="adresse">Adresse:</label>
+                            <input type="text" id="address-b" name="adresse" required>
+                        </div>
+                        <!-- City and Postal Code -->
+                        <div class="form-group" id="adresse">
+                            <div class="input-group">
+                                <label for="ville">Ville:</label>
+                                <input type="text" id="ville-b" name="ville" required>
+                            </div>
+                            <div class="input-group" id="code_grp">
+                                <label for="code_postal">Code Postal:</label>
+                                <input type="text" id="postalCode-b" name="code_postal" required>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group" >
+                        <div class="input-group" id="justificatif-group">
+                            <label for="avis_impot">Avis d'impot (PDF):</label>
+                            <input type="file" id="avis_impot" name="avis_impot">
+                        </div>
+                        
+                    </div>
+                    <div class="form-row">
+                        <label for="besoin">Votre besoin:</label>
+                        <select id="besoin" name="besoin">
+                            <option value="">Sélectionnez un service</option>
+                        </select>
+                    </div>
+                    <center> <div class="btn2">
+                        <button  class="submit-btn" onclick="showPage(1)">Retour</button>
+                        <button class="submit-btn" id="btn_va"onclick="submitForm2()">Suivant</button>
+                        </div></center>
+            </form>
+        </div>
+        
+        <div id="page2" style="display: none;">
+            <form class="form-group" id="register-volunteer-page2" class="input-group-volunteer" method="POST" enctype="multipart/form-data">
+                    <div class="form-group" id="info_group">
+                        <div class="input-group">
+                            <label for="telephone">Numéro de téléphone:</label>
+                            <input type="tel" id="phoneNumber" name="telephone" pattern="[0-9]{10}" required>
+                        </div>
+                        <!-- Gender selection -->
+                        <div class="input-group" id="genre_grp">
+                            <label for="genre">Genre:</label>
+                            <select id="genre" name="genre" required>
+                                <option value="homme">Homme</option>
+                                <option value="femme">Femme</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dob">Date de naissance:</label>
+                        <div class="dob-group">
+                            <div class="inpu-group">
+                                <label for="jour">Jour:</label>
+                                <input type="number" id="jour" name="jour" min="1" max="31" required>
+                            </div>
+                            <div class="inpu-group" id="grp">
+                                <label for="mois">Mois:</label>
+                                <select id="mois" name="mois" required>
+                                    <option></option>
+                                    <option value="1">Janvier</option>
+                                    <option value="2">Février</option>
+                                    <option value="3">Mars</option>
+                                    <option value="4">Avril</option>
+                                    <option value="5">Mai</option>
+                                    <option value="6">Juin</option>
+                                    <option value="7">Juillet</option>
+                                    <option value="8">Août</option>
+                                    <option value="9">Septembre</option>
+                                    <option value="10">Octobre</option>
+                                    <option value="11">Novembre</option>
+                                    <option value="12">Décembre</option>
+                                </select>
+                            </div>
+                            <div class="inpu-group" id="grp">
+                                <label for="annee">Année:</label>
+                                <input type="number" id="annee" name="annee" min="1900" max="2024" required>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Address -->
+                    <fieldset>
+                        <div class="input-group">
+                            <label for="adresse">Adresse:</label>
+                            <input type="text" id="address" name="adresse" required>
+                        </div>
+                        <!-- City and Postal Code -->
+                        <div class="form-group" id="adresse">
+                            <div class="input-group">
+                                <label for="ville">Ville:</label>
+                                <input type="text" id="ville" name="ville" required>
+                            </div>
+                            <div class="input-group" id="code_grp">
+                                <label for="code_postal">Code Postal:</label>
+                                <input type="text" id="postalCode" name="code_postal" required>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group" id="permis_group">
+                        <div class="input-group" id="permis_group">
+                            <label for="permis">Permis de conduire:</label>
+                            <div class="check">
+                                <input type="checkbox" id="permis_conduire_oui" name="permis_conduire" onclick="toggleJustificatif(true)" required>
+                                <label for="permis_conduire_oui">Oui</label>
+                                <input type="checkbox" id="permis_conduire_non" name="permis_conduire" onclick="toggleJustificatif(false)" required>
+                                <label for="permis_conduire_non">Non</label>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group" id="justificatif-group" style="display:none;">
+                            <label for="justificatif_permis">Justificatif de permis (PDF):</label>
+                            <input type="file" id="justificatif_permis" name="justificatif_permis">
+                        </div>
+                    </div>
+                    <center> <button  class="submit-btn" onclick="showPage(1)">Retour</button>
+                        <center> <button class="submit-btn" onclick="showPage(3)">Suivant</button></center>
+            </form>
+        </div>
+            
+        <div id="page3" style="display: none;">
+            <form class="form-group" id="register-volunteer-page3" class="input-group-volunteer" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="Langues">Langues :</label>
+                        <input type="text" id="langues" name="Langues" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="Competences">Compétences :</label>
+                        <input type="text" id="competences" name="Competences" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="Qualites">Qualités (3 max):</label>
+                        <input type="text" id="qualites" name="Qualites" required>
+                    </div>
+                    <div class="input-group" id="justificatif-group" >
+                        <label for="casier">Casier judiciaire:</label>
+                        <input type="file" id="casier" name="casier">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="mb-3">
+                        <label for="message_candidature" class="form-label">Message de candidature :</label>
+                        <textarea class="form-control" id="message_candidature" name="message_candidature" rows="3" required></textarea>
+                    </div>
+                </div>
+                <center> <button  class="submit-btn" onclick="showPage(2)">Retour</button>
+                <center> <button class="submit-btn" onclick="submitForm()">Finaliser</button></center></div>
+            </form>
+        </div>
+        
+
+    </div>
+
+    <script>
+function fetchServices() {
+        const url = new URL('http://127.0.0.1:8000/api/admin/services');
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Problème de réponse réseau');
+            }
+            return response.json();
+        })
+        .then(services => {
+            console.log("Services récupérés:", services);
+            displayServices(services);
+        })
+        .catch(error => {
+            console.error("Il y a eu un problème avec l'opération fetch: " + error.message);
+        });
+    }
+
+    function displayServices(services) {
+        const selectElement = document.getElementById('besoin');
+
+        if (!selectElement) {
+            console.error("Element 'besoin' introuvable.");
+            return;
+        }
+
+        selectElement.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = "Sélectionnez un service";
+        selectElement.appendChild(defaultOption);
+
+        services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service.nom; 
+            option.textContent = service.nom;
+            selectElement.appendChild(option);
+        });
+    }
+
+    fetchServices();
+
+document.addEventListener('DOMContentLoaded', fetchServices);
+        var x=document.getElementById('register');
+        var y=document.getElementById('register-volunteer');
+        var z=document.getElementById('btn');
+        
+        function volunteer()
+        {
+            x.style.left='-450px';
+            y.style.left='45px';
+            z.style.left='110px';
+            document.getElementById('volunteer-button').style.color = 'white'; 
+            document.getElementById('beneficiary-button').style.color = '#F96262'; 
+        }
+        function beneficiary()
+        {
+            x.style.left='25px';
+            y.style.left='600px';
+            z.style.left='0px';
+            document.getElementById('beneficiary-button').style.color = 'white'; 
+            document.getElementById('volunteer-button').style.color = '#F96262'; 
+        }
+        
+        function showPage(pageNumber) {
+            document.getElementById("page1").style.display = (pageNumber === 1) ? "block" : "none";
+            document.getElementById("page2").style.display = (pageNumber === 2) ? "block" : "none";
+            document.getElementById("page3").style.display = (pageNumber === 3) ? "block" : "none";
+            document.getElementById("page4").style.display = (pageNumber === 4) ? "block" : "none";
+            document.getElementById("page5").style.display = (pageNumber === 5) ? "block" : "none";
+
+        }
+    
+        document.getElementById("confirmPassword-v").addEventListener("input", function () {
+            var password = document.getElementById("password-v").value;
+            var confirmPassword = this.value;
+            var message = document.getElementById("passwordMatchMessage");
+    
+            if (password === confirmPassword) {
+                message.innerHTML = "Les mots de passe correspondent.";
+                message.style.color = "green";
+            } else {
+                message.textContent = "Les mots de passe ne correspondent pas.";
+                message.style.color = "red";
+            }
+        });
+
+        document.getElementById("confirmPassword").addEventListener("input", function () {
+            var password = document.getElementById("password").value;
+            var confirmPassword = this.value;
+            var message = document.getElementById("passwordMatchMessage2");
+    
+            if (password === confirmPassword) {
+                message.innerHTML = "Les mots de passe correspondent.";
+                message.style.color = "green";
+            } else {
+                message.textContent = "Les mots de passe ne correspondent pas.";
+                message.style.color = "red";
+            }
+        });
+
+        function evaluatePasswordStrength(password) {
+            let score = 0;
+        
+            // Longueur minimale
+            if (password.length >= 8) {
+                score += 20;
+            }
+        
+            // Présence de chiffres
+            if (/\d/.test(password)) {
+                score += 20;
+            }
+        
+            // Présence de lettres majuscules
+            if (/[A-Z]/.test(password)) {
+                score += 20;
+            }
+        
+            // Présence de caractères spéciaux
+            if (/[\W_]/.test(password)) {
+                score += 20;
+            }
+        
+            // Présence de lettres minuscules
+            if (/[a-z]/.test(password)) {
+                score += 20;
+            }
+        
+            return score;
+        }
+
+        // Fonction pour mettre à jour la barre de progression
+        function updateProgressBar(password) {
+            const progressBar = document.getElementById("passwordStrength");
+        
+            const strength = evaluatePasswordStrength(password);
+        
+            progressBar.style.width = strength + "%";
+        
+            if (strength < 40) {
+                progressBar.style.backgroundColor = "#FF5050"; // Rouge
+            } else if (strength < 70) {
+                progressBar.style.backgroundColor = "#FFD700"; // Jaune
+            } else {
+                progressBar.style.backgroundColor = "#4CAF50"; // Vert
+            }
+        }
+
+        // Fonction pour mettre à jour la barre de progression (volunteer)
+        function updateProgressBar2(password) {
+            const progressBar = document.getElementById("passwordStrength2");
+        
+            const strength = evaluatePasswordStrength(password);
+        
+            progressBar.style.width = strength + "%";
+        
+            if (strength < 40) {
+                progressBar.style.backgroundColor = "#FF5050"; // Rouge
+            } else if (strength < 70) {
+                progressBar.style.backgroundColor = "#FFD700"; // Jaune
+            } else {
+                progressBar.style.backgroundColor = "#4CAF50"; // Vert
+            }
+        }
+    
+         document.getElementById("password-v").addEventListener("input", function () {
+            updateProgressBar(this.value);
+        });
+
+        document.getElementById("password").addEventListener("input", function () {
+            updateProgressBar2(this.value);
+        });
+        
+    </script>
+    <script>
+
+function toggleJustificatif() {
+    const permisConduireOui = document.getElementById('permis_conduire_oui');
+    const permisConduireNon = document.getElementById('permis_conduire_non');
+    const justificatifGroup = document.getElementById('justificatif-group');
+
+    if (permisConduireOui.checked) {
+        justificatifGroup.style.display = 'block';
+    } else if (permisConduireNon.checked) {
+        justificatifGroup.style.display = 'none';
+    } else {
+        justificatifGroup.style.display = 'none';
+    }
+}
+
+// Fonction pour soumettre le formulaire
+function submitForm() {
+    // Récupérer les données du formulaire
+    const formData = new FormData();
+    formData.append('email', document.getElementById('email').value);
+    formData.append('prenom', document.getElementById('firstName').value);
+    formData.append('nom', document.getElementById('lastName').value);
+    formData.append('mot_de_passe', document.getElementById('password').value);
+    formData.append('telephone', document.getElementById('phoneNumber').value);
+    formData.append('genre', document.getElementById('genre').value);
+    formData.append('adresse', document.getElementById('address').value);
+    formData.append('ville', document.getElementById('ville').value);
+    formData.append('code_postal', document.getElementById('postalCode').value);
+    formData.append('jour', document.getElementById('jour').value);
+    formData.append('mois', document.getElementById('mois').value);
+    formData.append('annee', document.getElementById('annee').value);
+    const permisConduire = document.getElementById('permis_conduire_oui').checked ? 'oui' : 'non';
+    formData.append('permis_conduire', permisConduire);
+    formData.append('langues', document.getElementById('langues').value);
+    formData.append('qualites', document.getElementById('qualites').value);
+    formData.append('competences', document.getElementById('competences').value);
+    formData.append('message_candidature', document.getElementById('message_candidature').value);
+
+    const justificatifInput = document.getElementById('justificatif_permis');
+        if (justificatifInput.files.length > 0) {
+            formData.append('justificatif_permis', justificatifInput.files[0]);
+    }
+    const casierInput = document.getElementById('casier');
+         if (casierInput.files.length > 0) {
+            formData.append('casier_judiciaire', casierInput.files[0]);
+    }
+
+
+    formData.append('date_de_naissance', `${formData.get('annee')}-${formData.get('mois')}-${formData.get('jour')}`);
+
+    // Envoyer les données à l'API back-end
+    fetch('http://127.0.0.1:8000/api/volunteer/registerVolunteer', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erreur lors de la soumission du formulaire');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Formulaire soumis avec succès:', data);
+        window.location.href = 'signup_done.html';
+    })
+    .catch(error => {
+        console.error('Erreur lors de la soumission du formulaire:', error);
+    });
+}
+function submitForm2() {
+    const formData = new FormData();
+    formData.append('email', document.getElementById('email-b').value);
+    formData.append('prenom', document.getElementById('firstName-b').value);
+    formData.append('nom', document.getElementById('lastName-b').value);
+    formData.append('mot_de_passe', document.getElementById('password-b').value);
+    formData.append('telephone', document.getElementById('phoneNumber-b').value);
+    formData.append('genre', document.getElementById('genre-b').value);
+    formData.append('adresse', document.getElementById('address-b').value);
+    formData.append('ville', document.getElementById('ville-b').value);
+    formData.append('code_postal', document.getElementById('postalCode-b').value);
+    formData.append('jour', document.getElementById('jour-b').value);
+    formData.append('mois', document.getElementById('mois-b').value);
+    formData.append('annee', document.getElementById('annee-b').value);
+    formData.append('besoin', document.getElementById('besoin').value);
+
+
+    formData.append('date_de_naissance-b', `${formData.get('annee-b')}-${formData.get('mois-b')}-${formData.get('jour-b')}`);
+
+    const justificatifInput = document.getElementById('avis_impot');
+        if (justificatifInput.files.length > 0) {
+            formData.append('avis_impot', justificatifInput.files[0]);
+    }
+    // Envoyer les données à l'API back-end
+    fetch('http://127.0.0.1:8000/api/beneficiary/registerBeneficiary', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erreur lors de la soumission du formulaire');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Formulaire soumis avec succès:', data);
+        window.location.href = 'signup_done.html';
+    })
+    .catch(error => {
+        console.error('Erreur lors de la soumission du formulaire:', error);
+    });
+}
+
+    </script>
+</body>
+</html>

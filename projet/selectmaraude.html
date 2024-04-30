@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Maraude</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="text"], input[type="date"], input[type="time"], button, select {
+            margin: 10px;
+            padding: 5px;
+            width: 200px;
+        }
+
+        button[type="submit"], button[type="button"] {
+            width: auto;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Maraude</h1>
+
+    <button onclick="openPopup()">Create Maraude</button>
+
+    <!-- Popup form -->
+    <div class="popup" id="popup">
+        <form id="create-maraude-form">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+            <label for="heure">Heure:</label>
+            <input type="time" id="heure" required>
+            <label for="route">ID Route:</label>
+            <input type="text" id="route">
+            <div id="partner-selects">
+                <label for="partner">Partner:</label>
+                <select id="partner" required onchange="loadDenrees()">
+                    <!-- Options will be dynamically added here -->
+                </select>
+            </div>
+            <button type="button" onclick="addAnotherPartner()">Add Partner</button>
+            <label for="denree">Denrée:</label>
+            <select id="denree" required>
+                <!-- Options will be dynamically added here -->
+            </select>
+            <label for="closest-expiry">Closest Expiry Date:</label>
+            <input type="date" id="closest-expiry" readonly>
+            <button type="submit">Create</button>
+        </form>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <div id="commercants-list"></div>
+
+    <script>
+        let selectedID_Commercant;
+
+        // Function to open the popup form
+        function openPopup() {
+            document.getElementById('popup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+            loadPartners(); // Load partners when popup opens
+        }
+
+        // Function to close the popup form
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // Function to load partners into the dropdown
+        function loadPartners() {
+            fetch('http://localhost:8000/api/partner/partners')
+                .then(response => response.json())
+                .then(data => {
+                    const partnerSelect = document.getElementById('partner');
+                    partnerSelect.innerHTML = '';
+                    data.partners.forEach(partner => {
+                        const option = document.createElement('option');
+                        option.value = partner.ID_Commercant;
+                        option.textContent = partner.nom;
+                        partnerSelect.appendChild(option);
+                    });
+                    // Load denrées for the first partner
+                    selectedID_Commercant = partnerSelect.value;
+                    loadDenrees();
+                })
+                .catch(error => console.error('Error loading partners:', error));
+
+            // Add event listener to partner dropdown to load denrées when partner selection changes
+            document.getElementById('partner').addEventListener('change', function() {
+                selectedID_Commercant = this.value;
+                loadDenrees();
+            });
+        }
+        loadPartners();
+
+        // Function to add another partner select element
+        function addAnotherPartner() {
+            const partnerSelectContainer = document.getElementById('partner-selects');
+            const partnerSelect = document.createElement('select');
+            partnerSelect.required = true;
+            partnerSelect.addEventListener('change', function() {
+                selectedID_Commercant = this.value;
+                loadDenrees();
+            });
+            partnerSelectContainer.appendChild(document.createElement('br'));
+            partnerSelectContainer.appendChild(document.createElement('label')).textContent = 'Partner:';
+            partnerSelectContainer.appendChild(partnerSelect);
+            fetch('http://localhost:3000/api/partner/partners')
+                .then(response => response.json())
+                .then(data => {
+                    data.partners.forEach(partner => {
+                        const option = document.createElement('option');
+                        option.value = partner.ID_Commercant;
+                        option.textContent = partner.nom;
+                        partnerSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading partners:', error));
+        }
+
+        // Function to load denrées based on selected partner
+        function loadDenrees() {
+            if (!selectedID_Commercant) {
+                console.error('Selected ID_Commercant is undefined.');
+                return;
+            }
+            fetch(`http://localhost:8000/api/maraude/partner/${selectedID_Commercant}/denrees`)
+                .then(response => response.json())
+                .then(data => {
+                    const denreeSelect = document.getElementById('denree');
+                    denreeSelect.innerHTML = '';
+                    if (data.denrees && data.denrees.length > 0) {
+                        data.denrees.forEach(denree => {
+                            const option = document.createElement('option');
+                            option.value = denree.ID_Denree;
+                            option.textContent = denree.type;
+                            denreeSelect.appendChild(option);
+                        });
+                        // Find the closest expiry date and update the input field
+                        const closestExpiryDate = findClosestExpiry(data.denrees);
+                        document.getElementById('closest-expiry').value = closestExpiryDate;
+                    } else {
+                        console.error('No denrées found for the selected partner.');
+                    }
+                })
+                .catch(error => console.error('Error loading denrées:', error));
+        }
+
+        // Function to find the closest expiry date
+        function findClosestExpiry(denrees) {
+            const currentDate = new Date();
+            let closestExpiry = new Date(denrees[0].date_peremption);
+
+            denrees.forEach(denree => {
+                const expiryDate = new Date(denree.date_peremption);
+                if (expiryDate > currentDate && expiryDate < closestExpiry) {
+                    closestExpiry = expiryDate;
+                }
+            });
+
+            return closestExpiry.toISOString().split('T')[0];
+        }
+
+        // Function to submit the form
+        document.getElementById('create-maraude-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const date = document.getElementById('date').value;
+            const heure = document.getElementById('heure').value;
+            const route = document.getElementById('route').value;
+            const partner = document.getElementById('partner').value;
+            const denree = document.getElementById('denree').value;
+
+            // Send the form data to create a maraude
+            fetch('http://localhost:8000/api/maraude/maraudes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ date_maraude: date, heure_maraude: heure })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    console.log(data.message);
+                } else {
+                    console.log('Maraude created successfully with ID:', data.ID_Maraude);
+                    updateDenreeTable(data.ID_Maraude, denree); // Call updateDenreeTable with the maraude ID and denree
+                    updateDenreeMaraudes(data.ID_Maraude, partner); // Call updateDenreeMaraudes with the maraude ID and partner
+                }
+            })
+            .catch(error => console.error('Error creating maraude:', error));
+        });
+
+        // Function to update a single column in the denree table
+        function updateDenreeTable(maraudeID, denree) {
+            console.log(maraudeID, denree);
+
+            // Send a request to update the specific column in the denree table
+            fetch(`http://localhost:8000/api/denree/${denree}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id_maraude: maraudeID }) // Send only the column you want to update
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    console.log(data.message);
+                    console.log('Specific column in denree table updated successfully');
+                } else {
+                    console.error('Failed to update specific column in denree table');
+                }
+            })
+            .catch(error => console.error('Error updating specific column in denree table:', error));
+        }
+
+        // Function to update the id_maraude of denrees with the same id_commercant
+        function updateDenreeMaraudes(idMaraude, idCommercant) {
+            // Fetch denrees with the same id_commercant
+            fetch(`http://localhost:8000/api/denree/commercant/${idCommercant}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Iterate through each denree and update its id_maraude
+                    data.denrees.forEach(denree => {
+                        // Send a PUT request to update the id_maraude of the denree
+                        fetch(`http://localhost:8000/api/denree/${denree.ID_Denree}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ id_maraude: idMaraude })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message) {
+                                console.log(data.message);
+                                console.log(`ID_Maraude updated successfully for Denree ID ${denree.ID_Denree}`);
+                            } else {
+                                console.error(`Failed to update ID_Maraude for Denree ID ${denree.ID_Denree}`);
+                            }
+                        })
+                        .catch(error => console.error(`Error updating ID_Maraude for Denree ID ${denree.ID_Denree}:`, error));
+                    });
+                })
+                .catch(error => console.error('Error fetching denrees:', error));
+        }
+
+    </script>
+</body>
+</html>
