@@ -259,20 +259,20 @@ const addRegistration = async (req, res) => {
 };
 const checkRegistrationStatus = async (req, res) => {
   try {
-      const eventId = req.params.eventId;
-      const benevoleId = req.params.benevoleId;
-      
-      const registration = await EvenementBenevole.findOne({ ID_event: eventId, ID_Benevole: benevoleId });
-      
-      if (registration) {
-          // Si une inscription est trouvée, renvoyer un statut 200 pour indiquer que le bénévole est déjà inscrit
-          return res.status(200).json({ message: 'Bénévole déjà inscrit à cet événement' });
-      } else {
-          return res.status(404).json({ message: 'Bénévole non inscrit à cet événement' });
-      }
+    const eventId = req.params.eventId;
+    const benevoleId = req.params.benevoleId;
+    
+    const registration = await EvenementBenevole.findOne({ where: { ID_event: eventId, ID_Benevole: benevoleId } });
+    
+    if (registration) {
+      return res.status(200).json({ message: 'Bénévole déjà inscrit à cet événement' });
+    } else {
+      // Aucune correspondance trouvée, le bénévole n'est pas inscrit à cet événement
+      return res.status(404).json({ message: 'Bénévole non inscrit à cet événement' });
+    }
   } catch (error) {
-      console.error('Erreur lors de la vérification du statut d\'inscription:', error);
-      return res.status(500).json({ error: 'Erreur interne du serveur lors de la vérification du statut d\'inscription' });
+    console.error('Erreur lors de la vérification du statut d\'inscription:', error);
+    return res.status(500).json({ error: 'Erreur interne du serveur lors de la vérification du statut d\'inscription' });
   }
 };
 
