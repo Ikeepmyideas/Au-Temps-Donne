@@ -22,10 +22,13 @@ function EventprvDetails() {
     const [beneficiaries, setBeneficiaries] = useState([]);
     const [selectedVolunteer, setSelectedVolunteer] = useState('');
     const [selectedBeneficiary, setSelectedBeneficiary] = useState('');
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
+   
     const [editMode, setEditMode] = useState(false);
 
-
     const [formData, setFormData] = useState({
+        ID_Activite: '',
         titre: '',
         description: '',
         heure_debut: '',
@@ -36,7 +39,7 @@ function EventprvDetails() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activitesprv/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/admin/activites_prives/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -46,6 +49,7 @@ function EventprvDetails() {
             .then(data => {
                 setEvent(data);
                 setFormData({
+                    ID_Activite:  data.ID_Activite,
                     titre: data.titre,
                     description: data.description,
                     heure_debut: data.heure_debut,
@@ -60,9 +64,9 @@ function EventprvDetails() {
                 console.error('Erreur lors de la récupération des détails de l’événement:', error);
             });
     };
-
+/*
     const fetchVolunteers = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/volunteers`)
+        fetch(`http://127.0.0.1:8000/api/admin/volunteers`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -83,9 +87,8 @@ function EventprvDetails() {
                 }
             });
     };
-    
+    */
 
-    
 
     useEffect(() => {
         fetchEventDetails();
@@ -154,7 +157,7 @@ function EventprvDetails() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`http://127.0.0.1:8000/api/admin/activitesprv/update/${eventId}`, {
+        fetch(`http://127.0.0.1:8000/api/admin/activites_prives/update/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -177,67 +180,37 @@ function EventprvDetails() {
         });
     };
 
+    function deleteEvent(eventId) {
+        fetch(`http://127.0.0.1:8000/api/admin/activites_prives/delete/${eventId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to delete event');
+            }
+        })
+        .then(data => {
+            alert(data.message); 
+            sessionStorage.setItem('successMessageDelete', 'Evenement supprimé avec succès!');
+            navigate('/activiteprv');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting event: ' + error.message); 
+        });
+    }
+    
     const handleDownloadPDF = () => {
         const doc = new jsPDF();
     
-        const eventDetailsColumns = [
-            { header: 'Propriété', dataKey: 'property' },
-            { header: 'Valeur', dataKey: 'value' }
-        ];
-        const eventDetailsRows = [
-            { property: 'Titre', value: event.titre },
-            { property: 'Description', value: event.description },
-            { property: 'Heure de début', value: event.heure_debut },
-            { property: 'Heure de fin', value: event.heure_fin },
-            { property: 'Date', value: new Date(event.date_activite).toLocaleDateString() },
-            { property: 'Adresse', value: `${event.lieu.adresse}, ${event.lieu.ville}, ${event.lieu.code_postal}` },
-        ];
+        const title = "Détails de l'Événement";
+        const titleX = 105;
+        const titleY = 10;
     
-        doc.autoTable(eventDetailsColumns, eventDetailsRows, {
-            startY: 10,
-            theme: 'grid',
-            styles: { overflow: 'linebreak' },
-            columnStyles: {
-                property: { cellWidth: 50 },
-                value: { cellWidth: 140 }
-            },
-            headStyles: { fillColor: [115, 3, 192] },
-            margin: { horizontal: 5 },
-            bodyStyles: { valign: 'top' },
-            showHead: 'firstPage'
-        });
-    
-        const participantColumns = [
-            { header: 'Nom', dataKey: 'nom' },
-            { header: 'Prénom', dataKey: 'prenom' }
-        ];
-        const participantRows = participants.map(participant => ({
-            nom: participant.volunteer.nom,
-            prenom: participant.volunteer.prenom
-        }));
-    
-        let finalY = doc.lastAutoTable.finalY || 10;
-        if (finalY === undefined || finalY >= 280) {
-            doc.addPage();
-            finalY = 10;
-        }
-    
-        doc.autoTable(participantColumns, participantRows, {
-            startY: finalY + 10,
-            theme: 'grid',
-            styles: { overflow: 'linebreak' },
-            columnStyles: { nom: { cellWidth: 90 }, prenom: { cellWidth: 100 } },
-            headStyles: { fillColor: [115, 3, 192] }, // Purple header
-            margin: { horizontal: 5 },
-            bodyStyles: { valign: 'top' },
-            showHead: 'firstPage'
-        });
-    
-        doc.save('details_evenement_participants.pdf');
-    };
-
-    const handleDownloadBenefPDF = () => {
-        const doc = new jsPDF();
+        doc.setFontSize(16); 
+        doc.text(title, titleX, titleY, { align: 'center' }); 
     
         const eventDetailsColumns = [
             { header: 'Propriété', dataKey: 'property' },
@@ -250,10 +223,12 @@ function EventprvDetails() {
             { property: 'Heure de fin', value: event.heure_fin },
             { property: 'Date', value: new Date(event.date_activite).toLocaleDateString() },
             { property: 'Adresse', value: `${event.lieu.adresse}, ${event.lieu.ville}, ${event.lieu.code_postal}` },
+            { property: 'Bénévole', value: `${event.volunteer.nom} ${event.volunteer.prenom}` },
+            { property: 'Bénéficiaire', value: `${event.beneficiary.nom} ${event.beneficiary.prenom}` },
         ];
     
         doc.autoTable(eventDetailsColumns, eventDetailsRows, {
-            startY: 10,
+            startY: titleY + 10, 
             theme: 'grid',
             styles: { overflow: 'linebreak' },
             columnStyles: {
@@ -266,40 +241,14 @@ function EventprvDetails() {
             showHead: 'firstPage'
         });
     
-        const participantColumns = [
-            { header: 'Nom', dataKey: 'nom' },
-            { header: 'Prénom', dataKey: 'prenom' }
-        ];
-        const participantRows = participantsBenef.map(participantBenef => ({
-            nom: participantBenef.beneficiary.nom,
-            prenom: participantBenef.beneficiary.prenom
-        }));
-    
-        let finalY = doc.lastAutoTable.finalY || 10;
-        if (finalY === undefined || finalY >= 280) {
-            doc.addPage();
-            finalY = 10;
-        }
-    
-        doc.autoTable(participantColumns, participantRows, {
-            startY: finalY + 10,
-            theme: 'grid',
-            styles: { overflow: 'linebreak' },
-            columnStyles: { nom: { cellWidth: 90 }, prenom: { cellWidth: 100 } },
-            headStyles: { fillColor: [115, 3, 192] }, // Purple header
-            margin: { horizontal: 5 },
-            bodyStyles: { valign: 'top' },
-            showHead: 'firstPage'
-        });
-    
-        doc.save('details_evenement_participants.pdf');
+        doc.save('Event_Details.pdf');
     };
+    
     
     if (!event) {
         return <div>Loading...</div>;
     }
 
-    
     return (
         <>
             <NavMenu />
@@ -312,7 +261,7 @@ function EventprvDetails() {
                                         <button onClick={handleBackClick} className="back-button">
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" />
                                         </button>
-                                        <h3>Détails de l'événement</h3>
+                                        <h3 className='title_event'>Détails de l'événement</h3>
                                     </div>
                                     <div className="box-container">
                                     <div className="elm_box_details">
@@ -321,6 +270,7 @@ function EventprvDetails() {
 
                                         <label>Titre:
                                             <input
+                                                id="input_modif"
                                                 type="text"
                                                 name="titre"
                                                 value={formData.titre}
@@ -331,6 +281,7 @@ function EventprvDetails() {
                                         <div class="event-g">
                                         <label>Description:
                                             <textarea
+                                                id="input_modif"
                                                 name="description"
                                                 value={formData.description}
                                                 onChange={handleInputChange}
@@ -340,6 +291,7 @@ function EventprvDetails() {
                                         <div class="event-group">
                                         <label>Heure début:
                                             <input
+                                                 id="input_modif"
                                                 type="time"
                                                 name="heure_debut"
                                                 value={formData.heure_debut}
@@ -348,6 +300,7 @@ function EventprvDetails() {
                                         </label>
                                         <label>Heure fin:
                                             <input
+                                                id="input_modif"
                                                 type="time"
                                                 name="heure_fin"
                                                 value={formData.heure_fin}
@@ -356,6 +309,7 @@ function EventprvDetails() {
                                         </label>
                                         <label>Date de l'activité:
                                             <input
+                                                id="input_modif"
                                                 type="date"
                                                 name="date_activite"
                                                 value={formData.date_activite}
@@ -367,6 +321,7 @@ function EventprvDetails() {
                                             <div class="event-child">
                                             <label>Adresse:
                                             <input
+                                                id="input_modif"
                                                 type="text"
                                                 name="adresseComplete"
                                                 value={formData.adresseComplete}
@@ -377,6 +332,7 @@ function EventprvDetails() {
                                             <div class="event-child">
                                             <label>Ville:
                                             <input
+                                                id="input_modif"
                                                 type="text"
                                                 name="ville"
                                                 value={formData.ville}
@@ -385,8 +341,9 @@ function EventprvDetails() {
                                         </label>
                                             </div>
                                         
-                                        <label>Code Postal:
-                                            <input id="postalCode"
+                                        <label className="postalCode">Code Postal:
+                                            <input 
+                                                id="input_modif"
                                                 type="text"
                                                 name="code_postal"
                                                 value={formData.code_postal}
@@ -395,41 +352,9 @@ function EventprvDetails() {
                                         </label>
                                             </div>
                                             <div className="event-group">
-  <div className="event-child">
-    <label>Volunteer:
-      <select
-        name="selectedVolunteer"
-        value={selectedVolunteer}
-        onChange={e => fetchVolunteers(e.target.value)}
-      >
-        {volunteers.map(volunteer => (
-          <option key={volunteer.id} value={volunteer.id}>
-            {volunteer.nom} {volunteer.prenom}
-          </option>
-        ))}
-      </select>
-    </label>
-  </div>
-  <div className="event-child">
-    <label>Beneficiary:
-      <select
-        name="selectedBeneficiary"
-        value={selectedBeneficiary}
-        onChange={e => setSelectedBeneficiary(e.target.value)}
-      >
-        {beneficiaries.map(beneficiary => (
-          <option key={beneficiary.id} value={beneficiary.id}>
-            {beneficiary.nom} {beneficiary.prenom}
-          </option>
-        ))}
-      </select>
-    </label>
-  </div>
-</div>
-
-                                        
-                                        
-                                        <button className="btn_act" type="submit">Enregistrer</button>
+                                          
+                                        </div>
+                                        <center><button className="btn_act" type="submit">Enregistrer</button></center>
                                     </form>
                                     </div>
                                     </div>
@@ -437,10 +362,10 @@ function EventprvDetails() {
                                 ) : (
                                     <div>
                                     <div className="header">
-                                        <Link to="/allEvents"> 
+                                        <Link to="/activiteprv"> 
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" /> 
                                         </Link>
-                                        <h3>Détails de l'événement</h3>
+                                        <h3 className='title_event'>Détails de l'événement</h3>
                                     </div>
                                     <div className="box-container">
                                         <div className="elm_box_details">
@@ -469,31 +394,17 @@ function EventprvDetails() {
                                         </div>
                                         </div>
                                     </div>
-                                    <button type="button" className="btn_act" onClick={() => setMode('edit')}>Modifier</button>
+                                    <div id="btn_grp">
+                                        <button type="button" className="btn_act" onClick={() => setMode('edit')}>Modifier</button>
+                                        <button type="button" className="btn_act" onClick={() => deleteEvent(event.ID_Activite)}>Supprimer</button>
+                                        <button  type="button" className="btn_act" onClick={handleDownloadPDF}>Télécharger</button>
+
+                                    </div>
+                                 
 
                                     </div>
                                     </div>
-                                    <div className="participant-list">
-                                       <div className="header">
-                                        <h3>Liste des participants</h3>
-                                        </div>
-                                        <div className="list-container">
-                                            <div className="list-card">
-                                                <h4>Bénévoles</h4>
-                                                <Link id="voir" to={`/volunteers/${eventId}`} className="btn-link">Voir la liste</Link>
-                                                <div className="download-button">
-                                                    <button  id="download" className="btn-link" onClick={handleDownloadPDF}>Télécharger</button>
-                                                </div>
-                                            </div>
-                                            <div className="list-card">
-                                                <h4>Bénéficiaires</h4>
-                                                <Link id="voir" to={`/beneficiaires/${eventId}`} className="btn-link">Voir la liste</Link>
-                                                <div className="download-button">
-                                                <button  id="download" className="btn-link" onClick={handleDownloadBenefPDF}>Télécharger</button>
-                                            </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
 
                                 )}

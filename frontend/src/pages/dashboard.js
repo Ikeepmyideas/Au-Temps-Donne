@@ -5,7 +5,7 @@ import view from '../assets/voir_all.png';
 
 function Dashboard() {
   useEffect(() => {
-    fetch('http://localhost:8000/api/admin/all/latest')
+    fetch('https://au-temps-donne-api.onrender.com/api/admin/all/latest')
       .then(response => response.json())
       .then(data => {
         console.log('Données des bénévoles et bénéficiaires récupérées:', data);
@@ -46,6 +46,9 @@ function Dashboard() {
 
   return (
     <>
+    <body class="adminbody">
+      
+   
       <NavMenu />
       <section className="content">
         <section className="tables">
@@ -78,7 +81,7 @@ function Dashboard() {
           <h3 className="title_dashboard">À venir</h3>
           <p id="date"></p>
         </div>
-      </section>
+      </section> </body>
     </>
   );
 }

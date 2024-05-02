@@ -140,7 +140,7 @@ function List() {
                         </form>
                     </div>
                     {showSuccessAlert && (
-                        <div className="alert delete">
+                        <div className="alert success">
                             Bénévole supprimé avec succès!
                         </div>
                     )}

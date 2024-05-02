@@ -19,6 +19,17 @@ import Home from './pages/home';
 import Signup from './pages/signup';
 import SignupSuccess from './pages/signup_success';
 import Newsletter from './pages/newsletter';
+import History from './pages/HistoryEvents';
+import Board from './pages/volunteer/dashboardVolunteer';
+import Loginb from './pages/loginb';
+import Activity from './pages/ActivityPubliqueDetails';
+import Dashboardb from './pages/homepageb';
+import Dashboardv from './pages/dashboardv';
+import Events from './pages/evenements';
+import AllEvents from './pages/showAllEvent'
+import DetailsEventP from './pages/showEventDetails';
+import Profileb from './pages/profileb';
+
 WebFont.load({
   google: {
     families: ['Inter:wght@400;700']
@@ -46,6 +57,16 @@ function App() {
         <Route path="/signup_success" element={<SignupSuccess />} />
         <Route path="/partners" element={<Partners />} />
         <Route path="/newsletter" element={<Newsletter />} />
+        <Route path="/historyActivity" element={<History />} />
+        <Route path="/DashboardVolunteer" element={<Board />} />
+        <Route path="/ActivityPubliqueDetails/:eventId" element={<Activity />} />  
+        <Route path="/loginb" element={<Loginb />} />  
+        <Route path="/Dashboardv" element={<Dashboardv />}  />
+        <Route path="/dashboardb" element={<Dashboardb />} />
+        <Route path="/Evenements" element={<Events />} />
+        <Route path="/AllEvenements" element={<AllEvents />} />
+        <Route path="/DetailsEvenement/:eventId" element={<DetailsEventP />} />
+        <Route path="/profilb" element={<Profileb />} />
       </Routes>
     </Router>
   );

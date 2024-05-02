@@ -36,7 +36,8 @@ function Event() {
                         <Link to="/allEvents" className={currentPath === '/allEvents' ? 'active' : ''} style={currentPath === '/allEvents' ? { color: '#D23939' } : {}}>Activités publiques </Link>
                         <Link to="/activiteprv" className={currentPath === '/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/beneficiaires' ? { color: '#D23939' } : null}>Activités privés </Link>
                         <Link to="/list_partenaires" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
-                        <Link to="/Historique" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Historique</Link>
+                        <Link to="/HistoryActivity" className={currentPath === '/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/HistoryActivity' ? { color: '#D23939' } : null}>Activités privés </Link>
+
                     </div>
                     <div className="box-container">
                         {activities.map((activity, index) => (

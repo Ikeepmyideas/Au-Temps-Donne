@@ -8,7 +8,7 @@ import date from  '../assets/date.png';
 import retour from '../assets/retour.png';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-
+  
 function EventDetails() {
     const { eventId } = useParams();
     const navigate = useNavigate(); 
@@ -301,7 +301,7 @@ function EventDetails() {
                                         <button onClick={handleBackClick} className="back-button">
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" />
                                         </button>
-                                        <h3>Détails de l'événement</h3>
+                                        <h3 className='title_event'>Détails de l'événement</h3>
                                     </div>
                                     <div className="box-container">
                                     <div className="elm_box_details">
@@ -396,7 +396,7 @@ function EventDetails() {
                                         <Link to="/allEvents"> 
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" /> 
                                         </Link>
-                                        <h3>Détails de l'événement</h3>
+                                        <h3 className='title_event'>Détails de l'événement</h3>
                                     </div>
                                     <div className="box-container">
                                         <div className="elm_box_details">
@@ -428,27 +428,7 @@ function EventDetails() {
 
                                     </div>
                                     </div>
-                                    <div className="participant-list">
-                                       <div className="header">
-                                        <h3>Liste des participants</h3>
-                                        </div>
-                                        <div className="list-container">
-                                            <div className="list-card">
-                                                <h4>Bénévoles</h4>
-                                                <Link id="voir" to={`/volunteers/${eventId}`} className="btn-link">Voir la liste</Link>
-                                                <div className="download-button">
-                                                    <button  id="download" className="btn-link" onClick={handleDownloadPDF}>Télécharger</button>
-                                                </div>
-                                            </div>
-                                            <div className="list-card">
-                                                <h4>Bénéficiaires</h4>
-                                                <Link id="voir" to={`/beneficiaires/${eventId}`} className="btn-link">Voir la liste</Link>
-                                                <div className="download-button">
-                                                <button  id="download" className="btn-link" onClick={handleDownloadBenefPDF}>Télécharger</button>
-                                            </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                   
                                 </div>
 
                                 )}

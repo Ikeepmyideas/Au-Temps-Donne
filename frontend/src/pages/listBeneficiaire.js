@@ -149,7 +149,7 @@ function BeneficiaryList() {
                         </form>
                     </div>
                     {showSuccessAlert && (
-                        <div className="alert delete">
+                        <div className="alert success">
                             Bénéficiaire supprimé avec succès!
                         </div>
                     )}

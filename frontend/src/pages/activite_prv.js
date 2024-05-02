@@ -10,9 +10,11 @@ function Event() {
     const [activities, setActivities] = useState([]);
     const location = useLocation();
     const currentPath = location.pathname;
-
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
+   
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/admin/activitesprv')
+        fetch('http://127.0.0.1:8000/api/admin/activites_prives')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -25,6 +27,14 @@ function Event() {
             .catch(error => {
                 console.error('Erreur lors de la récupération des données:', error);
             });
+            if (sessionStorage.getItem('successMessage')) {
+                setShowSuccessAlertadd(true);
+                sessionStorage.removeItem('successMessage'); 
+            }else if (sessionStorage.getItem('successMessageDelete')){
+                setShowSuccessAlert(true);
+                sessionStorage.removeItem('successMessageDelete'); 
+    
+            }
     }, []);
 
     return (
@@ -36,8 +46,18 @@ function Event() {
                         <Link to="/allEvents" className={currentPath === '/allEvents' ? 'active' : ''} style={currentPath === '/allEvents' ? { color: '#D23939' } : {}}>Activités publiques </Link>
                         <Link to="/activiteprv" className={currentPath === '/activiteprv' ? 'active' : 'link_list'} style={currentPath === '/activiteprv' ? { color: '#D23939' } : null}>Activités privés </Link>
                         <Link to="/list_partenaires" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
-                        <Link to="/Historique" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Historique</Link>
+                        <Link to="/HistoryActivity" className={currentPath === '/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/HistoryActivity' ? { color: '#D23939' } : null}>Activités privés </Link>
                     </div>
+                    {showSuccessAlert && (
+                        <div className="alert success">
+                            Evenement supprimé avec succès!
+                        </div>
+                    )}
+                    {showSuccessAlertadd && (
+                        <div className="alert success">
+                            Evenement supprimé avec succès!
+                        </div>
+                    )}
                     <div className="box-container">
                         {activities.map((activity, index) => (
                             <div key={index} className="elm_box">

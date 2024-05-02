@@ -35,7 +35,6 @@ function Partners() {
         };
         fetchPartenaires();
 
-        // Check sessionStorage for success message
         if (sessionStorage.getItem('successMessage')) {
             setShowSuccessAlertadd(true);
             sessionStorage.removeItem('successMessage'); 
@@ -158,7 +157,7 @@ function Partners() {
                         </form>
                     </div>
                     {showSuccessAlert && (
-                        <div className="alert delete">
+                        <div className="alert success">
                             Partenaire supprimé avec succès!
                         </div>
                     )}

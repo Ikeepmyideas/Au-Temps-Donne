@@ -191,6 +191,7 @@ function Signup() {
                             </div>
                             
                             <center><button class="submit-btn" type="submit">Suivant</button></center>
+                            
                         </form>
                     </div>
                 )}
@@ -266,6 +267,7 @@ function Signup() {
                                         <option value="">Sélectionnez un service</option>
                                     </select>
                                 </div>
+                                <center><button class="submit-btn" type="submit">Retour</button></center>
                                 <center><button class="submit-btn" id="btn_va" type="submit">Valider</button></center>
                                 </div>
                                 
@@ -302,6 +304,7 @@ function Signup() {
                                         <input type="file" id="justificatif_permis" name="justificatif_permis" onChange={handleInputChange}/>
                                     </div>
                                 </div>
+                                <center><button class="submit-btn" type="submit">Retour</button></center>
                                 <center><button class="submit-btn" id="btn_va" type="submit">Suivant</button></center>
 
                             </div>
@@ -350,6 +353,7 @@ function Signup() {
                                 <textarea className="form-control" value={formData.message_candidature} onChange={handleInputChange} id="message_candidature" name="message_candidature" rows="3" required></textarea>
                             </div>
                         </div>
+                        <center><button className="submit-btn" onClick={() => setCurrentPage(2)}>Retour</button></center>
                         <center><button className="submit-btn" id="btn_va" type="submit">Valider</button></center>
                     </form>
                     </div>
