@@ -20,4 +20,7 @@ const Activity = sequelize.define('activites', {
   Activity.associate = function(models) {
     Activity.belongsTo(models.Lieu, { foreignKey: 'id_lieu', as: 'lieu' });
 };
+Activity.associate = function(models) {
+  Activity.belongsTo(models.Lieu, { foreignKey: 'id_lieu', as: 'lieuA' });
+};
   module.exports = Activity;

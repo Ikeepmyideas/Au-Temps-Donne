@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/db');
+const Lieu = require('./Lieu');
 
 const Formation = sequelize.define('formations', {
   id_formation: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
@@ -13,5 +14,6 @@ const Formation = sequelize.define('formations', {
 }, {
   timestamps: false
 });
+Formation.belongsTo(Lieu, { foreignKey: 'id_lieu', as: 'lieu' });
 
 module.exports = Formation;

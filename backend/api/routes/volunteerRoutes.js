@@ -1,76 +1,54 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../multerConfig');
-const jwt = require('jsonwebtoken');
-const cors = require('cors');
-router.use(cors({
-    origin: 'http://localhost:3000', // Replace with your frontend URL
-    credentials: true // Allow credentials (cookies)
-  }));
-
-  const setCookie = require('../middleware/setCookie');
-
-const { registerVolunteer } = require('../controllers/volunteerController');
-const { loginVolunteer } = require('../controllers/volunteerController');
-router.post('/registerVolunteer', upload, registerVolunteer);
-router.post('/login', loginVolunteer);
-
-const Blog = require('../models/Blog');
-
-
-const authentication = require('../middleware/authMiddleware');
+const multer = require('multer');
 const Volunteer = require('../models/Volunteer');
+const { getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
+const authentication = require('../middleware/authentication');
 
+const storage = multer.memoryStorage(); 
 
+const upload = multer({ storage: storage }).fields([
+  { name: 'casier_judiciaire', maxCount: 1 },
+  { name: 'justificatif_permis', maxCount: 1 }
+]);
 
-router.get('/logout', (req, res) => {
-    try {
-      // Effacer le cookie d'accès_token
-      res.clearCookie('access_token');
-  
-      // Répondre avec un statut 200 pour indiquer que la déconnexion a réussi
-      res.status(200).json({ message: 'Logout successful' });
-    } catch (error) {
-      console.error('Error logging out:', error);
-      res.status(500).json({ error: 'Internal server error' });
+router.post('/registerVolunteer', (req, res, next) => {
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      console.error('Multer Error:', err);
+      return res.status(400).json({ error: 'Une erreur s\'est produite lors du téléversement du fichier' });
+    } else if (err) {
+      console.error('Error:', err);
+      return res.status(500).json({ error: 'Erreur interne du serveur' });
     }
+
+    next();
   });
-  
-// Protected route example
-// Protected route example
-router.get('/protected', authentication, async (req, res) => {
-    try {
-        // Assuming req.user contains the decoded user object
-        const userId = req.user.id;
-
-        // Fetch the image path from the database based on the user's ID
-        let imagePath = null;
-        if (req.userType === 'beneficiary') {
-            const profileImage = await ImageProfile.findOne({
-                where: { ID_Beneficiaire: userId }
-            });
-            if (profileImage) {
-                imagePath = profileImage.image_path;
-            }
-        } else if (req.userType === 'volunteer') {
-            const volunteer = await Volunteer.findOne({
-                where: { id: userId }
-            });
-            if (volunteer) {
-                // Assuming profileImagePath is a field in the Volunteer model
-                imagePath = volunteer.profileImagePath;
-            }
-        }
-
-        // Send the profile image path as a response
-        res.json({ profileImagePath: imagePath });
-
-    } catch (error) {
-        console.error('Error fetching profile image:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+}, registerVolunteer);
+router.put('/volunteer', async (req, res) => {
+  const accessToken = req.cookies.access_token;
+  if (!accessToken) {
+      return res.status(401).json({ error: 'Access token not provided' });
+  }
+  try {
+      const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+      const updatedBeneficiary = await updateBeneficiary(decodedToken.id, req.body);
+      res.status(200).json(updatedBeneficiary);
+  } catch (error) {
+      console.error('Error updating beneficiary:', error);
+      res.status(500).json({ error: error.message });
+  }
 });
+router.get('/logout', (req, res) => {
+  res.clearCookie('access_token');
+  res.status(200).json({ message: 'Logout successful' });
+})
+router.get('/userinfo', getUserInfo);
 
-
+router.post('/login', loginVolunteer);
+router.post('/activites/registrations/:ID_event', addRegistration);
+router.get('/registrations/:eventId/:benevoleId',checkRegistrationStatus);
+router.delete('/registrations/delete/:eventId/:benevoleId',deleteRegistration);
+router.get('/activities/:benevoleId', getEventsForVolunteer);
 
 module.exports = router;

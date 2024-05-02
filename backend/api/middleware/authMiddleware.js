@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Beneficiary = require('../models/Volunteer'); // Import your Beneficiary model
-const ImageProfile = require('../models/ImageProfile'); // Import your ImageProfile model
-
+const ImageProfile = require('../models/ImageProfile'); 
 module.exports = async function (req, res, next) {
     const token = req.cookies.access_token; // Get the token from cookies instead of the Authorization header
     if (!token) {

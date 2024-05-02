@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
+const saltRounds = 10; 
 app.use(express.json());
 const Admin = require('../models/Admin');
 const Volunteer = require('../models/Volunteer');
@@ -16,11 +18,28 @@ const Service = require('../models/Service');
 const Blog = require('../models/Blog');
 const EvenementBenevole = require('../models/EvenementBenevole');
 const Notification = require( '../models/notifications' );
-
+const jwt = require('jsonwebtoken');
 const sequelize = require('../config/db'); 
 const { Op } = require('sequelize'); 
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
+const generateToken = (id, email) => {
+  return jwt.sign({ id, email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+};
+exports.authMiddleware = (req, res, next) => {
+  const token = req.cookies.access_token;
+  if (!token) {
+      return res.status(401).json({ error: 'Non autorisé : Aucun token fourni' });
+  }
+
+  try {
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      req.user = decoded;
+      next();
+  } catch (error) {
+      return res.status(401).json({ error: 'Non autorisé : Token invalide' });
+  }
+};
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -31,13 +50,75 @@ const transporter = nodemailer.createTransport({
 });
 exports.createAdmin = async (req, res) => {
   try {
-    const admin = await Admin.create(req.body);
+    const { email, mot_de_passe,nom, prenom  } = req.body; 
+
+    const hashedPassword = await bcrypt.hash(mot_de_passe, saltRounds);
+
+    const admin = await Admin.create({
+      email,
+      mot_de_passe: hashedPassword, 
+      nom, 
+      prenom
+    });
+
     res.status(201).json({ message: "Admin créé avec succès", admin });
   } catch (error) {
+    console.error("Erreur lors de la création de l'administrateur:", error);
     res.status(400).json({ message: "Erreur lors de la création de l'administrateur", error: error.message });
   }
 };
 
+async function sendWelcomeEmailAdmin(email, name, password) {
+  const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: 'Bienvenue dans l\'équipe de gestion !',
+      text: `Bonjour ${name},\n\nNous sommes ravis de vous accueillir au sein de notre équipe en tant qu'administrateur. Votre expérience et vos compétences seront essentielles pour nous aider à atteindre nos objectifs.
+      `,
+      html: `<p>Bonjour <strong>${name}</strong>,</p><p>Vous trouverez ci-dessous vos informations de connexion et des détails supplémentaires pour accéder à notre système de gestion :</p><ul><li>Email : ${email}</li><li>Mot de passe : ${password}</li></ul><p>Nous vous recommandons de changer votre mot de passe lors de votre première connexion pour des raisons de sécurité.</p><p>Bienvenue dans la communauté !</p>`,
+  };
+
+  try {
+      await transporter.sendMail(mailOptions);
+      console.log('Email de bienvenue envoyé avec succès');
+  } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de bienvenue:', error);
+  }
+}
+exports.addAdmin = async (req, res) => {
+  try {
+    const { email, nom, prenom } = req.body; 
+
+    const generatePassword = () => {
+      return Array.from(crypto.randomFillSync(new Uint8Array(6))).map((item) => {
+        return Math.floor(item / 25.6); 
+      }).join('');
+    };
+
+    const password = generatePassword();
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const existingAdmin = await Admin.findOne({ where: { email } });
+    if (existingAdmin) {
+        return res.status(409).json({ message: "Un admin avec cet email existe déjà" });
+    }                                 
+
+    const admin = await Admin.create({
+      email,
+      mot_de_passe: hashedPassword, 
+      nom, 
+      prenom
+    });
+    await sendWelcomeEmailAdmin(email, `${prenom} ${nom}`, password                                                                                                                                                                                                                                                                                      );
+
+
+    res.status(201).json({ message: "Admin créé avec succès", admin });
+  } catch (error) {
+    console.error("Erreur lors de la création de l'administrateur:", error);
+    res.status(400).json({ message: "Erreur lors de la création de l'administrateur", error: error.message });
+  }
+};
 exports.getAdmin = async (req, res) => {
   try {
     const existingAdmin = await Admin.findOne({ where: { email: req.query.email } });
@@ -81,20 +162,43 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 exports.loginAdmin = async (req, res) => {
   try {
-    const { email, mot_de_passe } = req.body;
-    const admin = await Admin.findOne({ where: { email, mot_de_passe } });
-    if (admin) {
-      const payload = { email: admin.email, id: admin.id };
+    const { email, password } = req.body;
 
-      const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
-
-      res.json({ message: "Login réussi !", token });
-    } else {
-      res.status(401).json({ message: "Identifiant ou mot de passe incorrect." });
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
     }
-  } catch (error) {
-    res.status(500).json({ message: "Erreur serveur.", error: error.message });
-  }
+
+    const admin = await Admin.findOne({ where: { email } });
+
+    if (!admin) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    console.log("Provided password:", password);
+    console.log("Stored hashed password:", admin.mot_de_passe);
+
+    const match = await bcrypt.compare(password, admin.mot_de_passe);
+    console.log("Password match:", match);
+
+
+    if (!match) {
+        return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    const token = generateToken(admin.id, admin.email);
+
+    res.cookie('access_token', token, {
+        httpOnly: true,
+        maxAge: 3600000, // 1 hour
+        sameSite: 'none',
+        path: '/', // Set the cookie path to '/'
+        secure: true // Add 'secure: true' if your app is served over HTTPS
+    });
+
+    res.status(200).json({ message: 'Login successful' });
+} catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+}
 };
 exports.addVolunteer = async (req, res) => {
   try {
@@ -122,7 +226,6 @@ exports.addVolunteer = async (req, res) => {
 
       });
       
-      // Réponse avec le bénévole ajouté
       res.status(201).json({
           message: "Bénévole ajouté avec succès",
           volunteer: newVolunteer
@@ -268,6 +371,50 @@ exports.getAllVolunteers = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur." });
   }
 };
+
+exports.getAllNonAdminVolunteers = async (req, res) => {
+  try {
+    // Récupérer les emails des administrateurs
+    const admins = await Admin.findAll({
+      attributes: ['email']
+    });
+
+    // Extraire les emails des administrateurs dans un tableau
+    const adminEmails = admins.map(admin => admin.email);
+
+    // Récupérer les bénévoles qui ne sont pas des administrateurs
+    const nonAdminVolunteers = await Volunteer.findAll({
+      where: {
+        email: {
+          [Op.notIn]: adminEmails
+        }
+      },
+      order: [['id', 'DESC']]
+    });
+
+    res.json(nonAdminVolunteers);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des bénévoles non administrateurs :", error);
+    res.status(500).json({ message: "Erreur serveur." });
+  }
+};
+exports.getAllVolunteersAdmin = async (req, res) => {
+  try {
+    const volunteers = await Volunteer.findAll({
+      where: {
+        email: {
+          [Op.notIn]: sequelize.literal(`
+            SELECT email FROM Admin`)
+        }
+      },
+    });
+
+    res.json(volunteers);
+  } catch (error) {
+    console.error("Erreur lors de la récupération de la liste des bénévoles :", error);
+    res.status(500).json({ message: "Erreur serveur." });
+  }
+};
 exports.getAllBeneficiaires = async (req, res) => {
   try {
     const beneficiary = await Beneficiary.findAll(
@@ -365,39 +512,44 @@ exports.getAllVolunteersAndBeneficiaries = async (req, res) => {
 
 
 exports.addVolunteerToAdmins = async (req, res) => {
+  const t = await sequelize.transaction(); // Démarrez une transaction
   try {
-    const { email } = req.body; 
+    const { email } = req.body;
     
-    const volunteer = await Volunteer.findOne({ where: { email } });
+    const volunteer = await Volunteer.findOne({ where: { email } }, { transaction: t });
     if (!volunteer) {
+      await t.rollback(); // Annulez la transaction en cas de bénévole introuvable
       return res.status(404).json({ message: "Bénévole introuvable" });
     }
 
-    const existingAdmin = await Admin.findOne({ where: { email } });
+    const existingAdmin = await Admin.findOne({ where: { email } }, { transaction: t });
     if (existingAdmin) {
+      await t.rollback(); 
       return res.status(400).json({ message: "Le bénévole est déjà un administrateur" });
     }
-    const mot_de_passe = volunteer.mot_de_passe;
 
     await Admin.create({
       email: volunteer.email,
       nom: volunteer.nom,
       prenom: volunteer.prenom,
-      mot_de_passe 
-    });
+      mot_de_passe: volunteer.mot_de_passe 
+    }, { transaction: t });
 
     const removeFromVolunteers = req.body.removeFromVolunteers === true;
-
+    
     if (removeFromVolunteers) {
-      await Volunteer.destroy({ where: { email } });
+      await Volunteer.destroy({ where: { email } }, { transaction: t });
     }
 
+    await t.commit(); // Validez la transaction
     res.status(200).json({ message: "Le bénévole a été ajouté à la liste des administrateurs avec succès" });
   } catch (error) {
+    await t.rollback(); // Annulez la transaction en cas d'erreur
     console.error("Erreur lors de l'ajout du bénévole à la liste des administrateurs :", error);
     res.status(500).json({ message: "Erreur serveur." });
   }
 };
+
 exports.updateVolunteerStatus = async (req, res) => {
   try {
     const { email, newStatus } = req.body; 
@@ -801,7 +953,89 @@ exports.updateActivity = async (req, res) => {
     res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
   }
 };
+exports.updateActivityPrive = async (req, res) => {
+  const { ID_Activite } = req.params;
+  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
+  const t = await sequelize.transaction();
 
+  try {
+    const currentDate = new Date();
+    const startDate = new Date(date_activite);
+
+    if (startDate < currentDate) {
+      await t.rollback();
+      return res.status(400).send('La date de l\'activité ne peut pas être dans le passé.');
+    }
+
+    let [lieu, created] = await Lieu.findOrCreate({
+      where: { adresse: adresseComplete, ville, code_postal },
+      defaults: { adresse: adresseComplete, ville, code_postal },
+      transaction: t
+    });
+
+    if (!lieu) {
+      await t.rollback();
+      return res.status(404).send('Lieu introuvable.');
+    }
+
+    const existingActivity = await ActivityPrive.findOne({
+      where: {
+        ID_Activite: {
+          [Op.ne]: ID_Activite
+        },
+        date_activite: startDate,
+        id_lieu: lieu.id_lieu,
+        [Op.or]: [
+          {
+            [Op.and]: [
+              { heure_debut: { [Op.lte]: heure_debut } },
+              { heure_fin: { [Op.gte]: heure_debut } }
+            ]
+          },
+          {
+            [Op.and]: [
+              { heure_debut: { [Op.lte]: heure_fin } },
+              { heure_fin: { [Op.gte]: heure_fin } }
+            ]
+          },
+          {
+            [Op.and]: [
+              { heure_debut: { [Op.gte]: heure_debut } },
+              { heure_fin: { [Op.lte]: heure_fin } }
+            ]
+          }
+        ]
+      },
+      transaction: t
+    });
+
+    if (existingActivity) {
+      await t.rollback();
+      return res.status(400).send('Conflit d\'horaire avec une autre activité.');
+    }
+
+    await ActivityPrive .update({
+      titre,
+      description,
+      date_activite,
+      heure_debut,
+      heure_fin,
+      titre,
+      id_lieu: lieu.id_lieu,
+      nb_benevoles
+    }, {
+      where: { ID_Activite },
+      transaction: t
+    });
+
+    await t.commit();
+    res.status(200).send('Activité mise à jour avec succès.');
+  } catch (error) {
+    await t.rollback();
+    console.error('Erreur lors de la mise à jour de l\'activité : ', error);
+    res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
+  }
+};
 exports.createBlog = async (req, res) => {
   const { titre, contenu, emailAdmin } = req.body;
 
@@ -922,13 +1156,89 @@ exports.getLatestActivities = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la récupération des dernières activités." });
   }
 };
-exports.getActivities = async (req, res) => {
+
+exports.getPastActivities = async (req, res) => {
   try {
-    const activities = await Activity.findAll({
+    const today = new Date(); 
+
+    const publicActivitiesPromise = Activity.findAll({
+      where: {
+        date_activite: {
+          [Op.lt]: today
+        }
+      },
+      include: [{
+        model: Lieu,
+        as: 'lieu'
+      }],
+      order: [['date_activite', 'DESC']]
+    });
+
+    const privateActivitiesPromise = ActivityPrive.findAll({
+      where: {
+        date_activite: {
+          [Op.lt]: today
+        }
+      },
+      include: [{
+        model: Lieu,
+        as: 'lieu'
+      }],
+      order: [['date_activite', 'DESC']]
+    });
+
+    const [publicActivities, privateActivities] = await Promise.all([publicActivitiesPromise, privateActivitiesPromise]);
+
+    const allActivities = publicActivities.concat(privateActivities);
+
+    allActivities.sort((a, b) => new Date(b.date_create) - new Date(a.date_create));
+
+    res.status(200).json(allActivities);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des activités passées :", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des activités passées." });
+  }
+};
+
+exports.getFormations = async (req, res) => {
+  try {
+    const today = new Date();
+    const formations = await Formation.findAll({
+      where: {
+        date_debut: {
+          [Op.gt]: today 
+        }
+      },
       include: [{
         model: Lieu, 
         as: 'lieu' 
-      }],
+      }], order: [
+        ['date_debut', 'ASC'] 
+      ]
+    });
+    
+    res.status(200).json(formations);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des dernières activités :", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des dernières activités." });
+  }
+};
+
+exports.getActivities = async (req, res) => {
+  try {
+    const today = new Date();
+    const activities = await Activity.findAll({
+      where: {
+        date_activite: {
+          [Op.gt]: today 
+        }
+      },
+      include: [{
+        model: Lieu, 
+        as: 'lieu' 
+      }], order: [
+        ['date_activite', 'ASC'] 
+      ]
     });
     
     res.status(200).json(activities);
@@ -937,6 +1247,34 @@ exports.getActivities = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la récupération des dernières activités." });
   }
 };
+
+
+exports.getActivitiesPrives = async (req, res) => {
+  try {
+    const today = new Date();
+    const activities = await ActivityPrive.findAll({
+      where: {
+        date_activite: {
+          [Op.gt]: today 
+        }
+      },
+      include: [{
+        model: Lieu, 
+        as: 'lieu' 
+      }], order: [
+        ['date_activite', 'ASC'] 
+      ],
+      order: [['ID_Activite', 'DESC']],
+      attributes: ['ID_Activite', 'titre', 'description', 'date_activite']
+    });
+
+    res.status(200).json(activities);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des dernières activités :", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des dernières activités.", error: error.message });
+  }
+};
+
 exports.showEvent = async (req, res) => {
   try {
     const { ID_Activite } = req.params;
@@ -950,6 +1288,38 @@ exports.showEvent = async (req, res) => {
     if (!activity) {
       return res.status(404).json({ error: 'Activité non trouvée.' });
     }
+    res.json(activity);
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'activité :', error);
+    res.status(500).send({ message: 'Erreur lors de la récupération des informations de l\'activité.' });
+  }
+};
+
+exports.showEventPrive = async (req, res) => {
+  try {
+    const { ID_Activite } = req.params;
+    const activity = await ActivityPrive.findByPk(ID_Activite, {
+      include: [{
+        model: Lieu,
+        as: 'lieu',
+      },
+      {
+        model: Volunteer,
+        as: 'volunteer',
+        attributes: ['nom', 'prenom']
+      },
+      {
+        model: Beneficiary,
+        as: 'beneficiary',
+        attributes: ['nom', 'prenom']
+      }
+      ],
+      order: [['ID_Activite', 'DESC']]
+    });
+
+    if (!activity) {
+      return res.status(404).json({ error: 'Activité non trouvée.' });
+    }
 
     res.json(activity);
   } catch (error) {
@@ -957,6 +1327,29 @@ exports.showEvent = async (req, res) => {
     res.status(500).send({ message: 'Erreur lors de la récupération des informations de l\'activité.' });
   }
 };
+
+
+exports.deleteEventPrive = async (req, res) => {
+    const { eventId } = req.params; 
+
+    try {
+        const result = await ActivityPrive.destroy({
+            where: {
+                ID_Activite: eventId 
+            }
+        });
+
+        if (result > 0) {
+            res.status(200).json({ message: "Événement supprimé avec succès." });
+        } else {
+            res.status(404).json({ message: "Événement non trouvé." });
+        }
+    } catch (error) {
+        console.error("Erreur lors de la suppression de l'événement :", error);
+        res.status(500).json({ message: "Erreur lors de la suppression de l'événement.", error: error.message });
+    }
+};
+
 exports.addPartenaire = async (req, res) => {
   const { nom, email, telephone, adresseComplete, ville, code_postal } = req.body;
 
@@ -1122,5 +1515,14 @@ exports.sendNotification = async (req, res) => {
   } catch (error) {
       console.error("Error sending notification:", error);
       res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getAllAdresses = async (req, res) => {
+  try {
+    const adresses = await Lieu.findAll(); 
+    res.status(200).json(adresses); 
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des adresses', error: error }); 
   }
 };

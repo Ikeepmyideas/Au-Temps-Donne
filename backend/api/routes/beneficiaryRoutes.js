@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../multerConfig');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const multer = require('multer');
 
-// Using object destructuring to import multiple functions in a single line
+const storage = multer.memoryStorage(); 
+const upload = multer({ storage: storage }).fields([
+  { name: 'avis_impot', maxCount: 1 },
+]);
+
 const { 
     registerBeneficiary, 
     login, 
@@ -17,15 +21,26 @@ const ImageProfile = require('../models/ImageProfile');
 const Blog = require('../models/Blog');
 const authentication = require('../middleware/authentication');
 
-// CORS middleware setup
 router.use(cors({
-    origin: 'http://localhost:3000', // Adjust in production
+    origin: 'http://localhost:3000', 
     credentials: true
 }));
 
-// Route definitions
+router.post('/registerBeneficiary', (req, res, next) => {
+    upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+        console.error('Multer Error:', err);
+        return res.status(400).json({ error: 'Une erreur s\'est produite lors du téléversement du fichier' });
+      } else if (err) {
+        console.error('Error:', err);
+        return res.status(500).json({ error: 'Erreur interne du serveur' });
+      }
+  
+      next();
+    });
+  }, registerBeneficiary);
+
 router.post('/login', login);
-router.post('/registerBeneficiary', upload, registerBeneficiary);
 router.get('/userinfo', getUserInfo);
 router.get('/activites_prives', getActivitePriveForLoggedInUser);
 router.put('/beneficiary', async (req, res) => {
@@ -71,18 +86,5 @@ router.get('/articles', async (req, res) => {
     }
 });
 
-router.post('/upload', upload, async (req, res) => {
-    try {
-        if (req.file) {
-            const fileLocation = await uploadFileToWasabi(req.file);
-            res.status(200).json({ location: fileLocation });
-        } else {
-            res.status(400).send('No file uploaded.');
-        }
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        res.status(500).send('Server error');
-    }
-});
 
 module.exports = router;

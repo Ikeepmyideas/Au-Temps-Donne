@@ -6,27 +6,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-// Models
 const Beneficiary = require('../models/Beneficiary');
 const ActivitePrive = require('../models/ActivityPrivate');
 
-// Constants
 const saltRounds = 10;
-const bucketName = 'filesbeneficiaires';
 
-// AWS S3 configuration for Wasabi
-const s3 = new AWS.S3({
-    endpoint: new AWS.Endpoint('s3.wasabisys.com'),
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    s3ForcePathStyle: true,
-});
-
-// Multer configuration for file uploads
 const storage = multer.memoryStorage();
-const upload = multer({ storage }).single('avis_impot');
+const upload = multer({ storage: storage }).fields([
+  { name: 'avis_impot', maxCount: 1 },
+]);
 
-// Nodemailer configuration
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -35,7 +25,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Email sending function
 async function sendWelcomeEmail(email, name) {
     const mailOptions = {
         from: process.env.EMAIL_USERNAME,
@@ -52,43 +41,56 @@ async function sendWelcomeEmail(email, name) {
         console.error('Erreur lors de l\'envoi de l\'email de bienvenue:', error);
     }
 }
-
-// File upload to Wasabi function
-const uploadFileToWasabi = async (file) => {
-    const fileKey = `Avis impot/${Date.now()}_${file.originalname}`;
-    const params = {
-        Bucket: 'filesbeneficiaires',
-        Key: fileKey,
-        Body: file.buffer,
-    };
-
-    try {
+const s3 = new AWS.S3({
+    endpoint: 's3.eu-central-1.wasabisys.com',
+    accessKeyId: 'YEI1AYMEN8NT25MZQ8NW',
+    secretAccessKey: 'WZt2XNSVHN4BY5EAssKfWOeX1D75ALoXriiozBiZ',
+    region: 'eu-central-1',
+  });
+  
+  const uploadFileToWasabi = async (file, folderName, fileName) => {
+      if (!file || !file.buffer) {
+        throw new Error('File buffer is missing');
+      }
+    
+      const params = {
+          Bucket: 'files-beneficiaires',
+          Key: `${folderName}/${fileName}`, 
+          Body: file.buffer,
+        };
+    
+      try {
         const data = await s3.upload(params).promise();
+        if (!data || !data.Location) {
+          throw new Error('Upload to Wasabi failed');
+        }
         return data.Location;
-    } catch (error) {
-        console.error('Error uploading to Wasabi:', error);
+      } catch (error) {
+        console.error('Error uploading file to Wasabi:', error);
         throw error;
-    }
-};
-
+      }
+    };
 
 const registerBeneficiary = async (req, res) => {
     try {
         const { nom, prenom, date_de_naissance, email, mot_de_passe, telephone, adresse, ville, code_postal, date_adhesion, genre, besoin } = req.body;
 
+        const existingBeneficiary = await Beneficiary.findOne({ where: { email: email } });
+        if (existingBeneficiary) {
+            return res.status(409).json({ error: 'Un utilisateur avec cet email existe déjà.' });
+        }
         const hashedPassword = await bcrypt.hash(mot_de_passe, saltRounds);
-
+      
+        const avis_impotFile = req.files['avis_impot'][0];
+        const avis_impotFileFileName = `${nom}_${prenom}_avis_impot_${avis_impotFile.originalname}`;
+        const avis_impotFileURL = await uploadFileToWasabi(avis_impotFile, 'avis-impot', avis_impotFileFileName);
+    
         const newBeneficiary = await Beneficiary.create({
             nom, prenom, date_de_naissance, email, mot_de_passe: hashedPassword, telephone, adresse, ville,
-            code_postal, date_adhesion, statut_validation: "en attente", genre, besoin
-        });
+            code_postal, date_adhesion, statut_validation: "en attente", genre, besoin, avis_impot: avis_impotFileURL,
 
-        const avis_impotFile = req.file;
-        if (avis_impotFile) {
-            const avis_impotURL = await uploadFileToWasabi(avis_impotFile);
-            newBeneficiary.avis_impot = avis_impotURL;
-            await newBeneficiary.save();
-        }
+        });
+        
 
         await sendWelcomeEmail(email, `${prenom} ${nom}`);
 
@@ -102,7 +104,6 @@ const generateToken = (id, email) => {
     return jwt.sign({ id, email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
 };
 
-// Middleware pour récupérer les activités privées de l'utilisateur connecté
 const getActivitePriveForLoggedInUser = async (req, res) => {
     try {
         const accessToken = req.cookies.access_token;
@@ -117,7 +118,6 @@ const getActivitePriveForLoggedInUser = async (req, res) => {
     }
 };
 
-// Middleware d'authentification des requêtes
 const authMiddleware = (req, res, next) => {
     const token = req.cookies.access_token;
 
@@ -161,38 +161,45 @@ const getUserInfo = async (req, res) => {
     }
 };
 
-// Connexion d'un bénéficiaire
+
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email et mot de passe requis' });
+            return res.status(400).json({ error: 'Email and password are required' });
         }
 
-        const beneficiary = await Beneficiary.findOne({ where: { email } });
-        if (!beneficiary) {
-            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        const beneficiaire = await Beneficiary.findOne({ where: { email } });
+
+        if (!beneficiaire) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        console.log("Provided password:", password);
+        console.log("Stored hashed password:", beneficiaire.mot_de_passe);
+
+        const match = await bcrypt.compare(password, beneficiaire.mot_de_passe);
+        console.log("Password match:", match);
+
+
+        if (!match) {
+            return res.status(401).json({ error: 'Invalid password' });
         }
 
-        const passwordMatch = await bcrypt.compare(password, beneficiary.mot_de_passe);
-        if (!passwordMatch) {
-            return res.status(401).json({ error: 'Mot de passe invalide' });
-        }
-
-        const token = generateToken(beneficiary.id, beneficiary.email);
+        const token = generateToken(beneficiaire.id, beneficiaire.email);
 
         res.cookie('access_token', token, {
             httpOnly: true,
-            maxAge: 3600000, // 1 heure
-            sameSite: 'strict',
-            path: '/',
+            maxAge: 3600000, // 1 hour
+            sameSite: 'none',
+            path: '/', // Set the cookie path to '/'
+            secure: true // Add 'secure: true' if your app is served over HTTPS
         });
 
-        res.status(200).json({ message: 'Connexion réussie' });
+        res.status(200).json({ message: 'Login successful' });
     } catch (error) {
-        console.error('Erreur lors de la connexion :', error);
-        res.status(500).json({ error: 'Erreur interne du serveur' });
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 

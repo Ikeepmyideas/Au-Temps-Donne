@@ -5,8 +5,7 @@ const Service = require('./Service');
 const Volunteer = require('./Volunteer');
 const Beneficiary = require('./Beneficiary');
 
-
-const ActivityPrivate = sequelize.define('activites_prives', {
+const ActivityPrive = sequelize.define('activites_prives', {
   ID_Activite: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
   description: { type: Sequelize.TEXT, allowNull: false },
   date_activite: { type: Sequelize.DATE, allowNull: false },
@@ -21,8 +20,9 @@ const ActivityPrivate = sequelize.define('activites_prives', {
   timestamps: false
 });
 
-//ActivityPrivate.belongsTo(Lieu, { foreignKey: 'adresse' });
-ActivityPrivate.belongsTo(Beneficiary, { foreignKey: 'id_benevole' });
-ActivityPrivate.belongsTo(Volunteer, { foreignKey: 'id_beneficiaire' });
+// Set associations directly
+ActivityPrive.belongsTo(Lieu, { foreignKey: 'id_lieu', as: 'lieu' });
+ActivityPrive.belongsTo(Beneficiary, { foreignKey: 'id_beneficiaire', as: 'beneficiary' });
+ActivityPrive.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
 
-module.exports = ActivityPrivate;
+module.exports = ActivityPrive;
