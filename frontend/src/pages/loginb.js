@@ -21,7 +21,9 @@ function LoginForm() {
         if (response.ok) {
             const json = await response.json();
             localStorage.setItem('accessToken', json.accessToken);
-            window.location.href = '/Dashboardb';
+            localStorage.setItem('userType', json.userType);
+
+            window.location.href = '/beneficiary/Dashboardb';
             return;
         } else {
             throw new Error('Failed to log in. Please check your credentials and try again.');
@@ -46,7 +48,8 @@ function LoginForm() {
             if (response.ok) {
             const json = await response.json();
             localStorage.setItem('accessToken', json.accessToken);
-            window.location.href = '/Dashboardv';
+            localStorage.setItem('userType', json.userType);
+            window.location.href = '/volunteer/Dashboard';
             return;
 
             } else {
@@ -78,12 +81,6 @@ function LoginForm() {
                 <img src={Logo} alt="Your Logo" className="logo" />
             </header>
             <form onSubmit={handleSubmit}>
-                <div className="breadcrumb">
-                    <div className="dot"></div>
-                    <div className="line"></div>
-                    <div className="dot"></div>
-                </div>
-                
                 <h1>Connexion</h1>
                 <p><strong>Vous n'avez pas de compte ? <a href="/signupb">Inscrivez-vous</a></strong></p>
                 <div className="form-group">

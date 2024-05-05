@@ -8,7 +8,7 @@ import date from  '../assets/date.png';
 import retour from '../assets/retour.png';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-  
+
 function Activity() {
     const { eventId } = useParams();
     const navigate = useNavigate(); 
@@ -30,7 +30,7 @@ function Activity() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/admin/event/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -75,7 +75,7 @@ function Activity() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/registrations/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/admin/event/registrations/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -97,7 +97,7 @@ function Activity() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/registrationsBenef/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/admin/event/registrationsBenef/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -122,7 +122,7 @@ function Activity() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`http://127.0.0.1:8000/api/admin/activites/update/${eventId}`, {
+        fetch(`http://127.0.0.1:8000/api/admin/event/update/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

@@ -1,60 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../css/admin.css';
 import NavMenu from './navMenu';
-
+import { useNavigate  } from 'react-router-dom'; 
 function Status() {
+    const [data, setData] = useState([]);
+    const [filter, setFilter] = useState('all');
+    const navigate = useNavigate();
+
     useEffect(() => {
         fetch('http://localhost:8000/api/admin/all') 
             .then(response => response.json())
-            .then(data => {
-                console.log('Données des bénévoles et bénéficiaires récupérées:', data);
-                const tableBody = document.querySelector('.table_statut tbody');
-                let rows = '';
-                
-                data.forEach(item => {
-                    let statusClass = '';
-                    switch(item.statut_validation?.toLowerCase()) { 
-                        case 'en attente': statusClass = 'attente'; break;
-                        case 'accepté': statusClass = 'accepte'; break;
-                        case 'refusé': statusClass = 'refuse'; break;
-                        default: statusClass = ''; // Cas par défaut si le statut est absent ou différent
-                    }
-        
-                    rows += `
-                        <tr>
-                            <td>${item.nom} ${item.prenom}</td>
-                            <td>${item.type}</td> <!-- Afficher si c'est un bénévole ou un bénéficiaire -->
-                            <td>${item.email || 'N/A'}</td> <!-- Certains bénéficiaires peuvent ne pas avoir d'email -->
-                            <td class="status"><span class="status-dot ${statusClass}"></span> ${item.statut_validation || 'N/A'}</td>
-                            <td class="action">
-                                ${item.statut_validation?.toLowerCase() === 'en attente' ? `
-                                    <form method="POST" class="change-status-form" data-email="${item.email}">
-                                        <input type="hidden" name="email" value="${item.email}" />
-                                        <button type="button" onclick="accept('${item.email}', '${item.type}')" class="action-btn accepter">Accepter</button>
-                                        <button type="button" onclick="reject('${item.email}', '${item.type}')" class="action-btn refuser">Refuser</button>
-                                        <button data-nom="${encodeURIComponent(item.nom)}" data-prenom="${encodeURIComponent(item.prenom)}" class="action-btn" onclick="redirectToConsulter(this)">ⓘ</button>
-                                    </form>
-                                ` : ''}
-                            </td>
-                            <td class="action">
-                                <button data-email ="${encodeURIComponent(item.email)}" class="infos-btn" onclick="redirectToConsulter(this)">ⓘ</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                tableBody.innerHTML = rows;
+            .then(fetchedData => {
+                console.log('Données des bénévoles et bénéficiaires récupérées:', fetchedData);
+                setData(fetchedData);
             })
             .catch(error => console.error('Erreur lors de la récupération des données:', error));
     }, []);
 
-    function redirectToConsulter(button) {
-        const email = button.getAttribute('data-email');
-        window.location.href = `consulter.php?email=${email}`;
-    }
+    const filteredData = data.filter(item => {
+        if (filter === 'all') return true;
+        return item.type.toLowerCase() === filter;
+    });
 
-    async function updateVolunteerStatus(email, newStatus) {
+    const accept = async (email, type) => {
+        const newStatus = 'accepté';
+        const url = type === 'Benevole' ? 'http://localhost:8000/api/admin/volunteers/update-status' : 'http://localhost:8000/api/admin/beneficiaires/update-status';
         try {
-            const response = await fetch('http://localhost:8000/api/admin/volunteers/update-status', {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -63,20 +35,21 @@ function Status() {
             });
     
             if (response.ok) {
-                const data = await response.json();
-                console.log(data.message); 
-                window.location.href = 'status';
+                console.log('Statut mis à jour avec succès');
+                setData(data.map(item => item.email === email ? { ...item, statut_validation: 'accepté' } : item));
             } else {
-                throw new Error('Erreur lors de la mise à jour du statut du bénévole.');
+                throw new Error('Erreur lors de la mise à jour du statut.');
             }
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du statut du bénévole :', error);
+            console.error('Erreur lors de la mise à jour du statut :', error);
         }
-    }
+    };
 
-    async function updateBeneficiaryStatus(email, newStatus) {
+    const reject = async (email, type) => {
+        const newStatus = 'refusé';
+        const url = type === 'Benevole' ? 'http://localhost:8000/api/admin/volunteers/update-status' : 'http://localhost:8000/api/admin/beneficiaires/update-status';
         try {
-            const response = await fetch('http://localhost:8000/api/admin/beneficiaires/update-status', {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -85,37 +58,56 @@ function Status() {
             });
     
             if (response.ok) {
-                const data = await response.json();
-                console.log(data.message); 
-                window.location.href = 'status';
+                console.log('Statut mis à jour avec succès');
+                setData(data.map(item => item.email === email ? { ...item, statut_validation: 'refusé' } : item));
             } else {
-                throw new Error('Erreur lors de la mise à jour du statut du bénéficiaire.');
+                throw new Error('Erreur lors de la mise à jour du statut.');
             }
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du statut du bénéficiaire :', error);
+            console.error('Erreur lors de la mise à jour du statut :', error);
         }
-    }
+    };
 
-    function accept(email, type) {
-        if (type === 'Bénévole') {
-            updateVolunteerStatus(email, 'accepté');
-        } else if (type === 'Bénéficiaire') {
-            updateBeneficiaryStatus(email, 'accepté');
-        }
-    }
+    const redirectToConsulter = (item) => {
+        const typePath = item.type.toLowerCase(); // Assurez-vous que le type est en minuscules pour l'URL.
+        navigate(`/admin/infosUser/${typePath}/${item.email}`);
+    };
+    
 
-    function reject(email, type) {
-        if (type === 'Bénévole') {
-            updateVolunteerStatus(email, 'refusé');
-        } else if (type === 'Bénéficiaire') {
-            updateBeneficiaryStatus(email, 'refusé');
-        }
-    }
+    function renderTableRows(filteredData) {
+        return filteredData.map(item => {
+            let statusClass = '';
+            switch(item.statut_validation?.toLowerCase()) { 
+                case 'en attente': statusClass = 'attente'; break;
+                case 'accepté': statusClass = 'accepte'; break;
+                case 'refusé': statusClass = 'refuse'; break;
+                default: statusClass = ''; 
 
-    useEffect(() => {
-        window.accept = accept;
-        window.reject = reject;
-    }, []);
+                
+            }
+    
+            return (
+                <tr key={item.email}>
+                    <td>{item.nom} {item.prenom}</td>
+                    <td>{item.type}</td>
+                    <td>{item.email || 'N/A'}</td>
+                    <td className="status"><span className={`status-dot ${statusClass}`}></span> {item.statut_validation || 'N/A'}</td>
+                    <td className="action">
+                        {item.statut_validation?.toLowerCase() === 'en attente' ? (
+                            <div>
+                                <button type="button" onClick={() => accept(item.email, item.type)} className="action-btn accepter">Accepter</button>
+                                <button type="button" onClick={() => reject(item.email, item.type)} className="action-btn refuser">Refuser</button>
+                                <button onClick={() => redirectToConsulter(item)} className="action-btn">ⓘ</button>
+                            </div>
+                        ) : ''}
+                    </td>
+                </tr>
+            );
+        });
+    }
+    const buttonStyle = (buttonFilter) => ({
+        color: filter === buttonFilter ? '#D23939' : 'inherit'
+    });
 
     return (
         <>
@@ -124,6 +116,11 @@ function Status() {
                 <section className="table_statut">
                     <div className="table-header">
                         <h3>Status Candidats</h3>
+                    </div>
+                    <div className="filters">
+                        <button style={buttonStyle('all')} onClick={() => setFilter('all')}>Tous</button>
+                        <button style={buttonStyle('bénévole')} onClick={() => setFilter('bénévole')}>Bénévoles</button>
+                        <button style={buttonStyle('bénéficiaire')} onClick={() => setFilter('bénéficiaire')}>Bénéficiaires</button>
                     </div>
                     <div className="table_bnv">
                         <table>
@@ -138,6 +135,7 @@ function Status() {
                                 </tr>
                             </thead>
                             <tbody>
+                                {renderTableRows(filteredData)}
                             </tbody>
                         </table>
                     </div>

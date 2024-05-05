@@ -12,7 +12,7 @@ function Event() {
     const currentPath = location.pathname;
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/admin/activites')
+        fetch('http://127.0.0.1:8000/api/event/activites')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -33,10 +33,10 @@ function Event() {
             <section className="content">
                 <div className="lists">
                     <div className="list_type">
-                        <Link to="/allEvents" className={currentPath === '/allEvents' ? 'active' : ''} style={currentPath === '/allEvents' ? { color: '#D23939' } : {}}>Activités publiques </Link>
-                        <Link to="/activiteprv" className={currentPath === '/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/beneficiaires' ? { color: '#D23939' } : null}>Activités privés </Link>
-                        <Link to="/list_partenaires" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
-                        <Link to="/HistoryActivity" className={currentPath === '/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/HistoryActivity' ? { color: '#D23939' } : null}>Activités privés </Link>
+                        <Link to="/admin/allEvents" className={currentPath === '/adminallEvents' ? 'active' : ''} style={currentPath === '/admin/allEvents' ? { color: '#D23939' } : {}}>Activités </Link>
+                        <Link to="/admin/activiteprv" className={currentPath === '/admin/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/admin/beneficiaires' ? { color: '#D23939' } : null}>Activités privés </Link>
+                        <Link to="/admin/list_partenaires" className={`link_list ${currentPath === '/adminlist_partenaires' ? 'active' : ''}`} style={currentPath === '/admin/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
+                        <Link to="/admin/HistoryActivity" className={currentPath === '/admin/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/admin/HistoryActivity' ? { color: '#D23939' } : null}>Historique </Link>
 
                     </div>
                     <div className="box-container">
@@ -62,7 +62,7 @@ function Event() {
                                         </div>
                                     </div>
                                 </div>
-                                <Link to={`/activity-details/${activity.ID_Activite}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
+                                <Link to={`/admin/activity-details/${activity.ID_Activite}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
                             </div>
                         ))}
                     </div>

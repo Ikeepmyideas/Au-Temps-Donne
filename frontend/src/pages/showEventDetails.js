@@ -38,7 +38,7 @@ function Activity() {
 
     const fetchEventDetails = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/admin/activites/${eventId}`);
+            const response = await fetch(`http://127.0.0.1:8000/api/event/activites/${eventId}`);
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }
@@ -59,9 +59,35 @@ function Activity() {
         }
      
     };
+    const fetchEventPDetails = async () => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/event/activites_prives/${eventId}`);
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+            const data = await response.json();
+            setEvent(data);
+            setFormData({
+                titre: data.titre,
+                description: data.description,
+                heure_debut: data.heure_debut,
+                heure_fin: data.heure_fin,
+                date_activite: data.date_activite,
+                adresseComplete: data.lieu.adresse,
+                ville: data.lieu.ville,
+                code_postal: data.lieu.code_postal,
+                id_beneficiaire:data.id_beneficiaire
+
+            });
+        } catch (error) {
+            console.error('Erreur lors de la récupération des détails de l’événement:', error);
+        }
+     
+    };
 
     useEffect(() => {
         fetchEventDetails();
+        fetchEventPDetails();
     }, [eventId]);
 
     const handleInputChange = (e) => {
@@ -272,7 +298,7 @@ function Activity() {
                     ) : (
                         <div>
                             <div className="header">
-                                <Link to="/allEvents">
+                                <Link to="/volunteer/activity-avenir/${userInfo.id}">
                                     <img id="retour" height="20px" width="20px" src={retour} alt="Retour" />
                                 </Link>
                                 <h3 className='title_event'>Détails de l'événement</h3>
@@ -299,8 +325,15 @@ function Activity() {
                                         <div>
                                             <p id="service">{event.nom_service}</p>
                                             <h2>{event.titre}</h2>
-                                            <p className="p_details">Description: {event.description || 'No description provided'}</p>
+                                            <p className="p_details">Description: {event.description || 'No description provided'}</p><br></br>
+                                            <div></div>
+                                            {event.id_beneficiaire && (
+                                            <div>
+                                                <p>Bénéficiaire : {event.beneficiary.nom} {event.beneficiary.prenom}</p>
+                                            </div>
+                                        )}
                                         </div>
+                                        
                                         <div>
                                             <div className="heure_d">
                                                 <img className="voir-all-icon" height="15px" width="17px" src={horlogeIcon} alt="Voir tout" />
@@ -316,24 +349,30 @@ function Activity() {
                                                 <img id="img_date" height="18px" src={date} alt="Date" />
                                                 <p>{event.date_activite ? new Date(event.date_activite).toLocaleDateString() : 'Date not available'}</p>
                                             </div>
+                                            
                                         </div>
                                     </div>
                                     <div>
-                                    {userInfo && (
-                                         showSuccessAlert || success? (
-                                            <center><button onClick={() => cancelRegistration(event.ID_Activite, userInfo.id)} className="btn_act">
-                                            Annuler l'inscription
-                                        </button></center>
-                                        ) : (
-                                            <center>
-                                                 <button className="btn_act" onClick={() => handleRegistration(event.ID_Activite, userInfo.id)} disabled={loading || success}>
-                                                S'inscrire
-                                            </button>
-                                            </center>
-                                           
-                                        )
-                                    )}
+                                    
+                                        { !event.id_beneficiaire && userInfo && (
+                                            <div>
+                                                {showSuccessAlert || success ? (
+                                                    <center>
+                                                        <button onClick={() => cancelRegistration(event.ID_Activite, userInfo.id)} className="btn_act">
+                                                            Annuler l'inscription
+                                                        </button>
+                                                    </center>
+                                                ) : (
+                                                    <center>
+                                                        <button className="btn_act" onClick={() => handleRegistration(event.ID_Activite, userInfo.id)} disabled={loading || success}>
+                                                            S'inscrire
+                                                        </button>
+                                                    </center>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>

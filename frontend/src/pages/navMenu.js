@@ -21,26 +21,49 @@ import '../css/admin.css';
 function NavMenu() {
   const location = useLocation();
   const [highlight, setHighlight] = useState({});
+  const [userInfo, setUserInfo] = useState(null); 
+
 
   const titles = {
-    "/dashboard": "Dashboard",
-    "/status": "Status à valider",
-    "/membres": "Membres",
-    "/events": "Événements",
-    "/maraude": "Maraudes",
-    "/documents": "Documents"
+    "/admin/dashboard": "Dashboard",
+    "/admin/status": "Status à valider",
+    "/admin/membres": "Membres",
+    "/admin/events": "Événements",
+    "/admin/maraude": "Maraudes",
+    "/admin/documents": "Documents"
 
   };
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const response = await fetch('http://localhost:8000/api/admin/userinfo', {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setUserInfo(userData.admin); 
+        } else {
+          console.error('Failed to fetch user info');
+        }
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    }
+
+    fetchUserData();
+  }, []);
 
   useDocumentTitle(titles[location.pathname] || "Default App Title");
   useEffect(() => {
     const pathHighlight = {
-      "/dashboard": "Dashboard",
-      "/status": "Status à valider",
-      "/membres": "Membres",
-      "/events": "Événements",
-      "/maraude": "Maraudes",
-      "/documents": "Documents"
+      "/admin/dashboard": "Dashboard",
+      "/admin/status": "Status à valider",
+      "/admin/membres": "Membres",
+      "/admin/events": "Événements",
+      "/admin/maraude": "Maraudes",
+      "/admin/documents": "Documents"
 
     };
     setHighlight({
@@ -73,36 +96,44 @@ function NavMenu() {
         <li>
           <img src={logoImage} alt="Logo" id="logo-menu" />
         </li>
+        <div className="user-info">
+        {userInfo && (
+          <div>
+            <center><h3 >Bienvenue {userInfo.prenom}</h3></center>
+
+          </div>
+        )}
+      </div>
         <hr className="hr1"/>
         <li className="menu_title">
           <strong><span>MENU</span></strong>
         </li>
-        <li className={highlight['/dashboard'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/dashboard">
+        <li className={highlight['/admin/dashboard'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/admin/dashboard">
             <img className="image" src={home} alt="Dashboard"/>
             <span>Dashboard</span>
           </Link>
         </li>
-        <li className={highlight['/status'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/status">
+        <li className={highlight['/admin/status'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/admin/status">
             <img className="image" src={add} alt="Status"/>
             <span>Status à valider</span>
           </Link>
         </li>
-        <li className={highlight['/membres'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/membres">
+        <li className={highlight['/admin/membres'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/admin/membres">
             <img className="image" src={membre} alt="Members"/>
             <span>Membres</span>
           </Link>
         </li>
-        <li className={highlight['/events'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/events">
+        <li className={highlight['/admin/events'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/admin/events">
             <img className="image" src={event} alt="Events"/>
             <span>Événements</span>
           </Link>
         </li>
-        <li className={highlight['/maraude'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/maraude">
+        <li className={highlight['/admin/maraude'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/admin/maraude">
             <img className="image" src={mard} alt="Maraude"/>
             <span>Maraudes</span>
           </Link>
@@ -112,8 +143,8 @@ function NavMenu() {
           <strong><span>SUPPORT</span></strong>
         </li>
         <li>
-          <Link className='nav-link' to="/settings">
-            <img src={settings} alt="Settings"/>
+          <Link className='nav-link' to="/admin/settings">
+            <img src={settings} alt="/admin/Settings"/>
             <span>Paramètres</span>
           </Link>
         </li>
@@ -128,19 +159,19 @@ function NavMenu() {
     <section id="horiz">
       <div className="nav_img">
         <img src={board} alt="Board Icon"/>
-        <Link className="nav-link" to="/dashboard">Board</Link>
+        <Link className="nav-link" to="/admin/dashboard">Board</Link>
       </div>
       <div className="nav_img">
         <img src={list} alt="List Icon"/>
-        <Link className="nav-link" to="/list">List</Link>
+        <Link className="nav-link" to="/admin/list">List</Link>
       </div>
       <div className="nav_img">
         <img src={calendar} alt="Calendar Icon"/>
-        <Link className="nav-link" to="/calendar">Calendar</Link>
+        <Link className="nav-link" to="/admin/calendar">Calendar</Link>
       </div>
       <div className="nav_img">
         <img src={blog} alt="Blog Icon"/>
-        <Link className="nav-link" to="/blog">Blog</Link>
+        <Link className="nav-link" to="/admin/blog">Blog</Link>
       </div>
       <div className="search-container">
           <input type="text" placeholder="Search..."/>
@@ -153,7 +184,7 @@ function NavMenu() {
           <img height="10px" src={notif} alt="Notification Icon"/>
       </div>
       <div className="circle">
-          <Link to="/profile"><img src="assets/gojo.jpg" alt="Profile"/></Link>
+          <Link to="/admin/profile"><img src="assets/gojo.jpg" alt="Profile"/></Link>
       </div>
     </section>
     

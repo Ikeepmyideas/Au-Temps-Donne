@@ -8,7 +8,7 @@ import date from  '../assets/date.png';
 import retour from '../assets/retour.png';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-  
+
 function EventDetails() {
     const { eventId } = useParams();
     const navigate = useNavigate(); 
@@ -30,7 +30,7 @@ function EventDetails() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/event/activites/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -75,7 +75,7 @@ function EventDetails() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/registrations/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/event/activites/registrations/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -97,7 +97,7 @@ function EventDetails() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/registrationsBenef/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/event/activites/registrationsBenef/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -122,7 +122,7 @@ function EventDetails() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`http://127.0.0.1:8000/api/admin/activites/update/${eventId}`, {
+        fetch(`http://127.0.0.1:8000/api/event/activites/update/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -263,28 +263,12 @@ function EventDetails() {
         doc.save('details_evenement_participants.pdf');
     };
     
- /*
-    const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/registrations/${eventId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch participants');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setParticipants(data);
-            })
-            .catch(error => {
-                console.error('Error fetching participants:', error);
-            });
-    };
+
     
     useEffect(() => {
         fetchEventDetails();
         fetchParticipants();
     }, [eventId]);
-*/
     if (!event) {
         return <div>Loading...</div>;
     }
@@ -301,7 +285,7 @@ function EventDetails() {
                                         <button onClick={handleBackClick} className="back-button">
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" />
                                         </button>
-                                        <h3 className='title_event'>Détails de l'événement</h3>
+                                        <h3>Détails de l'événement</h3>
                                     </div>
                                     <div className="box-container">
                                     <div className="elm_box_details">
@@ -396,7 +380,7 @@ function EventDetails() {
                                         <Link to="/allEvents"> 
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" /> 
                                         </Link>
-                                        <h3 className='title_event'>Détails de l'événement</h3>
+                                        <h3>Détails de l'événement</h3>
                                     </div>
                                     <div className="box-container">
                                         <div className="elm_box_details">
@@ -428,7 +412,27 @@ function EventDetails() {
 
                                     </div>
                                     </div>
-                                   
+                                    <div className="participant-list">
+                                       <div className="header">
+                                        <h3>Liste des participants</h3>
+                                        </div>
+                                        <div className="list-container">
+                                            <div className="list-card">
+                                                <h4>Bénévoles</h4>
+                                                <Link id="voir" to={`/admin/volunteers/${eventId}`} className="btn-link">Voir la liste</Link>
+                                                <div className="download-button">
+                                                    <button  id="download" className="btn-link" onClick={handleDownloadPDF}>Télécharger</button>
+                                                </div>
+                                            </div>
+                                            <div className="list-card">
+                                                <h4>Bénéficiaires</h4>
+                                                <Link id="voir" to={`/admin/beneficiaires/${eventId}`} className="btn-link">Voir la liste</Link>
+                                                <div className="download-button">
+                                                <button  id="download" className="btn-link" onClick={handleDownloadBenefPDF}>Télécharger</button>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 )}

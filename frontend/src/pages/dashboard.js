@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import '../css/admin.css';
 import NavMenu from './navMenu';
 import view from '../assets/voir_all.png';
 
 function Dashboard() {
+  const [userInfo, setUserInfo] = useState(null); 
+
   useEffect(() => {
     fetch('https://au-temps-donne-api.onrender.com/api/admin/all/latest')
       .then(response => response.json())
@@ -43,6 +45,8 @@ function Dashboard() {
       })
       .catch(error => console.error('Erreur lors de la récupération des données:', error));
   }, []);
+
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   return (
     <>

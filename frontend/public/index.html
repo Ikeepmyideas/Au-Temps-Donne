@@ -39,5 +39,19 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({
+      appId: "7d113a0f-985f-4f5e-a56a-313a98c193e7",
+      safari_web_id: "web.onesignal.auto.458f9dc8-6677-4788-b5a2-9d66a9d7a179",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+    
   </body>
 </html>

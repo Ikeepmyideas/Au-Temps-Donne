@@ -23,13 +23,10 @@ function NavMenuV() {
   const [highlight, setHighlight] = useState({});
 
   const titles = {
-    "/dashboard": "Dashboard",
-    "/status": "Status à valider",
-    "/membres": "Membres",
-    "/evenements": "Événements",
-    "/maraude": "Maraudes",
-    "/documents": "Documents"
-
+    "/volunteer/dashboard": "Dashboard",
+    "/volunteer/evenements": "Événements",
+    "/volunteer/maraude": "Maraudes",
+    "/volunteer/documents": "Documents"
   };
   const [profileImagePath, setProfileImagePath] = useState('');
   const [articles, setArticles] = useState([]);
@@ -60,12 +57,10 @@ function NavMenuV() {
   useDocumentTitle(titles[location.pathname] || "Default App Title");
   useEffect(() => {
     const pathHighlight = {
-      "/dashboard": "Dashboard",
-      "/status": "Status à valider",
-      "/membres": "Membres",
-      "/evenements": "Événements",
-      "/maraude": "Maraudes",
-      "/documents": "Documents"
+      "/volunteer/dashboard": "Dashboard",
+      "/volunteer/evenements": "Événements",
+      "/volunteer/maraude": "Maraudes",
+      "/volunteer/documents": "Documents"
 
     };
     setHighlight({
@@ -110,26 +105,26 @@ function NavMenuV() {
         <li className="menu_title">
           <strong><span>MENU</span></strong>
         </li>
-        <li className={highlight['/dashboard'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/dashboard">
-            <img className="image" src={home} alt="Dashboard"/>
+        <li className={highlight['/volunteer/dashboard'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/volunteer/dashboard">
+            <img className="image" src={home} alt="dashboardv"/>
             <span>Dashboard</span>
           </Link>
         </li>
         <li className={highlight['/profilb'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/Profilb">
+          <Link className='nav-link' to="/volunteer/Profilb">
             <img className="image" src={membre} alt="Profil"/>
             <span>Profil</span>
           </Link>
         </li>
-        <li className={highlight['/evenements'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/evenements">
+        <li className={highlight['/volunteer/evenements'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/volunteer/evenements">
             <img className="image" src={event} alt="Events"/>
             <span>Événements</span>
           </Link>
         </li>
         <li className={highlight['/maraude'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/maraude">
+          <Link className='nav-link' to="/volunteer/maraude">
             <img className="image" src={mard} alt="Maraude"/>
             <span>Maraudes</span>
           </Link>
@@ -139,13 +134,13 @@ function NavMenuV() {
           <strong><span>SUPPORT</span></strong>
         </li>
         <li>
-          <Link className='nav-link' to="/settings">
+          <Link className='nav-link' to="/volunteer/settings">
             <img src={settings} alt="Settings"/>
             <span>Paramètres</span>
           </Link>
         </li>
         <li>
-          <Link className='nav-link' to="/logout">
+          <Link className='nav-link' to="/volunteer/logout">
             <img src={exit} alt="Exit"/>
             <span>Déconnexion</span>
           </Link>
@@ -155,15 +150,15 @@ function NavMenuV() {
     <section id="horiz">
       <div className="nav_img">
         <img src={board} alt="Board Icon"/>
-        <Link className="nav-link" to="/dashboard">Board</Link>
+        <Link className="nav-link" to="/volunteer/dashboard">Board</Link>
       </div>
       <div className="nav_img">
         <img src={list} alt="List Icon"/>
-        <Link className="nav-link" to="/list">List</Link>
+        <Link className="nav-link" to="/volunteer/list">List</Link>
       </div>
       <div className="nav_img">
         <img src={calendar} alt="Calendar Icon"/>
-        <Link className="nav-link" to="/calendar">Calendar</Link>
+        <Link className="nav-link" to="/volunteer/calendar">Calendar</Link>
       </div>
       <div className="nav_img">
         <img src={blog} alt="Blog Icon"/>

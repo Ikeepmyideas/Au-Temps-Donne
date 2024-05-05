@@ -14,7 +14,7 @@ function Event() {
     const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
    
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/admin/activites_prives')
+        fetch('http://127.0.0.1:8000/api/event/activites_prives')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -81,7 +81,7 @@ function Event() {
                                         </div>
                                     </div>
                                 </div>
-                                <Link to={`/activiteprv_details/${activity.ID_Activite}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
+                                <Link to={`/admin/activiteprv_details/${activity.ID_Activite}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
                             </div>
                         ))}
                     </div>

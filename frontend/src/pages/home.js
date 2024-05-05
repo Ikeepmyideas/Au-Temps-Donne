@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import '../css/home.css';
 import '../css/signup.css';  
 import '../css/admin.css';
-
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import img1 from '../assets/img1.png';
@@ -25,6 +24,8 @@ import whatsapp from '../assets/whatsapp.png';
 import instagram from '../assets/instagram.png';
 import facebook from '../assets/facebook.png';
 import logoFooter from '../assets/logo_white.png'
+import OneSignalManager from '../components/OneSignalManager';
+
 function Home() {
     const email = "autempsdonne.info@gmail.com";
     const currentYear = new Date().getFullYear(); 
@@ -161,12 +162,15 @@ function Home() {
            
               <section class="hero" id="home">
                 <div class="container">
+
+                  
+
       
                   <p class="section-subtitle">
                     <span>Bienvenue Au temps Donnée</span>
                   </p>
                   <h2 class="h1 hero-title">
-                    Ensemble,<strong>Changeons les choses</strong>
+                    Ensemble,<br></br><strong>Changeons les choses</strong>
                   </h2>
         
                   <p class="hero-text">

@@ -22,6 +22,7 @@ function Event() {
 
               if (response.ok) {
                   const userData = await response.json();
+                  
                   setUserInfo(userData.volunteer);
               } else {
                   console.error('Failed to fetch user info');
@@ -36,7 +37,7 @@ function Event() {
 
     useEffect(() => {
         if (userInfo) {
-            fetch(`http://127.0.0.1:8000/api/volunteer/activities/${userInfo.id}`)
+            fetch(`http://127.0.0.1:8000/api/volunteer/activities-all/${userInfo.id}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Erreur réseau');
@@ -44,7 +45,8 @@ function Event() {
                     return response.json();
                 })
                 .then(data => {
-                  setEvents(data);
+                    const limitedEvents = data.slice(0, 2);
+                    setEvents(limitedEvents);
                 })
                 .catch(error => {
                     console.error('Erreur lors de la récupération des données:', error);
@@ -53,7 +55,7 @@ function Event() {
     }, [userInfo]);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/admin/activities/latest')
+        fetch('http://127.0.0.1:8000/api/event/activities/latest')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -70,7 +72,7 @@ function Event() {
 
 
     document.addEventListener('DOMContentLoaded', function() {
-      fetch('http://127.0.0.1:8000/api/admin/activities/latest') 
+      fetch('http://127.0.0.1:8000/api/event/activities/latest') 
         .then(response => {
           if (!response.ok) {
             throw new Error('Erreur réseau');
@@ -126,41 +128,45 @@ function Event() {
                 <div className="lists">
                  
                     <div className="table-header">
-                        <h3>A venir :</h3>
-                        <Link to="/allEvents" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
+                        <h3>Mes evenements a venir :</h3>
+                        <Link to="/volunteer/activity-avenir/${userInfo.id}" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
                         
                     </div>
                     <div className="box-container">
-                        {events.map((event, index) => (
-                            <div key={index} className="elm_box">
-                                <div className="infos">
-                                    <div className="info">
-                                        <img height="180px" src={`assets/${event.image}`} style={{ borderRadius: '25px' }} />
-                                        <div className="info-container">
-                                            <div className="hour">
-                                                <img id="img-time" height="20px" src={horlogeIcon} />
-                                                <p className="time">{(event.activity.date_activite)}  {event.activity.heure_debut}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="info2">
-                                        <h3>{event.activity.titre}</h3>
-                                        <hr />
-                                        <p>{event.activity.description}</p>
-                                        <div className="adresse">
-                                            <p>{event.activity.lieuA.adresse}</p>
-                                            <p>{event.activity.lieuA.code_postal} {event.activity.lieuA.ville}</p>
+                    {events.map((event, index) => (
+                        <div key={index} className="elm_box">
+                            <div className="infos">
+                                <div className="info">
+                                    <img height="180px" src={`assets/${event.image}`} style={{ borderRadius: '25px' }} />
+                                    <div className="info-container">
+                                        <div className="hour">
+                                            <img id="img-time" height="20px" src={horlogeIcon} />
+                                            <p className="time">{event.activity && event.activity.date_activite ? event.activity.date_activite : event.date_activite} {event.activity && event.activity.heure_debut ? event.activity.heure_debut : event.heure_debut}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <Link to={`/DetailsEvenement/${event.activity.ID_Activite}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
+                                <div className="info2">
+                                    <h3>{event.activity && event.activity.titre ? event.activity.titre : event.titre}</h3>
+                                    <hr />
+                                    <p>{event.activity && event.activity.description  ? event.activity.description : event.description}</p>
+                                    <div className="adresse">
+                                        <p>{event.activity && event.activity.lieuA && event.activity.lieuA.adresse ? event.activity.lieuA.adresse : event.lieu.adresse}</p>
+                                        <p>{event.activity && event.activity.lieuA && event.activity.lieuA.code_postal  ? event.activity.lieuA.code_postal : event.lieu.code_postal} {event.activity && event.activity.lieuA && event.activity.lieuA.ville  ? event.activity.lieuA.ville : event.lieu.ville}</p>
+                                    </div>
+                                </div>
                             </div>
-                        ))}
+                            <Link to={`/volunteer/activity-details/${event.activity && event.activity.ID_Activite  ? event.activity.ID_Activite : event.ID_Activite}`} className="view">
+                                Voir plus
+                                <img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" />
+                            </Link>
+                        </div>
+                    ))}
+
                     </div>
                     <div></div>
                     <div className="table-header">
                         <h3>Tous les évènements</h3>
-                        <Link to="/AllEvenements" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
+                        <Link to="/volunteer/all-events" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
                        
                     </div>
                     <div className="box-container">
@@ -186,7 +192,7 @@ function Event() {
                                         </div>
                                     </div>
                                 </div>
-                                <Link to={`/activity-details/${activity.id}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
+                                <Link to={`/volunteer/activity-details/${activity.id}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
                             </div>
                         ))}
                     </div>

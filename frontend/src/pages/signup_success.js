@@ -26,8 +26,7 @@ function SignupSuccess() {
                     </center>
                     <center><img style={{marginTop:'30px', width:'300px'}}src={img}/></center>
                     <center><p style={{marginTop:'50px', color:'#EB5454'}}>Votre candidature a été bien transmise. Nous vous remercions pour votre intérêt et vous contacterons bientôt.</p></center>
-                    <center><p style={{marginTop:'50px'}}>Veuillez vérifier votre e-mail pour activer votre compte. Un e-mail de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception pour activer votre compte.</p></center>
-                    
+                                        
                 </div>
             </div>
         </>

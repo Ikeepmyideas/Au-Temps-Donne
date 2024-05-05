@@ -39,7 +39,7 @@ function EventprvDetails() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites_prives/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/event/activites_prives/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -110,7 +110,7 @@ function EventprvDetails() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activitesprv/registrations/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/event/activitesprv/registrations/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -132,7 +132,7 @@ function EventprvDetails() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/activites/registrationsBenef/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/event/activites/registrationsBenef/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -157,7 +157,7 @@ function EventprvDetails() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`http://127.0.0.1:8000/api/admin/activites_prives/update/${eventId}`, {
+        fetch(`http://127.0.0.1:8000/api/event/activites_prives/update/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ function EventprvDetails() {
     };
 
     function deleteEvent(eventId) {
-        fetch(`http://127.0.0.1:8000/api/admin/activites_prives/delete/${eventId}`, {
+        fetch(`http://127.0.0.1:8000/api/event/activites_prives/delete/${eventId}`, {
             method: 'DELETE'
         })
         .then(response => {

@@ -43,7 +43,6 @@ function VolunteerList() {
             <Modal show={showModal} onClose={() => setShowModal(false)}>
                 <div className="lists">
                     <div className="list_type">
-                        {/* Navigation Links if needed */}
                     </div>
                     <div className="table_bnv">
                         <table>
