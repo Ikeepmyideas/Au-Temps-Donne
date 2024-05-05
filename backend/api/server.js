@@ -8,6 +8,8 @@ const volunteerRoutes = require('./routes/volunteerRoutes');
 const beneficiaryRoutes = require('./routes/beneficiaryRoutes');
 const partenaireRoutes = require('./routes/partenaireRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+
 const cookieParser = require('cookie-parser');
 
 // Use cookie-parser middleware
@@ -58,6 +60,8 @@ app.use('/api/volunteer', volunteerRoutes);
 app.use('/api/beneficiary', beneficiaryRoutes);
 app.use('/api/partenaire', partenaireRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/event', eventRoutes);
+
 app.get('/debug', (req, res) => {
   console.log('Request Headers - Cookie:', req.headers.cookie);
   console.log('Parsed Cookies:', req.cookies);

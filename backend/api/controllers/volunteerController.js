@@ -11,6 +11,7 @@ const Lieu= require('../models/Lieu');
 require('dotenv').config(); 
 
 
+    
 const saltRounds = 10;
 
 const storage = multer.memoryStorage();
@@ -49,107 +50,85 @@ const uploadFileToWasabi = async (file, folderName, fileName) => {
     }
   };
   
-const sendWelcomeEmail = async (email, name) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
-
-  const mailOptions = {
-    from: process.env.EMAIL_USERNAME,
-    to: email,
-    subject: 'Welcome to Volunteers Team!',
-    text: `Hello ${name},\n\nWe are excited to have you on board as a volunteer. Welcome!`,
-    html: `<p>Hello <strong>${name}</strong>,</p><p>We are excited to have you on board as a volunteer. Welcome!</p>`,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('Welcome email sent successfully');
-  } catch (error) {
-    console.error('Error sending welcome email:', error.message);
-  }
-};
-const registerVolunteer = async (req, res, next) => {
-    console.log(req.file);
+  const sendWelcomeEmail = async (email, name) => {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+  
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: 'Confirmation de votre candidature !',
+      text: `Bonjour ${name},\n\nMerci d'avoir soumis votre candidature pour rejoindre notre équipe de bénévoles ! Votre candidature a été confirmée.\n\nVous pouvez maintenant vous connecter à votre espace personnel pour consulter nos prochains événements à venir et découvrir nos blogs.\n\nNous sommes ravis de vous accueillir et avons hâte de vous impliquer dans nos activités !`,
+      html: `<p>Bonjour <strong>${name}</strong>,</p><p>Merci d'avoir soumis votre candidature pour rejoindre notre équipe de bénévoles ! Votre candidature a été confirmée.</p><p>Vous pouvez maintenant vous connecter à votre espace personnel pour consulter nos prochains événements à venir et découvrir nos blogs.</p><p>Nous sommes ravis de vous accueillir et avons hâte de vous impliquer dans nos activités !</p>`,
+    };
+  
     try {
-      const {
-        nom,
-        prenom,
-        date_de_naissance,
-        email,
-        mot_de_passe,
-        telephone,
-        adresse,
-        ville,
-        code_postal,
-        date_adhesion,
-        genre,
-        langues,
-        qualites,
-        competences,
-        message_candidature,
-        permis_conduire 
-      } = req.body;
-  
-      const existingVolunteer = await Volunteer.findOne({ where: { email: email } });
-      if (existingVolunteer) {
-        return res.status(409).json({ error: 'A user with this email already exists.' });
-      }
-  
-      if (!req.files || !req.files['casier_judiciaire']) {
-        return res.status(400).json({ error: 'Casier judiciaire document is required.' });
-      }
-  
-      let justificatif_permis = null;
-  
-      if (permis_conduire && permis_conduire.toLowerCase() === 'oui' && req.files['justificatif_permis']) {
-        const justificatifPermisFile = req.files['justificatif_permis'][0];
-        const justificatifPermisFileName = `${nom}_${prenom}_justificatif_permis_${justificatifPermisFile.originalname}`;
-        justificatif_permis = await uploadFileToWasabi(justificatifPermisFile, 'permis-conduire', justificatifPermisFileName);
-      }
-  
-      const casierJudiciaireFile = req.files['casier_judiciaire'][0];
-      const casierJudiciaireFileName = `${nom}_${prenom}_casier_judiciaire_${casierJudiciaireFile.originalname}`;
-      const casierJudiciaireURL = await uploadFileToWasabi(casierJudiciaireFile, 'casier-judiciaire', casierJudiciaireFileName);
-  
-      const hashedPassword = await bcrypt.hash(mot_de_passe, saltRounds);
-  
-      const newVolunteer = await Volunteer.create({
-        nom,
-        prenom,
-        date_de_naissance,
-        email,
-        mot_de_passe: hashedPassword,
-        telephone,
-        adresse,
-        ville,
-        code_postal,
-        date_adhesion,
-        statut_validation: 'en attente',
-        genre,
-        permis_conduire,
-        justificatif_permis , 
-        casier_judiciaire: casierJudiciaireURL,
-        langues,
-        qualites,
-        competences,
-        message_candidature,
-        date_inscription: new Date()
-      });
-  
-      await sendWelcomeEmail(email, `${prenom} ${nom}`);
-  
-      res.status(201).json({ message: 'Registration successful', volunteer: newVolunteer });
+      await transporter.sendMail(mailOptions);
+      console.log('Email de confirmation de candidature envoyé avec succès');
     } catch (error) {
-      console.error('Error registering volunteer:', error.message);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erreur lors de l\'envoi de l\'email de confirmation de candidature :', error.message);
     }
   };
   
+const argon2 = require('argon2');
+
+const registerVolunteer = async (req, res, next) => {
+    try {
+        const { nom, prenom, date_de_naissance, email, mot_de_passe, telephone, adresse, ville, code_postal, date_adhesion, genre, permis_conduire, langues,qualites, competences, message_candidature } = req.body;
+        
+        let casier_judiciaireURL = null;
+        let justificatif_permisURL = null;
+
+        if (req.files && req.files['casier_judiciaire'] && req.files['casier_judiciaire'][0]) {
+            const casierFile = req.files['casier_judiciaire'][0];
+            casier_judiciaireURL = casierFile.path; 
+        }
+
+        if (req.files && req.files['justificatif_permis'] && req.files['justificatif_permis'][0]) {
+            const justificatifFile = req.files['justificatif_permis'][0];
+            justificatif_permisURL = justificatifFile.path; 
+        }
+        const date_inscription = new Date();
+
+        // Hash the password
+        const hashedPassword = await argon2.hash(mot_de_passe);
+
+        const newVolunteer = await Volunteer.create({
+            nom,
+            prenom,
+            date_de_naissance,
+            email,
+            mot_de_passe: hashedPassword,
+            telephone,
+            adresse,
+            ville,
+            code_postal,
+            date_adhesion,
+            statut_validation: "en attente",
+            genre,
+            permis_conduire,
+            justificatif_permis: justificatif_permisURL,
+            casier_judiciaire:  casier_judiciaireURL,
+            langues,
+            qualites,
+            competences,
+            message_candidature,
+            date_inscription
+        });
+
+        await sendWelcomeEmail(email, `${prenom} ${nom}`);
+
+        res.status(201).json({ message: 'Inscription réussie', volunteer: newVolunteer });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 const generateToken = (id, email) => {
   return jwt.sign({ id, email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
@@ -171,41 +150,42 @@ const authMiddleware = (req, res, next) => {
       return res.status(401).json({ error: 'Non autorisé : Token invalide' });
   }
 };
+
 const loginVolunteer = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+      const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
-        }
+      if (!email || !password) {
+          return res.status(400).json({ error: 'Email and password are required' });
+      }
 
-        const volunteer = await Volunteer.findOne({ where: { email } });
+      const volunteer = await Volunteer.findOne({ where: { email } });
+      if (!volunteer) {
+          return res.status(404).json({ error: 'User not found' });
+      }
 
-        if (!volunteer) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+      const passwordMatch = await argon2.verify(volunteer.mot_de_passe, password);
+      if (!passwordMatch) {
+          return res.status(401).json({ error: 'Invalid password' });
+      }
 
-        const match = await bcrypt.compare(password, volunteer.mot_de_passe);
+      const token = generateToken(volunteer.id, volunteer.email);
+      const userType = "volunteer"
 
-        if (!match) {
-            return res.status(401).json({ error: 'Invalid password' });
-        }
+      res.cookie('access_token', token, {
+          httpOnly: true,
+          maxAge: 3600000, // 1 hour
+          sameSite: 'none',
+          path: '/', // Set the cookie path to '/'
+          secure: true // Add 'secure: true' if your app is served over HTTPS
+      });
 
-        const token = generateToken(volunteer.id, volunteer.email);
+      res.status(200).json({ message: 'Login successful', token, userType }); 
 
-        res.cookie('access_token', token, {
-            httpOnly: true,
-            maxAge: 3600000, // 1 hour
-            sameSite: 'none',
-            path: '/', // Set the cookie path to '/'
-            secure: true // Add 'secure: true' if your app is served over HTTPS
-        });
-
-        res.status(200).json({ message: 'Login successful', token }); // Include token in the response
-    } catch (error) {
-        console.error('Error during login:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+  } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 const getUserInfo = async (req, res) => {
   try {
@@ -267,7 +247,6 @@ const checkRegistrationStatus = async (req, res) => {
     if (registration) {
       return res.status(200).json({ message: 'Bénévole déjà inscrit à cet événement' });
     } else {
-      // Aucune correspondance trouvée, le bénévole n'est pas inscrit à cet événement
       return res.status(404).json({ message: 'Bénévole non inscrit à cet événement' });
     }
   } catch (error) {
@@ -281,10 +260,14 @@ const deleteRegistration = async (req, res) => {
   const benevoleId = req.params.benevoleId;
 
   try {
+    const today = new Date();
     const registration = await EvenementBenevole.destroy({
       where: {
         ID_event: eventId,
-        ID_Benevole: benevoleId
+        ID_Benevole: benevoleId,
+        date_debut: {
+          [Op.gt]: today 
+        }
       }
     });
 
@@ -299,16 +282,20 @@ const deleteRegistration = async (req, res) => {
   }
 };
 const models = require('../models');
+const ActivityPrive = require('../models/ActivityPrivate');
 
 models.Activity.belongsTo(models.Lieu, { foreignKey: 'id_lieu', as: 'lieuA' });
 
 const getEventsForVolunteer = async (req, res) => {
   const benevoleId = req.params.benevoleId;
-
   try {
+    const today = new Date();
     const events = await EvenementBenevole.findAll({ 
       where: {
-        ID_Benevole: benevoleId 
+        ID_Benevole: benevoleId,
+        date_debut: {
+          [Op.gt]: today 
+        }
       },
       include: [
         {
@@ -336,7 +323,110 @@ const getEventsForVolunteer = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des événements pour le bénévole.' });
   }
 };
+const getEventsPvForVolunteer = async (req, res) => {
+  const benevoleId = req.params.benevoleId;
+  try {
+    const today = new Date();
+    const events = await ActivityPrive.findAll({ 
+      where: {
+        ID_Benevole: benevoleId,
+        date_debut: {
+          [Op.gt]: today 
+        }
+      },
+      include: [
+        {
+          model: Lieu,
+          as: 'lieu',
+          attributes: ['adresse', 'ville', 'code_postal']
+
+        }
+      ]
+      
+    });
+
+    if (events.length > 0) {
+      res.status(200).json(events);
+    } else {
+      res.status(404).json({ message: 'Aucun événement trouvé pour ce bénévole.' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des événements pour le bénévole :', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des événements pour le bénévole.' });
+  }
+};
+
+const getEventsAllForVolunteer = async (req, res) => {
+  const benevoleId = req.params.benevoleId;
+  try {
+    // Récupérer tous les événements normaux et privés pour le bénévole
+    const [eventsNormal, eventsPrivate] = await Promise.all([
+      EvenementBenevole.findAll({
+        where: {
+          ID_Benevole: benevoleId
+        },
+        include: [
+          {
+            model: Activity,
+            as: 'activity',
+            include: [
+              {
+                model: Lieu,
+                as: 'lieuA',
+                attributes: ['adresse', 'ville', 'code_postal']
+              }
+            ]
+          }
+        ]
+      }),
+      ActivityPrive.findAll({
+        where: {
+          ID_Benevole: benevoleId
+        },
+        include: [
+          {
+            model: Lieu,
+            as: 'lieu',
+            attributes: ['adresse', 'ville', 'code_postal']
+          }
+        ]
+      })
+    ]);
+
+    const combinedEvents = [...eventsNormal, ...eventsPrivate];
+
+    if (combinedEvents.length > 0) {
+      res.status(200).json(combinedEvents);
+    } else {
+      res.status(404).json({ message: 'Aucun événement trouvé pour ce bénévole.' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des événements pour le bénévole :', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des événements pour le bénévole.' });
+  }
+};
+
+const sendReminderNotification = async () => {
+    try {
+        // Récupérer tous les utilisateurs OneSignal (bénévoles)
+        const usersResponse = await OneSignal.getAllUsers();
+        const userIds = usersResponse.data.users.map(user => user.id);
+
+        // Envoyer la notification à tous les utilisateurs
+        const notification = {
+            contents: { en: 'Rappel: Vous avez une activité planifiée aujourd\'hui !' },
+            headings: { en: 'Rappel d\'activité' },
+            include_player_ids: userIds,
+        };
+
+        // Envoyer la notification via l'API OneSignal
+        const response = await OneSignal.createNotification(notification);
+        console.log('Notification envoyée avec succès:', response);
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi de la notification:', error);
+    }
+};
 
 
 
-module.exports = { getEventsForVolunteer,checkRegistrationStatus, deleteRegistration, upload, authMiddleware, getUserInfo, registerVolunteer, loginVolunteer, addRegistration };
+module.exports = { getEventsAllForVolunteer,getEventsPvForVolunteer,getEventsForVolunteer,checkRegistrationStatus, deleteRegistration, upload, authMiddleware, getUserInfo, registerVolunteer, loginVolunteer, addRegistration };

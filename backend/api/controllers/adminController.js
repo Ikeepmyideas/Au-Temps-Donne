@@ -10,7 +10,7 @@ const Volunteer = require('../models/Volunteer');
 const Formation = require('../models/Formation');
 const Beneficiary = require('../models/Beneficiary');
 const Partenaire = require('../models/Partenaire');
-const crypto = require('crypto');
+const crypto = require('crypto'); 
 const Lieu= require('../models/Lieu');
 const Activity = require('../models/Activity');
 const ActivityPrive = require('../models/ActivityPrivate');
@@ -85,33 +85,34 @@ async function sendWelcomeEmailAdmin(email, name, password) {
       console.error('Erreur lors de l\'envoi de l\'email de bienvenue:', error);
   }
 }
+
 exports.addAdmin = async (req, res) => {
   try {
-    const { email, nom, prenom } = req.body; 
+    const { email, nom, prenom } = req.body;
 
+    // Génération d'un mot de passe plus robuste
     const generatePassword = () => {
-      return Array.from(crypto.randomFillSync(new Uint8Array(6))).map((item) => {
-        return Math.floor(item / 25.6); 
-      }).join('');
+      const passwordLength = 12;
+      return crypto.randomBytes(passwordLength).toString('hex').slice(0, passwordLength);
     };
 
     const password = generatePassword();
 
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await argon2.hash(password);
 
     const existingAdmin = await Admin.findOne({ where: { email } });
     if (existingAdmin) {
         return res.status(409).json({ message: "Un admin avec cet email existe déjà" });
-    }                                 
+    }
 
     const admin = await Admin.create({
       email,
-      mot_de_passe: hashedPassword, 
-      nom, 
+      mot_de_passe: hashedPassword,
+      nom,
       prenom
     });
-    await sendWelcomeEmailAdmin(email, `${prenom} ${nom}`, password                                                                                                                                                                                                                                                                                      );
 
+    await sendWelcomeEmailAdmin(email, `${prenom} ${nom}`, password);
 
     res.status(201).json({ message: "Admin créé avec succès", admin });
   } catch (error) {
@@ -159,46 +160,69 @@ exports.deleteAdmin = async (req, res) => {
 
 
 const SECRET_KEY = process.env.SECRET_KEY;
+const argon2 = require('argon2');
 
 exports.loginAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+      const { email, password } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-    }
+      if (!email || !password) {
+          return res.status(400).json({ error: 'Email and password are required' });
+      }
 
-    const admin = await Admin.findOne({ where: { email } });
+      const admin = await Admin.findOne({ where: { email } });
 
-    if (!admin) {
-        return res.status(404).json({ error: 'User not found' });
-    }
-    console.log("Provided password:", password);
-    console.log("Stored hashed password:", admin.mot_de_passe);
+      if (!admin) {
+          return res.status(404).json({ error: 'User not found' });
+      }
 
-    const match = await bcrypt.compare(password, admin.mot_de_passe);
-    console.log("Password match:", match);
+      const passwordMatch = await argon2.verify(admin.mot_de_passe, password);
+      if (!passwordMatch) {
+          return res.status(401).json({ error: 'Invalid password' });
+      }
 
 
-    if (!match) {
-        return res.status(401).json({ error: 'Invalid password' });
-    }
+      const token = generateToken(admin.id,  admin.email);
 
-    const token = generateToken(admin.id, admin.email);
+      const userType = "admin"
 
-    res.cookie('access_token', token, {
-        httpOnly: true,
-        maxAge: 3600000, // 1 hour
-        sameSite: 'none',
-        path: '/', // Set the cookie path to '/'
-        secure: true // Add 'secure: true' if your app is served over HTTPS
-    });
+      res.cookie('access_token', token, {
+          httpOnly: true,
+          maxAge: 3600000, // 1 hour
+          sameSite: 'none',
+          path: '/', // Set the cookie path to '/'
+          secure: true // Add 'secure: true' if your app is served over HTTPS
+      });
 
-    res.status(200).json({ message: 'Login successful' });
-} catch (error) {
-    console.error('Error during login:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-}
+      res.status(200).json({ message: 'Login successful', token, userType }); 
+  } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+exports.getUserInfo = async (req, res) => {
+  try {
+      const token = req.cookies.access_token;
+
+      if (!token) {
+          return res.status(401).json({ error: 'Aucun token trouvé' });
+      }
+
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      if (!decoded) {
+          return res.status(401).json({ error: 'Token invalide' });
+      }
+
+    const admin = await Admin.findByPk(decoded.id);
+      if (!admin) {
+          return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      }
+
+      res.status(200).json({ admin });
+  } catch (error) {
+      console.error('Erreur lors de l\'obtention des informations utilisateur :', error);
+      res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
 };
 exports.addVolunteer = async (req, res) => {
   try {
@@ -374,12 +398,10 @@ exports.getAllVolunteers = async (req, res) => {
 
 exports.getAllNonAdminVolunteers = async (req, res) => {
   try {
-    // Récupérer les emails des administrateurs
     const admins = await Admin.findAll({
       attributes: ['email']
     });
 
-    // Extraire les emails des administrateurs dans un tableau
     const adminEmails = admins.map(admin => admin.email);
 
     // Récupérer les bénévoles qui ne sont pas des administrateurs
@@ -431,7 +453,7 @@ exports.getAllBeneficiaires = async (req, res) => {
 };
 exports.getVolunteer = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email } = req.params;
     const volunteer = await Volunteer.findOne({ where: { email } });
 
     if (volunteer) {
@@ -444,7 +466,21 @@ exports.getVolunteer = async (req, res) => {
     return res.status(500).json({ message: "Erreur serveur." });
   }
 };
+exports.getBeneficiary = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const beneficiaire = await Beneficiary.findOne({ where: { email } });
 
+    if (beneficiaire) {
+      return res.json(beneficiaire);
+    } else {
+      return res.status(404).json({ message: "Aucun bénévole trouvé avec ce nom et ce prénom." });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération du bénévole :", error);
+    return res.status(500).json({ message: "Erreur serveur." });
+  }
+};
 
 exports.getLatestVolunteers = async (req, res) => {
   try {
@@ -461,12 +497,12 @@ exports.getLatestVolunteers = async (req, res) => {
 exports.getAllLatestVolunteersAndBeneficiaries = async (req, res) => {
   try {
     const allLatestVolunteers = await Volunteer.findAll({
-      order: [['date_adhesion', 'DESC']],
+      order: [['id', 'DESC']],
       limit: 3
     }).then(volunteers => volunteers.map(v => ({ ...v.toJSON(), type: 'Bénévole' }))); 
 
     const allLatestBeneficiaries = await Beneficiary.findAll({
-      order: [['date_inscription', 'DESC']],
+      order: [['id', 'DESC']],
       limit: 3
     }).then(beneficiaries => beneficiaries.map(b => ({ ...b.toJSON(), type: 'Bénéficiaire' }))); 
 
@@ -488,12 +524,12 @@ exports.getAllLatestVolunteersAndBeneficiaries = async (req, res) => {
 exports.getAllVolunteersAndBeneficiaries = async (req, res) => {
   try {
     const allLatestVolunteers = await Volunteer.findAll({
-      order: [['date_inscription', 'DESC']],
-    }).then(volunteers => volunteers.map(v => ({ ...v.toJSON(), type: 'Bénévole' }))); // Convertir en JSON et ajouter le type
+      order: [['id', 'DESC']],
+    }).then(volunteers => volunteers.map(v => ({ ...v.toJSON(), type: 'Benevole' }))); // Convertir en JSON et ajouter le type
 
     const allLatestBeneficiaries = await Beneficiary.findAll({
-      order: [['date_inscription', 'DESC']],
-    }).then(beneficiaries => beneficiaries.map(b => ({ ...b.toJSON(), type: 'Bénéficiaire' }))); 
+      order: [['id', 'DESC']],
+    }).then(beneficiaries => beneficiaries.map(b => ({ ...b.toJSON(), type: 'Beneficiaire' }))); 
 
     const combinedList = [...allLatestVolunteers, ...allLatestBeneficiaries];
 
@@ -512,7 +548,7 @@ exports.getAllVolunteersAndBeneficiaries = async (req, res) => {
 
 
 exports.addVolunteerToAdmins = async (req, res) => {
-  const t = await sequelize.transaction(); // Démarrez une transaction
+  const t = await sequelize.transaction(); 
   try {
     const { email } = req.body;
     
@@ -552,7 +588,7 @@ exports.addVolunteerToAdmins = async (req, res) => {
 
 exports.updateVolunteerStatus = async (req, res) => {
   try {
-    const { email, newStatus } = req.body; 
+    const { email, newStatus } = req.body;
     const volunteer = await Volunteer.findOne({ where: { email } });
 
     if (!volunteer) {
@@ -564,15 +600,45 @@ exports.updateVolunteerStatus = async (req, res) => {
 
     await volunteer.save();
 
+    let emailSubject, emailText;
+
+    if (newStatus === 'accepté') {
+      emailSubject = 'Confirmation d\'acceptation comme bénévole';
+      emailText = `Bonjour ${volunteer.prenom} ${volunteer.nom},\n\nNous avons le plaisir de vous informer que votre candidature comme bénévole a été acceptée. Bienvenue dans notre équipe !`;
+    } else if (newStatus === 'refusé') {
+      emailSubject = 'Notification de refus de candidature';
+      emailText = `Bonjour ${volunteer.prenom} ${volunteer.nom},\n\nNous regrettons de vous informer que votre candidature comme bénévole a été refusée. Merci pour votre intérêt et votre compréhension.`;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: emailSubject,
+      text: emailText,
+    };
+
+    // Envoyer l'e-mail
+    await transporter.sendMail(mailOptions);
+    console.log('E-mail envoyé avec succès au bénévole');
+
     res.status(200).json({ message: "Statut du bénévole mis à jour avec succès" });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut du bénévole :", error);
     res.status(500).json({ message: "Erreur serveur." });
   }
 };
+
 exports.updateBeneficiaryStatus = async (req, res) => {
   try {
-    const { email, newStatus } = req.body; 
+    const { email, newStatus } = req.body;
     const beneficiary = await Beneficiary.findOne({ where: { email } });
 
     if (!beneficiary) {
@@ -580,17 +646,46 @@ exports.updateBeneficiaryStatus = async (req, res) => {
     }
 
     beneficiary.statut_validation = newStatus;
-
     beneficiary.date_adhesion = new Date();
 
     await beneficiary.save();
 
-    res.status(200).json({ message: "Statut du Bénéficiaire mis à jour avec succès" });
+    let emailSubject, emailText;
+
+    if (newStatus === 'accepté') {
+      emailSubject = 'Suivi de candidature';
+      emailText = `Bonjour ${beneficiary.nom},\n\nFélicitations ! Votre candidature en tant que bénéficiaire a été acceptée. Vous pouvez désormais accéder à notre plateforme et bénéficier de nos services.\n\nNous sommes impatients de vous accompagner dans votre parcours avec nous !`;
+    } else if (newStatus === 'refusé') {
+      emailSubject = 'Suivi de candidature';
+      emailText = `Bonjour ${beneficiary.nom},\n\nNous regrettons de vous informer que votre candidature en tant que bénéficiaire a été refusée.\n\n Merci pour votre intérêt et votre compréhension.`;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: emailSubject,
+      text: emailText,
+    };
+
+    // Envoyer l'e-mail
+    await transporter.sendMail(mailOptions);
+    console.log('E-mail envoyé avec succès au bénéficiaire');
+
+    res.status(200).json({ message: "Statut du bénéficiaire mis à jour avec succès" });
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du statut du Bénéficiaire :", error);
+    console.error("Erreur lors de la mise à jour du statut du bénéficiaire :", error);
     res.status(500).json({ message: "Erreur serveur." });
   }
 };
+
 exports.getAllServices = async (req, res) => {
   try {
     const services = await Service.findAll();
@@ -598,442 +693,6 @@ exports.getAllServices = async (req, res) => {
   } catch (error) {
     console.error('Erreur lors de la récupération des services :', error);
     res.status(500).json({ error: 'Erreur interne du serveur' });
-  }
-};
-exports.createActivityPrive = async (req, res) => {
-
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nomBeneficiaire, prenomBeneficiaire, nomBenevole, prenomBenevole, nom_service } = req.body;
-  const t = await sequelize.transaction();
-
-  try {
-    const benevoleId = await getBenevoleId(nomBenevole, prenomBenevole);
-    const beneficiaireId = await getBeneficiaireId(nomBeneficiaire, prenomBeneficiaire);
-
-   
-    const existingEvent = await ActivityPrive.findOne({
-      attributes: ['id_benevole', 'id_beneficiaire', 'heure_debut', 'date_activite'],
-      where: {
-        date_activite,
-        heure_debut,
-        [Op.or]: [
-          { id_benevole: benevoleId },
-          { id_beneficiaire: beneficiaireId }
-        ]
-      },
-      transaction: t
-    });
-  
-
-    if (existingEvent) {
-      throw new Error('Un événement avec le même nom et prénom de bénévole/bénéficiaire, la même date et heure existe déjà.');
-    }
-    let [lieu, created] = await Lieu.findOrCreate({
-      where: { adresse: adresseComplete, ville, code_postal },
-      defaults: { adresse: adresseComplete, ville, code_postal },
-      transaction: t
-    });
-
-    const [benevole, benevoleCreated] = await Volunteer.findOrCreate({
-      where: { nom: nomBenevole, prenom: prenomBenevole },
-      defaults: { nom: nomBenevole, prenom: prenomBenevole },
-      transaction: t
-    });
-
-    if (!benevoleCreated && !benevole) {
-      throw new Error('Bénévole non trouvé et impossible à créer.');
-    }
-
-    const [beneficiaire, beneficiaireCreated] = await Beneficiary.findOrCreate({
-      where: { nom: nomBeneficiaire, prenom: prenomBeneficiaire },
-      defaults: { nom: nomBeneficiaire, prenom: prenomBeneficiaire },
-      transaction: t
-    });
-
-    if (!beneficiaireCreated && !beneficiaire) {
-      throw new Error('Bénéficiaire non trouvé et impossible à créer.');
-    }
-
-    await ActivityPrive.create({
-      description,
-      date_activite,
-      heure_debut,
-      heure_fin,
-      titre,
-      id_lieu: lieu.id_lieu,
-      id_beneficiaire: beneficiaire.id,
-      id_benevole: benevole.id,
-      nom_service
-    }, { transaction: t });
-
-    await t.commit();
-
-    res.status(201).send('Activité privée ajoutée avec succès.');
-  } catch (error) {
-    await t.rollback();
-    console.error('Erreur lors de l\'ajout de l\'activité privée : ', error);
-    res.status(500).send('Erreur lors de l\'ajout de l\'activité privée : ' + error.message);
-  }
-};
-
-async function getBenevoleId(nom, prenom) {
-  const benevole = await Volunteer.findOne({ where: { nom, prenom } });
-  if (!benevole) {
-    throw new Error(`Bénévole non trouvé avec le nom ${nom} et le prénom ${prenom}`);
-  }
-  return benevole.id;
-}
-
-async function getBeneficiaireId(nom, prenom) {
-  const beneficiaire = await Beneficiary.findOne({ where: { nom, prenom } });
-  if (!beneficiaire) {
-    throw new Error(`Bénéficiaire non trouvé avec le nom ${nom} et le prénom ${prenom}`);
-  }
-  return beneficiaire.id;
-}
-
-exports.getVolunteerById = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const volunteer = await Volunteer.findByPk(id);
-    if (!volunteer) {
-      return res.status(404).send({ message: 'Bénévole non trouvé.' });
-    }
-    res.send({ nom: volunteer.nom, prenom: volunteer.prenom });
-  } catch (error) {
-    console.error('Erreur lors de la récupération du bénévole:', error);
-    res.status(500).send({ message: 'Erreur lors de la récupération des informations du bénévole.' });
-  }
-};
-exports.getBeneficiaryById = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const beneficiary = await Beneficiary.findByPk(id);
-    if (!beneficiary) {
-      return res.status(404).send({ message: 'Bénéficiaire non trouvé.' });
-    }
-    res.send({ nom: beneficiary.nom, prenom: beneficiary.prenom });
-  } catch (error) {
-    console.error('Erreur lors de la récupération du bénéficiaire:', error);
-    res.status(500).send({ message: 'Erreur lors de la récupération des informations du bénéficiaire.' });
-  }
-};
-exports.createActivity = async (req, res) => {
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
-  const t = await sequelize.transaction();
-
-  try {
-    const currentDate = new Date();
-    const startDate = new Date(date_activite);
-  
-    if (startDate < currentDate) {
-      return res.status(400).send('La date de début est déjà passée.');
-    }
-
-    let [lieu, created] = await Lieu.findOrCreate({
-      where: { adresse: adresseComplete, ville, code_postal },
-      defaults: { adresse: adresseComplete, ville, code_postal },
-      transaction: t
-    });
-
-    const existingActivity = await Activity.findOne({
-      where: {
-        date_activite: startDate,
-        id_lieu: lieu.id_lieu,
-        [Op.or]: [
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_debut } },
-              { heure_fin: { [Op.gte]: heure_debut } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_fin } },
-              { heure_fin: { [Op.gte]: heure_fin } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.gte]: heure_debut } },
-              { heure_fin: { [Op.lte]: heure_fin } }
-            ]
-          }
-        ]
-      },
-      transaction: t
-    });
-
-    if (existingActivity) {
-      await t.rollback();
-      return res.status(400).json({ error: 'Une Activite avec les mêmes dates de début et de fin existe déjà.' });
-    }
-
-    await Activity.create({
-      description,
-      date_activite,
-      heure_debut,
-      heure_fin,
-      titre,
-      id_lieu: lieu.id_lieu,
-      nom_service,
-      nb_benevoles
-    }, { transaction: t });
-
-    await t.commit();
-
-    res.status(201).send('Activité ajoutée avec succès.');
-  } catch (error) {
-    await t.rollback();
-    console.error('Erreur lors de l\'ajout de l\'activité : ', error);
-    res.status(500).send('Erreur lors de l\'ajout de l\'activité : ' + error.message);
-  }
-};
-exports.updateActivity = async (req, res) => {
-  const { id } = req.params;
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
-  const t = await sequelize.transaction();
-
-  try {
-    const currentDate = new Date();
-    const startDate = new Date(date_activite);
-
-    if (startDate < currentDate) {
-      return res.status(400).send('La date de l\'activité ne peut pas être dans le passé.');
-    }
-
-    const lieu = await Lieu.findOne({
-      where: { adresse: adresseComplete, ville, code_postal },
-      transaction: t
-    });
-
-    if (!lieu) {
-      await t.rollback();
-      return res.status(404).send('Lieu introuvable.');
-    }
-
-    const existingActivity = await Activity.findOne({
-      where: {
-        id: {
-          [Op.ne]: id // Exclude the current activity from the check
-        },
-        date_activite: startDate,
-        id_lieu: lieu.id_lieu,
-        [Op.or]: [
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_debut } },
-              { heure_fin: { [Op.gte]: heure_debut } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_fin } },
-              { heure_fin: { [Op.gte]: heure_fin } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.gte]: heure_debut } },
-              { heure_fin: { [Op.lte]: heure_fin } }
-            ]
-          }
-        ]
-      },
-      transaction: t
-    });
-
-    if (existingActivity) {
-      await t.rollback();
-      return res.status(400).send('Conflit d\'horaire avec une autre activité.');
-    }
-
-    await Activity.update({
-      description,
-      date_activite,
-      heure_debut,
-      heure_fin,
-      titre,
-      id_lieu: lieu.id_lieu,
-      nom_service,
-      nb_benevoles
-    }, {
-      where: { id },
-      transaction: t
-    });
-
-    await t.commit();
-    res.status(200).send('Activité mise à jour avec succès.');
-  } catch (error) {
-    await t.rollback();
-    console.error('Erreur lors de la mise à jour de l\'activité : ', error);
-    res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
-  }
-};
-exports.updateActivity = async (req, res) => {
-  const { ID_Activite } = req.params;
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
-  const t = await sequelize.transaction();
-
-  try {
-    const currentDate = new Date();
-    const startDate = new Date(date_activite);
-
-    if (startDate < currentDate) {
-      await t.rollback();
-      return res.status(400).send('La date de l\'activité ne peut pas être dans le passé.');
-    }
-
-    let [lieu, created] = await Lieu.findOrCreate({
-      where: { adresse: adresseComplete, ville, code_postal },
-      defaults: { adresse: adresseComplete, ville, code_postal },
-      transaction: t
-    });
-
-    if (!lieu) {
-      await t.rollback();
-      return res.status(404).send('Lieu introuvable.');
-    }
-
-    const existingActivity = await Activity.findOne({
-      where: {
-        ID_Activite: {
-          [Op.ne]: ID_Activite
-        },
-        date_activite: startDate,
-        id_lieu: lieu.id_lieu,
-        [Op.or]: [
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_debut } },
-              { heure_fin: { [Op.gte]: heure_debut } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_fin } },
-              { heure_fin: { [Op.gte]: heure_fin } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.gte]: heure_debut } },
-              { heure_fin: { [Op.lte]: heure_fin } }
-            ]
-          }
-        ]
-      },
-      transaction: t
-    });
-
-    if (existingActivity) {
-      await t.rollback();
-      return res.status(400).send('Conflit d\'horaire avec une autre activité.');
-    }
-
-    await Activity.update({
-      titre,
-      description,
-      date_activite,
-      heure_debut,
-      heure_fin,
-      titre,
-      id_lieu: lieu.id_lieu,
-      nom_service,
-      nb_benevoles
-    }, {
-      where: { ID_Activite },
-      transaction: t
-    });
-
-    await t.commit();
-    res.status(200).send('Activité mise à jour avec succès.');
-  } catch (error) {
-    await t.rollback();
-    console.error('Erreur lors de la mise à jour de l\'activité : ', error);
-    res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
-  }
-};
-exports.updateActivityPrive = async (req, res) => {
-  const { ID_Activite } = req.params;
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
-  const t = await sequelize.transaction();
-
-  try {
-    const currentDate = new Date();
-    const startDate = new Date(date_activite);
-
-    if (startDate < currentDate) {
-      await t.rollback();
-      return res.status(400).send('La date de l\'activité ne peut pas être dans le passé.');
-    }
-
-    let [lieu, created] = await Lieu.findOrCreate({
-      where: { adresse: adresseComplete, ville, code_postal },
-      defaults: { adresse: adresseComplete, ville, code_postal },
-      transaction: t
-    });
-
-    if (!lieu) {
-      await t.rollback();
-      return res.status(404).send('Lieu introuvable.');
-    }
-
-    const existingActivity = await ActivityPrive.findOne({
-      where: {
-        ID_Activite: {
-          [Op.ne]: ID_Activite
-        },
-        date_activite: startDate,
-        id_lieu: lieu.id_lieu,
-        [Op.or]: [
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_debut } },
-              { heure_fin: { [Op.gte]: heure_debut } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_fin } },
-              { heure_fin: { [Op.gte]: heure_fin } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.gte]: heure_debut } },
-              { heure_fin: { [Op.lte]: heure_fin } }
-            ]
-          }
-        ]
-      },
-      transaction: t
-    });
-
-    if (existingActivity) {
-      await t.rollback();
-      return res.status(400).send('Conflit d\'horaire avec une autre activité.');
-    }
-
-    await ActivityPrive .update({
-      titre,
-      description,
-      date_activite,
-      heure_debut,
-      heure_fin,
-      titre,
-      id_lieu: lieu.id_lieu,
-      nb_benevoles
-    }, {
-      where: { ID_Activite },
-      transaction: t
-    });
-
-    await t.commit();
-    res.status(200).send('Activité mise à jour avec succès.');
-  } catch (error) {
-    await t.rollback();
-    console.error('Erreur lors de la mise à jour de l\'activité : ', error);
-    res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
   }
 };
 exports.createBlog = async (req, res) => {
@@ -1077,277 +736,6 @@ exports.getAllBlogs = async (req, res) => {
       console.error("Erreur lors de la récupération des blogs :", error);
       res.status(500).json({ message: "Erreur serveur lors de la récupération des blogs." });
   }
-};
-
-exports.createFormation = async (req, res) => {
-  const { description, date_debut, date_fin, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal } = req.body;
-  const t = await sequelize.transaction();
-
-  try {
-    const currentDate = new Date();
-    const startDate = new Date(date_debut);
-    const EndDate = new Date(date_fin);
-  
-    if (startDate < currentDate) {
-      return res.status(400).send('La date de début est déjà passée.');
-    }
-    if (EndDate < currentDate) {
-      return res.status(400).send('La date de fin est déjà passée.');
-    }
-
-    let [lieu, created] = await Lieu.findOrCreate({
-      where: { adresse: adresseComplete, ville, code_postal },
-      defaults: { adresse: adresseComplete, ville, code_postal },
-      transaction: t
-    });
-
-    const endDate = new Date(date_fin);
-
-    const existingFormation = await Formation.findOne({
-      where: {
-        date_debut: startDate,
-        date_fin: endDate,
-        id_lieu: lieu.id_lieu
-      },
-      transaction: t
-    });
-
-    if (existingFormation) {
-      await t.rollback();
-      return res.status(400).send('Une formation avec les mêmes dates de début et de fin existe déjà.');
-    }
-
-    await Formation.create({
-      description,
-      date_debut: startDate,
-      date_fin: endDate,
-      heure_debut,
-      heure_fin,
-      titre,
-      id_lieu: lieu.id_lieu,
-    }, { transaction: t });
-
-    await t.commit();
-
-    res.status(201).send('Formation ajoutée avec succès.');
-  } catch (error) {
-    await t.rollback();
-    console.error('Erreur lors de l\'ajout de formation : ', error);
-    res.status(500).send('Erreur lors de l\'ajout de formation : ' + error.message);
-  }
-};
-const models = require('../models');
-models.Activity.belongsTo(models.Lieu, { foreignKey: 'id_lieu', as: 'activityLieu' });
-
-exports.getLatestActivities = async (req, res) => {
-  try {
-    const activities = await Activity.findAll({
-      include: [{
-        model: Lieu, 
-        as: 'lieu' 
-      }],
-      order: [['date_create', 'DESC']],
-      limit: 4
-    });
-    
-    res.status(200).json(activities);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des dernières activités :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération des dernières activités." });
-  }
-};
-
-exports.getPastActivities = async (req, res) => {
-  try {
-    const today = new Date(); 
-
-    const publicActivitiesPromise = Activity.findAll({
-      where: {
-        date_activite: {
-          [Op.lt]: today
-        }
-      },
-      include: [{
-        model: Lieu,
-        as: 'lieu'
-      }],
-      order: [['date_activite', 'DESC']]
-    });
-
-    const privateActivitiesPromise = ActivityPrive.findAll({
-      where: {
-        date_activite: {
-          [Op.lt]: today
-        }
-      },
-      include: [{
-        model: Lieu,
-        as: 'lieu'
-      }],
-      order: [['date_activite', 'DESC']]
-    });
-
-    const [publicActivities, privateActivities] = await Promise.all([publicActivitiesPromise, privateActivitiesPromise]);
-
-    const allActivities = publicActivities.concat(privateActivities);
-
-    allActivities.sort((a, b) => new Date(b.date_create) - new Date(a.date_create));
-
-    res.status(200).json(allActivities);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des activités passées :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération des activités passées." });
-  }
-};
-
-exports.getFormations = async (req, res) => {
-  try {
-    const today = new Date();
-    const formations = await Formation.findAll({
-      where: {
-        date_debut: {
-          [Op.gt]: today 
-        }
-      },
-      include: [{
-        model: Lieu, 
-        as: 'lieu' 
-      }], order: [
-        ['date_debut', 'ASC'] 
-      ]
-    });
-    
-    res.status(200).json(formations);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des dernières activités :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération des dernières activités." });
-  }
-};
-
-exports.getActivities = async (req, res) => {
-  try {
-    const today = new Date();
-    const activities = await Activity.findAll({
-      where: {
-        date_activite: {
-          [Op.gt]: today 
-        }
-      },
-      include: [{
-        model: Lieu, 
-        as: 'lieu' 
-      }], order: [
-        ['date_activite', 'ASC'] 
-      ]
-    });
-    
-    res.status(200).json(activities);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des dernières activités :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération des dernières activités." });
-  }
-};
-
-
-exports.getActivitiesPrives = async (req, res) => {
-  try {
-    const today = new Date();
-    const activities = await ActivityPrive.findAll({
-      where: {
-        date_activite: {
-          [Op.gt]: today 
-        }
-      },
-      include: [{
-        model: Lieu, 
-        as: 'lieu' 
-      }], order: [
-        ['date_activite', 'ASC'] 
-      ],
-      order: [['ID_Activite', 'DESC']],
-      attributes: ['ID_Activite', 'titre', 'description', 'date_activite']
-    });
-
-    res.status(200).json(activities);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des dernières activités :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération des dernières activités.", error: error.message });
-  }
-};
-
-exports.showEvent = async (req, res) => {
-  try {
-    const { ID_Activite } = req.params;
-    const activity = await Activity.findByPk(ID_Activite, {
-      include: [{
-        model: Lieu, 
-        as: 'lieu' 
-      }],
-    });
-
-    if (!activity) {
-      return res.status(404).json({ error: 'Activité non trouvée.' });
-    }
-    res.json(activity);
-  } catch (error) {
-    console.error('Erreur lors de la récupération de l\'activité :', error);
-    res.status(500).send({ message: 'Erreur lors de la récupération des informations de l\'activité.' });
-  }
-};
-
-exports.showEventPrive = async (req, res) => {
-  try {
-    const { ID_Activite } = req.params;
-    const activity = await ActivityPrive.findByPk(ID_Activite, {
-      include: [{
-        model: Lieu,
-        as: 'lieu',
-      },
-      {
-        model: Volunteer,
-        as: 'volunteer',
-        attributes: ['nom', 'prenom']
-      },
-      {
-        model: Beneficiary,
-        as: 'beneficiary',
-        attributes: ['nom', 'prenom']
-      }
-      ],
-      order: [['ID_Activite', 'DESC']]
-    });
-
-    if (!activity) {
-      return res.status(404).json({ error: 'Activité non trouvée.' });
-    }
-
-    res.json(activity);
-  } catch (error) {
-    console.error('Erreur lors de la récupération de l\'activité :', error);
-    res.status(500).send({ message: 'Erreur lors de la récupération des informations de l\'activité.' });
-  }
-};
-
-
-exports.deleteEventPrive = async (req, res) => {
-    const { eventId } = req.params; 
-
-    try {
-        const result = await ActivityPrive.destroy({
-            where: {
-                ID_Activite: eventId 
-            }
-        });
-
-        if (result > 0) {
-            res.status(200).json({ message: "Événement supprimé avec succès." });
-        } else {
-            res.status(404).json({ message: "Événement non trouvé." });
-        }
-    } catch (error) {
-        console.error("Erreur lors de la suppression de l'événement :", error);
-        res.status(500).json({ message: "Erreur lors de la suppression de l'événement.", error: error.message });
-    }
 };
 
 exports.addPartenaire = async (req, res) => {

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const Volunteer = require('../models/Volunteer');
-const { getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
+const { getEventsAllForVolunteer, getEventsPvForVolunteer,getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
 const authentication = require('../middleware/authentication');
 
 const storage = multer.memoryStorage(); 
@@ -50,5 +50,7 @@ router.post('/activites/registrations/:ID_event', addRegistration);
 router.get('/registrations/:eventId/:benevoleId',checkRegistrationStatus);
 router.delete('/registrations/delete/:eventId/:benevoleId',deleteRegistration);
 router.get('/activities/:benevoleId', getEventsForVolunteer);
+router.get('/activities-prv/:benevoleId', getEventsPvForVolunteer);
+router.get('/activities-all/:benevoleId', getEventsAllForVolunteer);
 
 module.exports = router;
