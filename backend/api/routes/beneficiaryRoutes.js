@@ -1,0 +1,94 @@
+const express = require('express');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+
+
+const { 
+    registerBeneficiary, 
+    login, 
+    getUserInfo, 
+    updateBeneficiary, 
+    getActivitePriveForLoggedInUser, 
+    getEventsAllForBeneficiary
+} = require('../controllers/beneficiaryController');
+
+const ImageProfile = require('../models/ImageProfile');
+const Blog = require('../models/Blog');
+const authentication = require('../middleware/authentication');
+
+router.use(cors({
+    origin: 'http://localhost:3000', 
+    credentials: true
+}));
+
+router.post('/registerBeneficiary', (req, res, next) => {
+    upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+        console.error('Multer Error:', err);
+        return res.status(400).json({ error: 'Une erreur s\'est produite lors du téléversement du fichier' });
+      } else if (err) {
+        console.error('Error:', err);
+        return res.status(500).json({ error: 'Erreur interne du serveur' });
+      }
+  
+      next();
+    });
+  }, registerBeneficiary);
+
+router.post('/login', login);
+router.get('/activities-all/:beneficiaryId', getEventsAllForBeneficiary);
+router.get('/userinfo', getUserInfo);
+router.get('/activites_prives', getActivitePriveForLoggedInUser);
+
+// PUT route to update a beneficiary record
+router.put('/beneficiary', async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    if (!accessToken) {
+        return res.status(401).json({ error: 'Access token not provided' });
+    }
+    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const updatedBeneficiary = await updateBeneficiary(decodedToken.id, req.body);
+    res.status(200).json(updatedBeneficiary);
+  } catch (error) {
+    console.error('Error updating beneficiary:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('access_token');
+    res.status(200).json({ message: 'Logout successful' });
+});
+
+// Protected route example
+router.get('/protected', authentication, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const profileImage = await ImageProfile.findOne({ where: { ID_Beneficiaire: userId } });
+        if (!profileImage) {
+            return res.status(404).json({ error: 'Profile image not found' });
+        }
+        res.json({ profileImagePath: profileImage.image_path });
+    } catch (error) {
+        console.error('Error fetching profile image:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/articles', async (req, res) => {
+    try {
+        const articles = await Blog.findAll();
+        res.status(200).json(articles);
+    } catch (error) {
+        console.error('Error fetching articles:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+const { createProblem } = require('../controllers/problemController');
+const setCookie = require('../middleware/setCookie');
+router.post('/problems', createProblem);
+
+module.exports = router;
