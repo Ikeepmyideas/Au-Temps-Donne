@@ -20,6 +20,8 @@ const ActivityPrive = require('../models/ActivityPrivate');
 const Service = require('../models/Service');
 const Blog = require('../models/Blog');
 const EvenementBenevole = require('../models/EvenementBenevole');
+const RegisterF = require('../models/InscriptionFormation');
+
 const Notification = require( '../models/notifications' );
 const jwt = require('jsonwebtoken');
 const sequelize = require('../config/db'); 
@@ -693,12 +695,12 @@ exports.getFormations = async (req, res) => {
     const formations = await Formation.findAll({
       where: {
         date_debut: {
-          [Op.gt]: today 
+          [Op.gte]: today 
         }
       },
       include: [{
         model: Lieu, 
-        as: 'lieu' 
+        as: 'lieuF' 
       }], order: [
         ['date_debut', 'ASC'] 
       ]
@@ -714,10 +716,12 @@ exports.getFormations = async (req, res) => {
 exports.getActivities = async (req, res) => {
   try {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const activities = await Activity.findAll({
       where: {
         date_activite: {
-          [Op.gt]: today 
+          [Op.gte]: today 
         }
       },
       include: [{
@@ -739,6 +743,8 @@ exports.getActivities = async (req, res) => {
 exports.getActivitiesPrives = async (req, res) => {
   try {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const activities = await ActivityPrive.findAll({
       where: {
         date_activite: {
@@ -781,7 +787,25 @@ exports.showEvent = async (req, res) => {
     res.status(500).send({ message: 'Erreur lors de la récupération des informations de l\'activité.' });
   }
 };
+exports.showFormation = async (req, res) => {
+  try {
+    const { ID_Formation } = req.params;
+    const activity = await Formation.findByPk(ID_Formation, {
+      include: [{
+        model: Lieu, 
+        as: 'lieuF' 
+      }],
+    });
 
+    if (!activity) {
+      return res.status(404).json({ error: 'Activité non trouvée.' });
+    }
+    res.json(activity);
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'activité :', error);
+    res.status(500).send({ message: 'Erreur lors de la récupération des informations de l\'activité.' });
+  }
+};
 exports.showEventPrive = async (req, res) => {
   try {
     const { ID_Activite } = req.params;
@@ -817,33 +841,61 @@ exports.showEventPrive = async (req, res) => {
 
 
 exports.deleteEventPrive = async (req, res) => {
-    const { eventId } = req.params; 
+  const { eventId } = req.params;
 
-    try {
-        const result = await ActivityPrive.destroy({
-            where: {
-                ID_Activite: eventId 
-            }
-        });
+  try {
+      await sequelize.transaction(async (t) => {
+          await EvenementBenevole.destroy({
+              where: {
+                ID_event: eventId
+              },
+              transaction: t
+          });
 
-        if (result > 0) {
-            res.status(200).json({ message: "Événement supprimé avec succès." });
-        } else {
-            res.status(404).json({ message: "Événement non trouvé." });
-        }
-    } catch (error) {
-        console.error("Erreur lors de la suppression de l'événement :", error);
-        res.status(500).json({ message: "Erreur lors de la suppression de l'événement.", error: error.message });
-    }
+          const result = await ActivityPrive.destroy({
+              where: {
+                  ID_Activite: eventId
+              },
+              transaction: t
+          });
+
+          if (result > 0) {
+              res.status(200).json({ message: "Événement supprimé avec succès." });
+          } else {
+              res.status(404).json({ message: "Événement non trouvé." });
+          }
+      });
+  } catch (error) {
+      console.error("Erreur lors de la suppression de l'événement :", error);
+      res.status(500).json({ message: "Erreur lors de la suppression de l'événement.", error: error.message });
+  }
 };
+exports.deleteEvent = async (req, res) => {
+  const { eventId } = req.params; 
 
+  try {
+      const result = await Activity.destroy({
+          where: {
+              ID_Activite: eventId 
+          }
+      });
+
+      if (result > 0) {
+          res.status(200).json({ message: "Événement supprimé avec succès." });
+      } else {
+          res.status(404).json({ message: "Événement non trouvé." });
+      }
+  } catch (error) {
+      console.error("Erreur lors de la suppression de l'événement :", error);
+      res.status(500).json({ message: "Erreur lors de la suppression de l'événement.", error: error.message });
+  }
+};
 exports.addPartenaire = async (req, res) => {
   const { nom, email, telephone, adresseComplete, ville, code_postal } = req.body;
 
-  // Generate a random 12-digit password
   const generatePassword = () => {
       return Array.from(crypto.randomFillSync(new Uint8Array(6))).map((item) => {
-          return Math.floor(item / 25.6); // Scale to 0-9
+          return Math.floor(item / 25.6); 
       }).join('');
   };
 
@@ -852,7 +904,6 @@ exports.addPartenaire = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-      // Rechercher ou créer un lieu (adresse) en fonction des critères
       const [lieu, created] = await Lieu.findOrCreate({
           where: { adresse: adresseComplete, ville, code_postal },
           defaults: { adresse: adresseComplete, ville, code_postal },
@@ -864,19 +915,15 @@ exports.addPartenaire = async (req, res) => {
           email,
           telephone,
           password, 
-          id_Adresse: lieu.id_lieu, // Associer l'ID du lieu au partenaire
+          id_Adresse: lieu.id_lieu, 
       }, { transaction: t });
 
-      // Valider la transaction
       await t.commit();
 
-      // Répondre avec le statut 201 (Created) et un message de succès
       res.status(201).send('Partenaire ajouté avec succès.');
   } catch (error) {
-      // En cas d'erreur, annuler la transaction
       await t.rollback();
       console.error('Erreur lors de l\'ajout de Partenaire : ', error);
-      // Répondre avec le statut 500 (Internal Server Error) et un message d'erreur
       res.status(500).send('Erreur lors de l\'ajout de Partenaire : ' + error.message);
   }
 };

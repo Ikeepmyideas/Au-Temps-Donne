@@ -13,13 +13,14 @@ router.delete('/delete', adminController.deleteAdmin);
 router.get('/userinfo', adminController.getUserInfo);
 
 router.delete('/volunteers/delete', adminController.deleteVolunteer);
-router.get('/infosUser/volunteers/:email', adminController.getVolunteer);
+router.get('/infosUser/benevole/:email', adminController.getVolunteer);
 router.get('/volunteers', adminController.getAllVolunteers);
 router.get('/volunteers/latest-volunteers', adminController.getLatestVolunteers);
 router.get('/volunteersAdmin', adminController.getAllNonAdminVolunteers);
 router.post('/addVolunteerToAdmin', adminController.addVolunteerToAdmins);
 router.post('/volunteers/update-status', adminController.updateVolunteerStatus);
 router.get('/all', adminController.getAllVolunteersAndBeneficiaries);
+router.get('/all/latest', adminController.getAllLatestVolunteersAndBeneficiaries);
 
 router.post('/addVolunteer', adminController.addVolunteer);
 

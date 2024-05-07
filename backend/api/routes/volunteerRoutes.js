@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const Volunteer = require('../models/Volunteer');
-const { getEventsAllForVolunteer, getEventsPvForVolunteer,getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
+const { getFormationsForVolunteer,deleteRegistrationFormation,checkRegistrationStatusFormation,addRegistrationFormation,getEventsAllForVolunteer, getEventsPvForVolunteer,getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
 const authentication = require('../middleware/authentication');
 
 const storage = multer.memoryStorage(); 
@@ -47,10 +47,16 @@ router.get('/userinfo', getUserInfo);
 
 router.post('/login', loginVolunteer);
 router.post('/activites/registrations/:ID_event', addRegistration);
+
+router.post('/formations/registrations/:id_formation', addRegistrationFormation);
+router.get('/formations/registrations/:id_formation/:id_benevole',checkRegistrationStatusFormation);
+router.delete('/formations/registrations/delete/:id_formation/:id_benevole',deleteRegistrationFormation);
+
 router.get('/registrations/:eventId/:benevoleId',checkRegistrationStatus);
 router.delete('/registrations/delete/:eventId/:benevoleId',deleteRegistration);
 router.get('/activities/:benevoleId', getEventsForVolunteer);
 router.get('/activities-prv/:benevoleId', getEventsPvForVolunteer);
 router.get('/activities-all/:benevoleId', getEventsAllForVolunteer);
+router.get('/formations/:id_benevole', getFormationsForVolunteer);
 
 module.exports = router;

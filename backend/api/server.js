@@ -9,6 +9,7 @@ const beneficiaryRoutes = require('./routes/beneficiaryRoutes');
 const partenaireRoutes = require('./routes/partenaireRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const CampagneRoutes = require('./routes/CampagneRoutes')
 
 const cookieParser = require('cookie-parser');
 
@@ -61,6 +62,7 @@ app.use('/api/beneficiary', beneficiaryRoutes);
 app.use('/api/partenaire', partenaireRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/event', eventRoutes);
+app.use('/api/campagne', CampagneRoutes);
 
 app.get('/debug', (req, res) => {
   console.log('Request Headers - Cookie:', req.headers.cookie);
@@ -71,7 +73,6 @@ app.get('/debug', (req, res) => {
 
 app.get('/api/data', (req, res) => {
   try {
-      // your logic here
       res.json({ data: 'Here is your JSON data' });
   } catch (error) {
       console.error(error);

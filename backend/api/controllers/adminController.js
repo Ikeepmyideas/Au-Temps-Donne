@@ -51,8 +51,7 @@ const transporter = nodemailer.createTransport({
 exports.createAdmin = async (req, res) => {
   try {
     const { email, mot_de_passe,nom, prenom  } = req.body; 
-
-    const hashedPassword = await bcrypt.hash(mot_de_passe, saltRounds);
+    const hashedPassword = await argon2.hash(mot_de_passe);
 
     const admin = await Admin.create({
       email,
@@ -90,7 +89,6 @@ exports.addAdmin = async (req, res) => {
   try {
     const { email, nom, prenom } = req.body;
 
-    // Génération d'un mot de passe plus robuste
     const generatePassword = () => {
       const passwordLength = 12;
       return crypto.randomBytes(passwordLength).toString('hex').slice(0, passwordLength);
@@ -625,7 +623,6 @@ exports.updateVolunteerStatus = async (req, res) => {
       text: emailText,
     };
 
-    // Envoyer l'e-mail
     await transporter.sendMail(mailOptions);
     console.log('E-mail envoyé avec succès au bénévole');
 
@@ -914,3 +911,5 @@ exports.getAllAdresses = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des adresses', error: error }); 
   }
 };
+
+

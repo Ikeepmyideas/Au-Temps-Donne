@@ -37,6 +37,7 @@ router.post('/addActivity', (req, res, next) => {
   }, createActivity);
 router.post('/addFormation', eventController.createFormation);
 router.get('/formations', eventController.getFormations);
+router.get('/formations/:ID_Formation', eventController.showFormation);
 
 router.get('/activites/registrations/:ID_event', eventController.getRegistrations);
 router.post('/activites/registrations', eventController.addRegistration);
