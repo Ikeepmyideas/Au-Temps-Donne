@@ -141,7 +141,18 @@ div#right1{
     display: flex;
 
     }
+#horiz2{
+  background-color: white;
+  padding: 20px;
+  display: flex;
 
+  }
+  #horiz2 div {
+    padding: 7px;
+    color: #94A3B8;
+    font-size: 16px;
+    font-family: 'Roboto';
+    }
 #horiz div {
       padding: 7px;
       color: #94A3B8;
@@ -151,11 +162,15 @@ div#right1{
 #horiz div:first-child {
       margin-left: 300px;
  }
-
+ #horiz2 div:first-child {
+  margin-left: 300px;
+}
 #horiz div:nth-child(4) {
     margin-right: 26%;
 }
-
+#horiz2 div:nth-child(3) {
+  margin-right: 26%;
+}
 @media screen and (min-width: 1600px) {
     #horiz div:nth-child(4) {
         margin-right: 44%;
@@ -905,18 +920,18 @@ input[type="time"] {
 
 .hour {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 10px;
   border-radius: 25px;
+  padding: 10px;
   background-color: #EB5454;
-  padding: 10px 15px; 
-  margin-top: 20px;
-  padding-top: 0px;
   color: white; 
 }
 
 .time {
   margin: 0;
+  padding: 0px;
   font-size: 15px;
   color: white; 
 }
@@ -992,9 +1007,7 @@ input[type="time"] {
   cursor: pointer;
   text-decoration: underline;
 }
-#img-time {
-  padding-top:10px;
-}
+
 .btn_act{
   display: block;
   margin-top: 20px;
@@ -1202,3 +1215,26 @@ input[type="time"] {
   margin-left: 60px;
 }
 
+.time-board{
+  font-size: 22px;
+  padding-top: 20px;
+}
+.avenir_div{
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+#avenir-title{
+  padding-top: 20px;
+}
+#date-d{
+  margin-top: 20px;
+}
+#user_infos{
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+}
+#p_candidat{
+  padding: 20px;
+}

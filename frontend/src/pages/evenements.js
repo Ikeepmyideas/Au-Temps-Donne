@@ -95,7 +95,8 @@ function Event() {
                   <img height="180px" src="assets/benevole-img.png" style="border-radius: 25px;">
                   <div class="info-container">
                     <div class="hour">
-                      <img height="20px" src="assets/horloge.png" style="padding-top:10px;"><p class="time">${formattedDate}</p>
+                      <img height="20px" src="assets/horloge.png" style="padding-top:10px;"><p class="time"> className="time-board"> {formatTime(event.activity && event.activity.heure_debut ? event.activity.heure_debut :event.heure_debut)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -119,6 +120,10 @@ function Event() {
           console.error('Erreur lors de la récupération des données:', error);
         });
     });
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);};
     
 
     return (
@@ -141,8 +146,9 @@ function Event() {
                                     <div className="info-container">
                                         <div className="hour">
                                             <img id="img-time" height="20px" src={horlogeIcon} />
-                                            <p className="time">{event.activity && event.activity.date_activite ? event.activity.date_activite : event.date_activite} {event.activity && event.activity.heure_debut ? event.activity.heure_debut : event.heure_debut}</p>
-                                        </div>
+                                            <p className="time"> {formatTime(event.activity && event.activity.heure_debut ? event.activity.heure_debut : event.heure_debut)} | {event.activity && event.activity.date_activite ? event.activity.date_activite : event.date_activite}</p>
+
+                                           </div>
                                     </div>
                                 </div>
                                 <div className="info2">
@@ -178,7 +184,7 @@ function Event() {
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />
-                                                <p className="time">{(activity.date_activite)}  {activity.heure_debut}</p>
+                                                <p className="time">{formatTime(activity.heure_debut)} | {(activity.date_activite)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -192,7 +198,7 @@ function Event() {
                                         </div>
                                     </div>
                                 </div>
-                                <Link to={`/volunteer/activity-details/${activity.id}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
+                                <Link to={`/volunteer/activity-details/${activity.ID_Activite}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
                             </div>
                         ))}
                     </div>

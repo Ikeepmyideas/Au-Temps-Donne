@@ -198,6 +198,12 @@ function Activity() {
         return <div>Loading...</div>;
     }
 
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);
+    };
+
     return (
         <>
             <NavMenu />
@@ -298,7 +304,7 @@ function Activity() {
                     ) : (
                         <div>
                             <div className="header">
-                                <Link to="/volunteer/activity-avenir/${userInfo.id}">
+                                <Link to="/volunteer/evenements">
                                     <img id="retour" height="20px" width="20px" src={retour} alt="Retour" />
                                 </Link>
                                 <h3 className='title_event'>Détails de l'événement</h3>
@@ -337,7 +343,7 @@ function Activity() {
                                         <div>
                                             <div className="heure_d">
                                                 <img className="voir-all-icon" height="15px" width="17px" src={horlogeIcon} alt="Voir tout" />
-                                                <p>{event.heure_debut} à {event.heure_fin}</p>
+                                                <p>{formatTime(event.heure_debut)} à {formatTime(event.heure_fin)}</p>
                                             </div>
                                             <div className="adresse_d">
                                                 <img id="img_lieu" height="25px" src={lieu} alt="Lieu" />
@@ -354,7 +360,7 @@ function Activity() {
                                     </div>
                                     <div>
                                     
-                                        { !event.id_beneficiaire && userInfo && (
+                                        { userInfo && (
                                             <div>
                                                 {showSuccessAlert || success ? (
                                                     <center>

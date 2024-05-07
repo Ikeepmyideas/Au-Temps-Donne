@@ -12,6 +12,8 @@ import MembreList from './pages/membres';
 import Partners from './pages/listPartenaires';
 import Event from './pages/events';
 import AllEvent from './pages/allEvents';
+import Formation from './pages/Formation';
+import FormationDetails from './pages/formation_details';
 import Activiteprv from './pages/activite_prv';
 import EventprvDetails from './pages/activitePriveDetails';
 import EventDetails from './pages/eventDetails';
@@ -22,18 +24,23 @@ import Signup from './pages/signup';
 import SignupSuccess from './pages/signup_success';
 import Newsletter from './pages/newsletter';
 import History from './pages/HistoryEvents';
-import Board from './pages/volunteer/dashboardVolunteer';
 import Loginb from './pages/loginb';
-import Activity from './pages/ActivityPubliqueDetails';
-import Dashboardb from './pages/homepageb';
 import Dashboardv from './pages/dashboardv';
 import Events from './pages/evenements';
 import AllEvents from './pages/showAllEvent';
 import DetailsEvent from './pages/showEventDetails';
+import Formations from './pages/showAllFormation';
+import FormationsD from './pages/showFormationDetails'
 import EventAvenir from './pages/event-avenir';
 import Profileb from './pages/profileb';
 import InfosUser from './pages/infosUser';
-
+import DonsPages from './pages/dons';
+import Candidat from './pages/candidat';
+import Dashboardb from './pages/dashboardb';
+import EventsForB from './pages/beneficiary/Evenements';
+import AllEventsB from './pages/beneficiary/all-events';
+import DetailsEventB from './pages/beneficiary/activity-details'
+import Dons from './pages/dons';
 // Import styles
 import './css/home.css';
 import './css/signup.css';  
@@ -61,6 +68,8 @@ function App() {
         <Route path="/signup_success" element={<SignupSuccess />} />
         <Route path="/loginb" element={<Loginb />} />
         <Route path="/" element={<Home />} />
+        <Route path="/dons" element={<Dons />} />
+
 
         {/* Protected Routes for Admins */}
         <Route element={<ProtectedRoute userType="admin"/>}>
@@ -70,7 +79,9 @@ function App() {
             <Route path="/admin/beneficiaires" element={<BeneficiaryList />} />
             <Route path="/admin/membres" element={<MembreList />} />
             <Route path="/admin/events" element={<Event />} />
-            <Route path="/admin/AllEvents" element={<AllEvent />} />
+            <Route path="/admin/formations" element={<Formation />} />
+            <Route path="/admin/formations/:ID_Formation" element={<FormationDetails />} />
+            <Route path="/admin/activites" element={<AllEvent />} />
             <Route path="/admin/activiteprv" element={<Activiteprv />} />
             <Route path="/admin/activity-details/:eventId" element={<EventDetails />} />
             <Route path="/admin/volunteers/:eventId" element={<ParticipantsList />} />
@@ -82,14 +93,27 @@ function App() {
             <Route path="/admin/infosUser/:typePath/:email" element={<InfosUser />} />
         </Route>
 
-        {/* Protected Routes for Volunteers */}
         <Route element={<ProtectedRoute userType="volunteer"/>}>
           <Route path="/volunteer/dashboard" element={<Dashboardv />} />
           <Route path="/volunteer/evenements" element={<Events />} />
           <Route path="/volunteer/all-events" element={<AllEvents />} />
           <Route path="/volunteer/activity-details/:eventId" element={<DetailsEvent />} />
           <Route path="/volunteer/activity-avenir/:id" element={<EventAvenir />} />
+          <Route path="/volunteer/formations" element={<Formations />} />
+          <Route path="/volunteer/formations/:ID_Formation" element={<FormationsD />} />
+
         </Route>
+        <Route element={<ProtectedRoute userType="beneficiary"/>}>
+             <Route path="/candidat" element={<Candidat />} />
+             <Route path="/beneficiary/dashboard" element={<Dashboardb />} />
+             <Route path="/beneficiary/evenements" element={<EventsForB />} />
+            <Route path="/beneficiary/all-events" element={<AllEventsB />} />
+            <Route path="/beneficiary/activity-details/:eventId" element={<DetailsEventB />} />
+            <Route path="/volunteer/activity-avenir/:id" element={<EventAvenir />} />
+            <Route path="/volunteer/formations" element={<Formations />} />
+            <Route path="/volunteer/formations/:ID_Formation" element={<FormationsD />} />
+        </Route>
+
       </Routes>
     </Router>
   );

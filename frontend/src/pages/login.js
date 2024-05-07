@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import '../css/loginb.css';
+import Logo from '../assets/logo.png';
+
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -42,11 +45,13 @@ const Login = () => {
         handleAdminLogin();
     };
     return (
+        <div class='loginbbody'>
         <div>
-            <h2>Login</h2>
+            <header>
+                <img src={Logo} alt="Your Logo" className="logo" />
+            </header>
             <form onSubmit={handleSubmit}>
-                <h1>Connexion</h1>
-                <p><strong>Vous n'avez pas de compte ? <a href="/signupb">Inscrivez-vous</a></strong></p>
+                <h2 id="title-ad">Connexion administrateurs</h2>
                 <div className="form-group">
                     <div className="input-group email">
                         <label htmlFor="email">Email:</label>
@@ -63,6 +68,9 @@ const Login = () => {
                 <button type="submit">Suivant</button>
             </form>
         </div>
+        </div>
+
+        
     );
 };
 

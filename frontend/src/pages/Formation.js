@@ -16,7 +16,7 @@ function History() {
     const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
    
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/admin/HistoriqueActivites')
+        fetch('http://127.0.0.1:8000/api/event/formations')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -38,6 +38,11 @@ function History() {
     
             }
     }, []);
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);};
+    
 
     return (
         <>
@@ -45,10 +50,10 @@ function History() {
             <section className="content">
                 <div className="lists">
                     <div className="list_type">
-                        <Link to="/allEvents" className={currentPath === '/allEvents' ? 'active' : ''} style={currentPath === '/allEvents' ? { color: '#D23939' } : {}}>Activités publiques </Link>
-                        <Link to="/activiteprv" className={currentPath === '/activiteprv' ? 'active' : 'link_list'} style={currentPath === '/activiteprv' ? { color: '#D23939' } : null}>Activités privés </Link>
-                        <Link to="/list_partenaires" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
-                        <Link to="/HistoryActivity" className={currentPath === '/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/HistoryActivity' ? { color: '#D23939' } : null}>Historique </Link>
+                    <Link to="/admin/activites" className={currentPath === '/admin/activites' ? 'active' : ''} style={currentPath === '/admin/activites' ? { color: '#D23939' } : {}}>Activités </Link>
+                        <Link to="/admin/activiteprv" className={currentPath === '/admin/activiteprv' ? 'active' : 'link_list'} style={currentPath === '/admin/activiteprv' ? { color: '#D23939' } : null}>Activités privés </Link>
+                        <Link to="/admin/formations" className={currentPath === '/admin/formations' ? 'active' : 'link_list'} style={currentPath === '/admin/formations' ? { color: '#D23939' } : {}}>Formations</Link>
+                        <Link to="/admin/historique" className={currentPath === '/admin/historique' ? 'active' : 'link_list'} style={currentPath === '/admin/historique' ? { color: '#D23939' } : null}>Historique </Link>
                     </div>
                     {showSuccessAlert && (
                         <div className="alert success">
@@ -69,7 +74,7 @@ function History() {
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />
-                                                <p className="time">{(activity.date_activite)}  {activity.heure_debut}</p>
+                                                <p className="time">{formatTime(activity.heure_debut)} | {(activity.date_debut)}  </p>
                                             </div>
                                         </div>
                                     </div>
@@ -78,12 +83,12 @@ function History() {
                                         <hr />
                                         <p>{activity.description}</p>
                                         <div className="adresse">
-                                            <p>{activity.lieu.adresse}</p>
-                                            <p>{activity.lieu.code_postal} {activity.lieu.ville}</p>
+                                            <p>{activity.lieuF.adresse} </p>
+                                            <p>{activity.lieuF.code_postal} {activity.lieuF.ville}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <Link to={`/activiteprv_details/${activity.ID_Activite}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
+                                <Link to={`/admin/formations/${activity.ID_Formation}`} className="view">Voir plus<img className="voir-all-icon" height="15px" width="17px" src={viewIcon} alt="Voir tout" /></Link>
                             </div>
                         ))}
                     </div>

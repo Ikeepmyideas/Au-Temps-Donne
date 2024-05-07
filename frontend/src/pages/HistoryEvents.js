@@ -14,7 +14,7 @@ function History() {
     const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
    
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/admin/HistoriqueActivites')
+        fetch('http://127.0.0.1:8000/api/event/HistoriqueActivites')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -43,10 +43,10 @@ function History() {
             <section className="content">
                 <div className="lists">
                     <div className="list_type">
-                        <Link to="/allEvents" className={currentPath === '/allEvents' ? 'active' : ''} style={currentPath === '/allEvents' ? { color: '#D23939' } : {}}>Activités publiques </Link>
-                        <Link to="/activiteprv" className={currentPath === '/activiteprv' ? 'active' : 'link_list'} style={currentPath === '/activiteprv' ? { color: '#D23939' } : null}>Activités privés </Link>
-                        <Link to="/list_partenaires" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
-                        <Link to="/HistoryActivity" className={currentPath === '/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/HistoryActivity' ? { color: '#D23939' } : null}>Historique </Link>
+                        <Link to="/admin/allEvents" className={currentPath === '/admin/allEvents' ? 'active' : ''} style={currentPath === '/admin/allEvents' ? { color: '#D23939' } : {}}>Activités publiques </Link>
+                        <Link to="/admin/activiteprv" className={currentPath === '/admin/activiteprv' ? 'active' : 'link_list'} style={currentPath === '/activiteprv' ? { color: '#D23939' } : null}>Activités privés </Link>
+                        <Link to="/admin/list_partenaires" className={`link_list ${currentPath === '/adminlist_partenaires' ? 'active' : ''}`} style={currentPath === '/admin/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
+                        <Link to="/admin/HistoryActivity" className={currentPath === '/admin/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/admin/HistoryActivity' ? { color: '#D23939' } : null}>Historique </Link>
                     </div>
                     {showSuccessAlert && (
                         <div className="alert success">

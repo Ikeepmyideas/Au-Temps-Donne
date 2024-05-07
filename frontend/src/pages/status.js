@@ -6,6 +6,10 @@ function Status() {
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('all');
     const navigate = useNavigate();
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [filterType, setFilterType] = useState('all');
+
+
 
     useEffect(() => {
         fetch('http://localhost:8000/api/admin/all') 
@@ -16,11 +20,6 @@ function Status() {
             })
             .catch(error => console.error('Erreur lors de la récupération des données:', error));
     }, []);
-
-    const filteredData = data.filter(item => {
-        if (filter === 'all') return true;
-        return item.type.toLowerCase() === filter;
-    });
 
     const accept = async (email, type) => {
         const newStatus = 'accepté';
@@ -69,9 +68,11 @@ function Status() {
     };
 
     const redirectToConsulter = (item) => {
-        const typePath = item.type.toLowerCase(); // Assurez-vous que le type est en minuscules pour l'URL.
+        const typePath = item.type.toLowerCase(); 
         navigate(`/admin/infosUser/${typePath}/${item.email}`);
     };
+
+    
     
 
     function renderTableRows(filteredData) {
@@ -97,18 +98,23 @@ function Status() {
                             <div>
                                 <button type="button" onClick={() => accept(item.email, item.type)} className="action-btn accepter">Accepter</button>
                                 <button type="button" onClick={() => reject(item.email, item.type)} className="action-btn refuser">Refuser</button>
-                                <button onClick={() => redirectToConsulter(item)} className="action-btn">ⓘ</button>
                             </div>
                         ) : ''}
+                    </td>
+                    <td className="action">
+                    <button onClick={() => redirectToConsulter(item)} >ⓘ</button>
                     </td>
                 </tr>
             );
         });
     }
-    const buttonStyle = (buttonFilter) => ({
-        color: filter === buttonFilter ? '#D23939' : 'inherit'
+    const filteredData = data.filter(item => {
+        return (filterType === 'all' || item.type.toLowerCase() === filterType) &&
+               (filterStatus === 'all' || item.statut_validation.toLowerCase() === filterStatus);
     });
-
+    const buttonStyle = (buttonFilter) => ({
+        color: (filterType === buttonFilter || filterStatus === buttonFilter) ? '#D23939' : 'inherit'
+    });
     return (
         <>
             <NavMenu />
@@ -118,9 +124,16 @@ function Status() {
                         <h3>Status Candidats</h3>
                     </div>
                     <div className="filters">
-                        <button style={buttonStyle('all')} onClick={() => setFilter('all')}>Tous</button>
-                        <button style={buttonStyle('bénévole')} onClick={() => setFilter('bénévole')}>Bénévoles</button>
-                        <button style={buttonStyle('bénéficiaire')} onClick={() => setFilter('bénéficiaire')}>Bénéficiaires</button>
+                        <button style={buttonStyle('all')} onClick={() => { setFilterType('all'); setFilterStatus('all'); }}>Tous</button>
+                        <button style={buttonStyle('benevole')} onClick={() => setFilterType('benevole')}>Bénévoles</button>
+                        <button style={buttonStyle('beneficiaire')} onClick={() => setFilterType('beneficiaire')}>Bénéficiaires</button>
+                        </div>                    
+                    <div className="filters">
+
+                        <button style={buttonStyle('en attente')} onClick={() => setFilterStatus('en attente')}>En Attente</button>
+                        <button style={buttonStyle('accepté')} onClick={() => setFilterStatus('accepté')}>Accepté</button>
+                        <button style={buttonStyle('refusé')} onClick={() => setFilterStatus('refusé')}>Refusé</button>
+                  
                     </div>
                     <div className="table_bnv">
                         <table>
@@ -132,6 +145,8 @@ function Status() {
                                     <th>Statut</th>
                                     <th>Action</th>
                                     <th></th>
+                                    <th></th>
+
                                 </tr>
                             </thead>
                             <tbody>

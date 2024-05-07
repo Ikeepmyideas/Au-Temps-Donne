@@ -28,6 +28,12 @@ function Event() {
             });
     }, []);
 
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);};
+    
+
     return (
         <>
             <NavMenu />
@@ -35,8 +41,8 @@ function Event() {
                 <div className="lists">
                     <div className="list_type">
                         <Link to="/volunteer/all-events" className={currentPath === '/volunteer/all-events' ? 'active' : ''} style={currentPath === '/volunteer/all-events' ? { color: '#D23939' } : {}}>Activités</Link>
-                        <Link to="/list_partenaires" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
-                        <Link to="/HistoryActivity" className={currentPath === '/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/HistoryActivity' ? { color: '#D23939' } : null}>Historique </Link>
+                        <Link to="/volunteer/formations" className={`link_list ${currentPath === '/volunteer/formations' ? 'active' : ''}`} style={currentPath === '/volunteer/formations' ? { color: '#D23939' } : {}}>Formations</Link>
+                        <Link to="/volunteer/HistoryActivity" className={currentPath === '/volunteer/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/volunteer/HistoryActivity' ? { color: '#D23939' } : null}>Historique </Link>
                     </div>
                     
                     <div className="box-container">
@@ -48,7 +54,7 @@ function Event() {
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />
-                                                <p className="time">{(activity.date_activite)}  {activity.heure_debut}</p>
+                                                <p className="time">{formatTime(activity.heure_debut)} | {(activity.date_activite)}</p>
                                             </div>
                                         </div>
                                     </div>

@@ -8,7 +8,6 @@
         url('../assets/background.png') no-repeat center top fixed,
         url('../assets/point1.png') no-repeat bottom fixed,
         url('../assets/point2.png') no-repeat bottom fixed;
-
     background-size: cover;
     font-size: 16px;
 
@@ -149,10 +148,6 @@ label{
 .inpu-group.annee input {
     width: 100%; 
 }
-
-
-
-
 label {
     margin-bottom: 8px;
     color: #F96262;
@@ -204,4 +199,7 @@ button:hover {
         width: 100%;
     }
 }
+}
+#title-ad{
+    color:#F96262;
 }

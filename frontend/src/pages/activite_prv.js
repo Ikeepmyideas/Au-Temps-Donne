@@ -36,6 +36,11 @@ function Event() {
     
             }
     }, []);
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);};
+    
 
     return (
         <>
@@ -43,10 +48,11 @@ function Event() {
             <section className="content">
                 <div className="lists">
                     <div className="list_type">
-                        <Link to="/allEvents" className={currentPath === '/allEvents' ? 'active' : ''} style={currentPath === '/allEvents' ? { color: '#D23939' } : {}}>Activités publiques </Link>
-                        <Link to="/activiteprv" className={currentPath === '/activiteprv' ? 'active' : 'link_list'} style={currentPath === '/activiteprv' ? { color: '#D23939' } : null}>Activités privés </Link>
-                        <Link to="/list_partenaires" className={`link_list ${currentPath === '/list_partenaires' ? 'active' : ''}`} style={currentPath === '/list_partenaires' ? { color: '#D23939' } : {}}>Formations</Link>
-                        <Link to="/HistoryActivity" className={currentPath === '/HistoryActivity' ? 'active' : 'link_list'} style={currentPath === '/HistoryActivity' ? { color: '#D23939' } : null}>Activités privés </Link>
+                        <Link to="/admin/activites" className={currentPath === '/admin/activites' ? 'active' : ''} style={currentPath === '/admin/activites' ? { color: '#D23939' } : {}}>Activités </Link>
+                        <Link to="/admin/activiteprv" className={currentPath === '/admin/activiteprv' ? 'active' : 'link_list'} style={currentPath === '/admin/activiteprv' ? { color: '#D23939' } : null}>Activités privés </Link>
+                        <Link to="/admin/formations" className={`link_list ${currentPath === '/admin/formations' ? 'active' : ''}`} style={currentPath === '/admin/formations' ? { color: '#D23939' } : {}}>Formations</Link>
+                        <Link to="/admin/historique" className={currentPath === '/admin/historique' ? 'active' : 'link_list'} style={currentPath === '/admin/historique' ? { color: '#D23939' } : null}>Historique </Link>
+
                     </div>
                     {showSuccessAlert && (
                         <div className="alert success">
@@ -67,7 +73,7 @@ function Event() {
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />
-                                                <p className="time">{(activity.date_activite)}  {activity.heure_debut}</p>
+                                                <p className="time">{formatTime(activity.heure_debut)}  | {activity.date_activite}</p>
                                             </div>
                                         </div>
                                     </div>

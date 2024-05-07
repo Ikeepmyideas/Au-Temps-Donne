@@ -48,18 +48,37 @@ function InfoUser() {
                     <div id="infosUser">
                          <div className="user-info">
                     <h1></h1>
+                    <div id="user_infos">
+                    <p><strong>Date d'inscription :</strong> {user.date_inscription}</p>
+                    <p><strong>Statut :</strong> {user.statut_validation}</p>
+                    </div><br/>
+                  
                     <p><strong>Nom :</strong> {user.nom} {user.prenom}</p>
                     <p><strong>Genre :</strong> {user.genre}</p>
                     <p><strong>Date de naissance :</strong> {user.date_de_naissance}</p>
                     <p><strong>Email :</strong>  {user.email}</p>
                     <p><strong>Téléphone :</strong> {user.telephone}</p>
-                    <p><strong>Adresse :</strong>  {user.adresse}</p>
+                    <p><strong>Adresse :</strong>  {user.adresse},   {user.ville},   {user.code_postal}</p>
                     {typePath === 'beneficiaire' && (
                         <div>
                             <p><strong>Besoin :</strong> {user.besoin}</p>
                             <p><strong>Avis Impôt :</strong> <a href={user.avis_impot} target="_blank" rel="noopener noreferrer">Voir le document</a></p>
-                            <a href={user.avis_impot} target="_blank" rel="noopener noreferrer">Télécharger le fichier</a>
-                            <p><strong>Date d'inscription :</strong> {user.date_inscription}</p>
+                        </div>
+                    )}
+
+                    {typePath === 'benevole' && (
+                        <div>
+                            <p><strong>Compétences :</strong> {user.competences}</p>
+                            <p><strong>Qualités :</strong> {user.qualites}</p>
+                            <p><strong>Message de candidature :</strong> {user.message_candidature}</p>
+                            <p><strong>Casier judiciaire :</strong> <a href={user.casier_judiciaire} target="_blank" rel="noopener noreferrer">Voir le document</a></p>
+                            <div id="permis_infos">
+                            <p><strong>Permis de conduire :</strong> {user.permis_conduire}</p>
+                            {user.permis_conduire === 'oui' && user.justificatif_permis && (
+                                <p><strong>Justificatif de permis :</strong> <a href={user.justificatif_permis} target="_blank" rel="noopener noreferrer">Voir le justificatif</a></p>
+                            )}
+                            </div>
+                           
                         </div>
                     )}
 

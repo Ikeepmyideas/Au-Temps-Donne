@@ -194,7 +194,7 @@ function EventprvDetails() {
         .then(data => {
             alert(data.message); 
             sessionStorage.setItem('successMessageDelete', 'Evenement supprimé avec succès!');
-            navigate('/activiteprv');
+            navigate('/admin/activiteprv');
         })
         .catch(error => {
             console.error('Error:', error);
@@ -249,6 +249,11 @@ function EventprvDetails() {
         return <div>Loading...</div>;
     }
 
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);};
+    
     return (
         <>
             <NavMenu />
@@ -362,7 +367,7 @@ function EventprvDetails() {
                                 ) : (
                                     <div>
                                     <div className="header">
-                                        <Link to="/activiteprv"> 
+                                        <Link to="/admin/activiteprv"> 
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" /> 
                                         </Link>
                                         <h3 className='title_event'>Détails de l'événement</h3>
@@ -373,14 +378,14 @@ function EventprvDetails() {
                                         <div>
                                             <p id="service">{event.nom_service}</p>
                                             <h3>{event.titre}</h3>
-                                            <p className="p_details">Description: {event.description || 'No description provided'}</p>
-                                            <p className="p_details">Bénévole: {event.volunteer.nom }  {event.volunteer.prenom }</p>
-                                            <p className="p_details">Bénéficiaire: {event.beneficiary.nom }  {event.beneficiary.prenom }</p>
+                                            <p className="p_details"><strong>Description:</strong> {event.description || 'No description provided'}</p>
+                                            <p className="p_details"><strong>Bénévole:</strong> {event.volunteer.nom }  {event.volunteer.prenom }</p>
+                                            <p className="p_details"><strong>Bénéficiaire:</strong> {event.beneficiary.nom }  {event.beneficiary.prenom }</p>
                                         </div>
                                         <div>
                                         <div className="heure_d">
                                             <img className="voir-all-icon" height="15px" width="17px" src={horlogeIcon} alt="Voir tout" />
-                                            <p>{event.heure_debut} à {event.heure_fin}</p>
+                                            <p>{formatTime(event.heure_debut)} à {formatTime(event.heure_fin)}</p>
                                         </div>
                                         <div className="adresse_d">
                                             <img id="img_lieu" height="25px" src={lieu} alt="Lieu" />
@@ -398,7 +403,6 @@ function EventprvDetails() {
                                         <button type="button" className="btn_act" onClick={() => setMode('edit')}>Modifier</button>
                                         <button type="button" className="btn_act" onClick={() => deleteEvent(event.ID_Activite)}>Supprimer</button>
                                         <button  type="button" className="btn_act" onClick={handleDownloadPDF}>Télécharger</button>
-
                                     </div>
                                  
 

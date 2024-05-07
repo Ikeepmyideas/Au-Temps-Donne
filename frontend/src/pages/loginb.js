@@ -2,78 +2,89 @@ import React, { useState } from 'react';
 import Logo from '../assets/logo.png';
 import '../css/loginb.css';
 
-function LoginForm() {
+const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-
+    const [error, setError] = useState(null);
+  
     const handleBeneficiaryLogin = async () => {
-        try {
-            const response = await fetch("http://localhost:8000/api/beneficiary/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include' 
-            });
-
+      try {
+        const response = await fetch("http://localhost:8000/api/beneficiary/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password }),
+          credentials: 'include'
+        });
+  
         if (response.ok) {
-            const json = await response.json();
-            localStorage.setItem('accessToken', json.accessToken);
-            localStorage.setItem('userType', json.userType);
-
-            window.location.href = '/beneficiary/Dashboardb';
-            return;
+          const json = await response.json();
+          localStorage.setItem('accessToken', json.accessToken);
+          localStorage.setItem('userType', json.userType);
+  
+          if (json.statut_validation === 'en attente') {
+            window.location.href = '/candidat'; 
+          } else {
+            window.location.href = '/beneficiary/dashboard'; 
+          }
         } else {
-            throw new Error('Failed to log in. Please check your credentials and try again.');
+          throw new Error('Failed to log in. Please check your credentials and try again.');
         }
-        } catch (error) {
-            console.error('There was a problem with the beneficiary login:', error);
-            setError('Failed to log in. Please check your credentials and try again.');
-        }
+      } catch (error) {
+        console.error('There was a problem with the beneficiary login:', error);
+        throw new Error('Failed to log in. Please check your credentials and try again.');
+      }
     };
-
+  
     const handleVolunteerLogin = async () => {
-        try {
-            const response = await fetch("http://localhost:8000/api/volunteer/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include' 
-            });
-
-            if (response.ok) {
-            const json = await response.json();
-            localStorage.setItem('accessToken', json.accessToken);
-            localStorage.setItem('userType', json.userType);
-            window.location.href = '/volunteer/Dashboard';
-            return;
-
-            } else {
-                throw new Error('Failed to log in. Please check your credentials and try again.');
-            }
-        } catch (error) {
-            console.error('There was a problem with the volunteer login:', error);
-            setError('Failed to log in. Please check your credentials and try again.');
+      try {
+        const response = await fetch("http://localhost:8000/api/volunteer/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password }),
+          credentials: 'include'
+        });
+  
+        if (response.ok) {
+          const json = await response.json();
+          localStorage.setItem('accessToken', json.accessToken);
+          localStorage.setItem('userType', json.userType);
+  
+          // Redirect based on the 'status_validation'
+          if (json.status_validation === 'en attente') {
+            window.location.href = '/candidat'; // Redirect to candidate page
+          } else {
+            window.location.href = '/volunteer/Dashboard'; // Redirect to volunteer dashboard
+          }
+        } else {
+          throw new Error('Failed to log in. Please check your credentials and try again.');
         }
+      } catch (error) {
+        console.error('There was a problem with the volunteer login:', error);
+        throw new Error('Failed to log in. Please check your credentials and try again.');
+      }
     };
-
+  
     const handleSubmit = async (event) => {
-        event.preventDefault();
-
-        if (!email || !password) {
-            setError('Email and password are required');
-            return;
-        }
-
-        handleBeneficiaryLogin();
-        handleVolunteerLogin();
+      event.preventDefault();
+  
+      if (!email || !password) {
+        setError('Email and password are required');
+        return;
+      }
+  
+      try {
+        await handleBeneficiaryLogin();
+        await handleVolunteerLogin();
+      } catch (error) {
+        setError(error.message || 'Failed to log in. Please try again.');
+      }
     };
     return (
-        <body class='loginbbody'>
+        <div class='loginbbody'>
             
         
         <div>
@@ -98,7 +109,8 @@ function LoginForm() {
                 {error && <p className="error">{error}</p>}
                 <button type="submit">Suivant</button>
             </form>
-        </div></body>
+        </div>
+        </div>
     );
 }
 

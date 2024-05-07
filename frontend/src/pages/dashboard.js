@@ -7,7 +7,7 @@ function Dashboard() {
   const [userInfo, setUserInfo] = useState(null); 
 
   useEffect(() => {
-    fetch('https://au-temps-donne-api.onrender.com/api/admin/all/latest')
+    fetch('http://localhost:8000/api/admin/all/latest')
       .then(response => response.json())
       .then(data => {
         console.log('Données des bénévoles et bénéficiaires récupérées:', data);
@@ -64,7 +64,7 @@ function Dashboard() {
           <div className="main_table">
             <div className="table-header">
               <h3>Status Candidats</h3>
-              <a href="statut_a_valider.php" className="view-all">Voir Tout<img className="voir-all-icon" src={view} alt="View All"/></a>
+              <a href="/admin/status" className="view-all">Voir Tout<img className="voir-all-icon" src={view} alt="View All"/></a>
             </div>
             <div className="table_bnv">
               <table>

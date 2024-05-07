@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import NavMenu from './navMenuVolunteer';
-import viewIcon from '../assets/voir_all.png';
-import horlogeIcon from '../assets/horloge_red.png';
+import NavMenu from './navMenuVolunteer'; // Removed unused imports: Link, viewIcon, and horlogeIcon
 
 function Dashboardv() {
   const [userInfo, setUserInfo] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
-  const [profileImagePath, setProfileImagePath] = useState('');
-  const [articles, setArticles] = useState([]);
+  const [tomorrowDate, setTomorrowDate] = useState(new Date(new Date().setDate(new Date().getDate() + 1)));
 
   useEffect(() => {
     async function fetchUserData() {
@@ -18,10 +14,9 @@ function Dashboardv() {
           method: 'GET',
           credentials: 'include'
         });
-
         if (response.ok) {
           const userData = await response.json();
-          setUserInfo(userData.volunteer); 
+          setUserInfo(userData.volunteer);
         } else {
           console.error('Failed to fetch user info');
         }
@@ -29,7 +24,6 @@ function Dashboardv() {
         console.error('Error fetching user info:', error);
       }
     }
-
     fetchUserData();
   }, []);
 
@@ -49,49 +43,82 @@ function Dashboardv() {
         }
       }
     }
-
     fetchEvents();
   }, [userInfo]);
 
-  const upcomingEvent = events.find(event => {
-    const eventDate = new Date(event.date_activite);
-    return eventDate.toDateString() === currentDate.toDateString();
+  const upcomingEventsToday = events.filter(event => {
+    const eventDate = event.date_activite ? new Date(event.date_activite) :
+      event.activity ? new Date(event.activity.date_activite) : null;
+    return eventDate && eventDate.toDateString() === currentDate.toDateString();
   });
+
+  const upcomingEventsTomorrow = events.filter(event => {
+    const eventDate = event.date_activite ? new Date(event.date_activite) : null;
+    return eventDate && eventDate.toDateString() === tomorrowDate.toDateString();
+  });
+  const formatTime = (timeString) => {
+    const timeOptions = { hour: '2-digit', minute: '2-digit' };
+    const time = new Date(`1970-01-01T${timeString}Z`);
+    return time.toLocaleTimeString([], timeOptions);};
 
   return (
     <>
-      <NavMenu />
+          <NavMenu />
       <section className="content">
         <section className="tables">
           <div className="main_table">
             <div>
               <h3 className="title_dashboard">Dernières notifications</h3>
-              {/* Render notification items here */}
             </div>
           </div>
-          {/* Additional sections for other tables if needed */}
         </section>
         <div className="table_avenir">
-          <h3 >À venir</h3>
-          <p >Aujourd'hui : {currentDate.toLocaleDateString()}</p>
-          {upcomingEvent ? (
-            <>
-              <p className='time-board'>{upcomingEvent.heure_debut}</p>
-              <h3>{upcomingEvent.titre}</h3>
-              <p>{upcomingEvent.description}</p>
-              <div className="adresse">
-                <p>{upcomingEvent.lieu.adresse}</p>
-                <p>{`${upcomingEvent.lieu.code_postal} ${upcomingEvent.lieu.ville}`}</p>
-              </div>
-              <Link to={`/volunteer/activity-details/${upcomingEvent.ID_Activite}`} className="view">
-                Voir plus
-                <img className="voir-all-icon" src={viewIcon} alt="Voir tout" />
-              </Link>
-            </>
-          ) : (
-            <p>Aucun événement prévu pour aujourd'hui.</p>
-          )}
+  <h3>À venir</h3>
+  <p>Aujourd'hui : {currentDate.toLocaleDateString()}</p>
+  {upcomingEventsToday.length ? (
+    upcomingEventsToday.map(event => (
+    <>
+      <div className="avenir_div">
+        <p className="time-board"> {formatTime(event.activity && event.activity.heure_debut ? event.activity.heure_debut :event.heure_debut)}</p>
+        <div>
+        <h3 id="avenir-title">
+        {event.activity && event.activity.titre ? event.activity.titre :event.titre}
+        </h3>
+        <p>{event.activity && event.activity.lieuA && event.activity.lieuA.adresse ? event.activity.lieuA.adresse : event.lieu.adresse}</p>
+         <p>{event.activity && event.activity.lieuA && event.activity.lieuA.code_postal  ? event.activity.lieuA.code_postal : event.lieu.code_postal} {event.activity && event.activity.lieuA && event.activity.lieuA.ville  ? event.activity.lieuA.ville : event.lieu.ville}</p>
+      
         </div>
+      </div>
+    </>
+ ))
+
+) : (
+    <p>Aucun événement prévu pour aujourd'hui.</p>
+  )}
+  <hr />
+
+  <p id="date-d">Demain : {tomorrowDate.toLocaleDateString()}</p>
+  {upcomingEventsTomorrow.length ? (
+    upcomingEventsTomorrow.map(event => (
+      <>
+      <div className="avenir_div">
+        <p className="time-board"> {formatTime(event.activity && event.activity.heure_debut ? event.activity.heure_debut :event.heure_debut)}</p>
+        <div>
+        <h3 id="avenir-title">
+        {event.activity && event.activity.titre ? event.activity.titre :event.titre}
+        </h3>
+        <p>{event.activity && event.activity.lieuA && event.activity.lieuA.adresse ? event.activity.lieuA.adresse : event.lieu.adresse}</p>
+         <p>{event.activity && event.activity.lieuA && event.activity.lieuA.code_postal  ? event.activity.lieuA.code_postal : event.lieu.code_postal} {event.activity && event.activity.lieuA && event.activity.lieuA.ville  ? event.activity.lieuA.ville : event.lieu.ville}</p>
+      
+        </div>
+      </div>
+    </>
+    ))
+  ) : (
+      <p>Aucun événement prévu pour demain.</p>
+      
+    )}
+</div>
       </section>
     </>
   );

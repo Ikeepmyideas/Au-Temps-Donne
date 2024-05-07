@@ -273,6 +273,12 @@ function EventDetails() {
         return <div>Loading...</div>;
     }
 
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);};
+    
+
     return (
         <>
             <NavMenu />

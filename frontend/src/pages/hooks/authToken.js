@@ -22,7 +22,7 @@ const ProtectedRoute = ({ userType }) => {
   }
 
   if (userType && storedUserType !== userType) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/loginb" replace />;
   }
 
   return <Outlet />;

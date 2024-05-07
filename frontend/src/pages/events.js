@@ -51,7 +51,7 @@ function Event() {
     const handleAddressChange = (event) => {
         const value = event.target.value;
         setIsNewAddress(value === 'new');
-        setSelectedAddressId(value); // Mettre à jour l'ID de l'adresse sélectionnée
+        setSelectedAddressId(value); 
       };
       
 
@@ -239,7 +239,7 @@ try {
             privateButton.classList.remove('active');
         });
 
-        fetchServices(); // Appel à une fonction pour récupérer des services
+        fetchServices(); 
     }, []);
 
     const fetchServices = async () => {
@@ -279,13 +279,20 @@ try {
         fillSelectWithServices(activityTypeSelectPrivate);
     };
 
+    const formatTime = (timeString) => {
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        const time = new Date(`1970-01-01T${timeString}Z`);
+        return time.toLocaleTimeString([], timeOptions);};
+    
+
+
     return (
         <>
             <NavMenu />
             <section className="content">
                 <div className="lists">
                     <div className="table-header">
-                        <h3>Gestionnaire des événements</h3>
+                        <h2>Gestionnaire des événements</h2>
                         <Link id="add_link" href="#" className="view-all">
                             Ajouter<img className="voir-all-icon" height="15px" width="17px" src={addIcon} alt="Voir tout"/>
                         </Link>
@@ -298,8 +305,8 @@ try {
                     )}
 
                     <div className="table-header">
-                        <h3>Tous les événements</h3>
-                        <Link to="/admin/allEvents" className="view-all">
+                        <h3>Derniers événements </h3>
+                        <Link to="/admin/activites" className="view-all">
                             Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" />
                         </Link>
                     </div>
@@ -313,7 +320,7 @@ try {
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} alt="Horloge"/>
-                                                <p className="time">{activity.date_activite} {activity.heure_debut}</p>
+                                                <p className="time">{formatTime(activity.heure_debut)} | {activity.date_activite} </p>
                                             </div>
                                         </div>
                                     </div>
@@ -501,11 +508,11 @@ try {
                             <div class="datetime-row">
                                 <div class="date">
                                     <label for="formationDateStart">Date de début:</label>
-                                    <input type="date" id="formationDateStart" name="date" required/>
+                                    <input type="date" id="formationDateStart" name="date_debut" required/>
                                 </div>
                                 <div class="date">
                                     <label for="formationDateEnd">Date de fin:</label>
-                                    <input type="date" id="formationDateEnd" name="date" required/>
+                                    <input type="date" id="formationDateEnd" name="date_fin" required/>
                                 </div>
                                 <div>
                                     <label for="aformationTimeStart">Heure de début:</label>
