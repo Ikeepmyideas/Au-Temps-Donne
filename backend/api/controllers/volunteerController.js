@@ -183,7 +183,9 @@ const loginVolunteer = async (req, res) => {
       }
 
       const token = generateToken(volunteer.id, volunteer.email);
-      const userType = "volunteer"
+      const userType = "volunteer";
+      const statut_validation = volunteer.statut_validation; 
+
 
       res.cookie('access_token', token, {
           httpOnly: true,
@@ -193,7 +195,7 @@ const loginVolunteer = async (req, res) => {
           secure: true // Add 'secure: true' if your app is served over HTTPS
       });
 
-      res.status(200).json({ message: 'Login successful', token, userType }); 
+      res.status(200).json({ message: 'Login successful', token, userType,statut_validation }); 
 
   } catch (error) {
       console.error('Error during login:', error);

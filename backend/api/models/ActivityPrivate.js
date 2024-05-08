@@ -10,7 +10,7 @@ const ActivityPrive = sequelize.define('activites_prives', {
   description: { type: Sequelize.TEXT, allowNull: false },
   date_activite: { type: Sequelize.DATE, allowNull: false },
   heure_debut: { type: Sequelize.TIME, allowNull: false },
-  heure_fin: { type: Sequelize.TIME },
+  heure_fin: { type: Sequelize.TIME, allowNull: false },
   titre: { type: Sequelize.STRING(100), allowNull: false },
   id_lieu: { type: Sequelize.INTEGER },
   nom_service: { type: Sequelize.STRING(100) },

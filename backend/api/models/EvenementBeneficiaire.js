@@ -3,9 +3,10 @@ const Sequelize = require('sequelize');
 
 const Volunteer = require('./Volunteer');
 const Activity = require('./Activity');
+const Beneficiary = require('./Beneficiary');
 
-const EvenementBeneficiaire = sequelize.define('evenements_beneficiaires', {
-    ID_Evenement_Benevole: {
+const EvenementBeneficiaire = sequelize.define('evenements_beneficiaire', {
+    ID_Evenement_Beneficiaire: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
@@ -14,7 +15,7 @@ const EvenementBeneficiaire = sequelize.define('evenements_beneficiaires', {
         type: Sequelize.INTEGER,
         allowNull: false
     },
-    ID_Benevole: {
+    ID_Beneficiaire: {
         type: Sequelize.INTEGER,
         allowNull: false
     },
@@ -27,8 +28,8 @@ const EvenementBeneficiaire = sequelize.define('evenements_beneficiaires', {
 });
 
 // Set up the associations
-Volunteer.hasMany(EvenementBeneficiaire, { foreignKey: 'ID_Benevole' });
-EvenementBeneficiaire.belongsTo(Volunteer, { foreignKey: 'ID_Benevole', as: 'volunteer' });
+Beneficiary.hasMany(EvenementBeneficiaire, { foreignKey: 'ID_Beneficiaire' });
+EvenementBeneficiaire.belongsTo(Beneficiary, { foreignKey: 'ID_Beneficiaire', as: 'beneficiary' });
 
 EvenementBeneficiaire.belongsTo(Activity, { foreignKey: 'ID_event', as: 'activity' });
 Activity.hasMany(EvenementBeneficiaire, { foreignKey: 'ID_event' });

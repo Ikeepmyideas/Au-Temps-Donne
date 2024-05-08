@@ -4,10 +4,14 @@ const multer = require('multer');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const { Op } = require('sequelize'); 
+
+const Activity = require('../models/Activity');
+const ActivityPrive = require('../models/ActivityPrivate');
+const Lieu= require('../models/Lieu');
 
 const Beneficiary = require('../models/Beneficiary');
-const ActivitePrive = require('../models/ActivityPrivate');
-
+const EvenementBeneficiaire = require('../models/EvenementBeneficiaire');
 const argon2 = require('argon2');
 
 const storage = multer.memoryStorage();
@@ -217,12 +221,215 @@ const login = async (req, res) => {
 
 // Events 
 
+const addRegistration = async (req, res) => {
+  const { ID_event, ID_Beneficiaire } = req.body;
+
+  try {
+      const existingRegistration = await EvenementBeneficiaire.findOne({
+          where: {
+              ID_event: ID_event,
+              ID_Beneficiaire: ID_Beneficiaire
+          }
+      });
+
+      if (existingRegistration) {
+          return res.status(409).send('The beneficiary is already registered for this event.');
+      }
+      const registration = await EvenementBeneficiaire.create({
+          ID_event: ID_event,
+          ID_Beneficiaire: ID_Beneficiaire,
+          Date_Inscription: new Date()  
+      });
+
+      return res.status(201).json(registration);
+  } catch (error) {
+      console.error('Error adding registration:', error);
+      res.status(500).send('Internal Server Error');
+  }
+};
+
+
+const checkRegistrationStatus = async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const beneficiareId = req.params.beneficiareId;
+    
+    const registration = await EvenementBeneficiaire.findOne({ where: { ID_event: eventId, ID_Beneficiaire: beneficiareId } });
+    
+    if (registration) {
+      return res.status(200).json({ message: 'Béneficiaire déjà inscrit à cet événement' });
+    } else {
+      return res.status(404).json({ message: 'Béneficiaire non inscrit à cet événement' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification du statut d\'inscription:', error);
+    return res.status(500).json({ error: 'Erreur interne du serveur lors de la vérification du statut d\'inscription' });
+  }
+};
+
+const deleteRegistration = async (req, res) => {
+  const eventId = req.params.eventId;
+  const beneficiareId = req.params.beneficiareId;
+
+  try {
+    const registration = await EvenementBeneficiaire.destroy({
+      where: {
+        ID_event: eventId,
+        ID_Beneficiaire: beneficiareId,
+        
+      }
+    });
+
+    if (registration > 0) {
+      res.status(200).json({ message: 'Inscription annulée avec succès.' });
+    } else {
+      res.status(404).json({ message: 'Aucune inscription correspondante trouvée.' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'annulation de l\'inscription :', error);
+    res.status(500).json({ message: 'Erreur lors de l\'annulation de l\'inscription.' });
+  }
+};
+const models = require('../models');
+models.Activity.belongsTo(models.Lieu, { foreignKey: 'id_lieu', as: 'lieuB' });
+
+
+const getEventsForBeneficiary = async (req, res) => {
+  const beneficiareId = req.params.beneficiareId;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const events = await EvenementBeneficiaire.findAll({ 
+      where: {
+        ID_Beneficiaire: beneficiareId,
+      },
+      include: [
+        {
+          model: Activity,
+          as: 'activity',
+          where: {  
+            date_activite: {
+              [Op.gte]: today
+            }
+          },
+          include: [
+            {
+              model: Lieu,
+              as: 'lieuB',
+              attributes: ['adresse', 'ville', 'code_postal']
+
+            }
+          ]
+        }
+      ]
+    });
+
+    if (events.length > 0) {
+      res.status(200).json(events);
+    } else {
+      res.status(404).json({ message: 'Aucun événement trouvé pour ce bénéficiaire.' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des événements pour le bénéficiaire :', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des événements pour le bénéficiaire.' });
+  }
+
+};
+const getEventsPvForBeneficiary= async (req, res) => {
+  const beneficiareId = req.params.beneficiareId;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const events = await ActivityPrive.findAll({ 
+      where: {
+        ID_Beneficiaire: beneficiareId,
+        date_activite: {
+          [Op.gte]: today 
+        }
+      },
+      include: [
+        {
+          model: Lieu,
+          as: 'lieu',
+          attributes: ['adresse', 'ville', 'code_postal']
+
+      }],
+      order: [['date_activite', 'ASC']]
+      
+      
+    });
+
+    if (events.length > 0) {
+      res.status(200).json(events);
+    } else {
+      res.status(404).json({ message: 'Aucun événement trouvé pour ce bénéficiaire.' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des événements pour le bénéficiaire :', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des événements pour le bénéficiaire.' });
+  } 
+};
+
+const getEventsAllForBeneficiary= async (req, res) => {
+  const beneficiareId = req.params.beneficiareId;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [eventsNormal, eventsPrivate] = await Promise.all([
+      EvenementBeneficiaire.findAll({
+        where: { ID_Beneficiaire: beneficiareId },
+        include: [{
+          model: Activity,
+          as: 'activity',
+          where: { date_activite: { [Op.gte]: today } }, 
+          include: [{
+            model: Lieu,
+            as: 'lieuA',
+            attributes: ['adresse', 'ville', 'code_postal']
+          }]
+        }],
+        order: [[{ model: Activity, as: 'activity' }, 'date_activite', 'ASC']] 
+      }),
+      ActivityPrive.findAll({
+        where: { ID_Beneficiaire: beneficiareId, date_activite: { [Op.gte]: today } },
+        include: [{
+          model: Lieu,
+          as: 'lieu',
+          attributes: ['adresse', 'ville', 'code_postal']
+        }],
+        order: [['date_activite', 'ASC']]
+      }),
+      
+    ]);
+
+    const combinedEvents = [...eventsNormal, ...eventsPrivate];
+
+    if (combinedEvents.length > 0) {
+      res.status(200).json(combinedEvents);
+    } else {
+      res.status(404).json({ message: 'Aucun événement trouvé pour ce bénévole à partir d\'aujourd\'hui.' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des événements pour le bénévole :', error);
+    res.status(500).json({ message: 'Erreur interne du serveur lors de la récupération des événements.' });
+  }
+};
+
+
+
 
 module.exports = {
-    login,
-    authMiddleware,
-    upload,
-    registerBeneficiary,
-    getUserInfo,
-    getActivitePriveForLoggedInUser
+  getEventsForBeneficiary,
+  getEventsPvForBeneficiary,
+  getEventsAllForBeneficiary,
+  deleteRegistration,
+  checkRegistrationStatus,
+  addRegistration,
+  login,
+  authMiddleware,
+  upload,
+  registerBeneficiary,
+  getUserInfo,
+  getActivitePriveForLoggedInUser
 };

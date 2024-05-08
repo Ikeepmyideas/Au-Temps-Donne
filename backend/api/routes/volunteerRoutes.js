@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const Volunteer = require('../models/Volunteer');
-const { getFormationsForVolunteer,deleteRegistrationFormation,checkRegistrationStatusFormation,addRegistrationFormation,getEventsAllForVolunteer, getEventsPvForVolunteer,getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
+const multer = require('multer');const { getFormationsForVolunteer,deleteRegistrationFormation,checkRegistrationStatusFormation,addRegistrationFormation,getEventsAllForVolunteer, getEventsPvForVolunteer,getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
 const authentication = require('../middleware/authentication');
 
 const storage = multer.memoryStorage(); 

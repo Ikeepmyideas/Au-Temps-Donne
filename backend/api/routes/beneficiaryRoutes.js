@@ -10,11 +10,17 @@ const upload = multer({ storage: storage }).fields([
 ]);
 
 const { 
+    getEventsPvForBeneficiary,
+    getEventsAllForBeneficiary,
+    deleteRegistration,
+    checkRegistrationStatus,
+    addRegistration,
     registerBeneficiary, 
     login, 
     getUserInfo, 
     updateBeneficiary, 
-    getActivitePriveForLoggedInUser 
+    getActivitePriveForLoggedInUser, 
+    getEventsForBeneficiary
 } = require('../controllers/beneficiaryController');
 
 const ImageProfile = require('../models/ImageProfile');
@@ -86,5 +92,13 @@ router.get('/articles', async (req, res) => {
     }
 });
 
+//Event 
 
+router.post('/activites/registrations/:ID_event', addRegistration);
+router.get('/activites/registrations/:eventId/:beneficiareId',checkRegistrationStatus);
+router.delete('/activites/registrations/delete/:eventId/:beneficiareId',deleteRegistration);
+
+router.get('/activities-all/:beneficiareId', getEventsAllForBeneficiary);
+router.get('/activities-prv/:beneficiareId', getEventsPvForBeneficiary);
+router.get('/activities/:beneficiareId', getEventsForBeneficiary);
 module.exports = router;
