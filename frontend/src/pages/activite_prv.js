@@ -73,7 +73,7 @@ function Event() {
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />
-                                                <p className="time">{formatTime(activity.heure_debut)}  | {activity.date_activite}</p>
+                                                <p className="time"> {formatTime(activity.activity && activity.activity.heure_debut ? activity.activity.heure_debut :activity.heure_debut)} | {activity.date_activite}</p>
                                             </div>
                                         </div>
                                     </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../css/signup.css';  
 import logo from '../assets/logo.png';  
 import img from '../assets/ins_img.png';
+
 function SignupSuccess() {
 
     return (

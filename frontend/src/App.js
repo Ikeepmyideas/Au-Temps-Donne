@@ -32,6 +32,7 @@ import DetailsEvent from './pages/showEventDetails';
 import Formations from './pages/showAllFormation';
 import FormationsD from './pages/showFormationDetails'
 import EventAvenir from './pages/event-avenir';
+import EventAvenirB from './pages/beneficiary/event-avenir';
 import Profileb from './pages/profileb';
 import InfosUser from './pages/infosUser';
 import DonsPages from './pages/dons';
@@ -39,7 +40,8 @@ import Candidat from './pages/candidat';
 import Dashboardb from './pages/dashboardb';
 import EventsForB from './pages/beneficiary/Evenements';
 import AllEventsB from './pages/beneficiary/all-events';
-import DetailsEventB from './pages/beneficiary/activity-details'
+import DetailsEventB from './pages/beneficiary/activity-details';
+
 import Dons from './pages/dons';
 // Import styles
 import './css/home.css';
@@ -109,9 +111,8 @@ function App() {
              <Route path="/beneficiary/evenements" element={<EventsForB />} />
             <Route path="/beneficiary/all-events" element={<AllEventsB />} />
             <Route path="/beneficiary/activity-details/:eventId" element={<DetailsEventB />} />
-            <Route path="/volunteer/activity-avenir/:id" element={<EventAvenir />} />
-            <Route path="/volunteer/formations" element={<Formations />} />
-            <Route path="/volunteer/formations/:ID_Formation" element={<FormationsD />} />
+            <Route path="/beneficiary/activity-avenir/:id" element={<EventAvenirB />} />
+
         </Route>
 
       </Routes>

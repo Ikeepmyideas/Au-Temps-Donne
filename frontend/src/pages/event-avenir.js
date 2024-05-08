@@ -91,7 +91,7 @@ function Event() {
                             <div className="hour">
                                 <img id="img-time" height="20px" src={horlogeIcon} alt="Horloge" />
                                 <p className="time">
-                                    {formatTime(event.activity?.heure_debut || event.formation?.heure_debut)} |  {event.activity?.date_activite ||  event.formation?.date_debut || event.date_activite}
+                                {formatTime(event.activity && event.activity.heure_debut ? event.activity.heure_debut :event.heure_debut)} |  {event.activity?.date_activite ||  event.formation?.date_debut || event.date_activite}
                                 </p>
                             </div>
                         </div>
@@ -109,9 +109,7 @@ function Event() {
                 </div>
                 <Link
                 to={
-                    event.activity?.ID_Activite ||
-                    event.ID_Activite ||
-                    (event.formation?.ID_Formation && `/volunteer/formations/${event.formation.ID_Formation}`)
+                    event.activity?.ID_Activite || event.ID_Activite || (event.formation?.ID_Formation && `/volunteer/formations/${event.formation.ID_Formation}`)
                 }
                 className="view"
             >

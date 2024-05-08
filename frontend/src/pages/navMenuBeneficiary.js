@@ -147,15 +147,12 @@ function NavMenuV() {
         </li>
       </ul>
     </nav>
-    <section id="horiz">
+    <section id="horiz2">
       <div className="nav_img">
         <img src={board} alt="Board Icon"/>
         <Link className="nav-link" to="/volunteer/dashboard">Board</Link>
       </div>
-      <div className="nav_img">
-        <img src={list} alt="List Icon"/>
-        <Link className="nav-link" to="/volunteer/list">List</Link>
-      </div>
+
       <div className="nav_img">
         <img src={calendar} alt="Calendar Icon"/>
         <Link className="nav-link" to="/volunteer/calendar">Calendar</Link>
@@ -172,7 +169,7 @@ function NavMenuV() {
           <img height="20px" src={chat} alt="Chat Icon"/>
       </div>
       <div id="right2">
-          <img height="10px" src={notif} alt="Notification Icon"/>
+          <img height="20px" src={notif} alt="Notification Icon"/>
       </div>
       <div className="circle">
           <Link to="/profile"><img src="assets/gojo.jpg" alt="Profile"/></Link>

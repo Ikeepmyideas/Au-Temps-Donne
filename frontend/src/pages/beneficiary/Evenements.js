@@ -134,7 +134,7 @@ function Event() {
                  
                     <div className="table-header">
                         <h3>Mes evenements a venir :</h3>
-                        <Link to="/volunteer/activity-avenir/${userInfo.id}" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
+                        <Link to="/beneficiary/activity-avenir/${userInfo.id}" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
                         
                     </div>
                     <div className="box-container">

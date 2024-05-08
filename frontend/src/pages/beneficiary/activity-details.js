@@ -76,7 +76,7 @@ function Activity() {
                 adresseComplete: data.lieu.adresse,
                 ville: data.lieu.ville,
                 code_postal: data.lieu.code_postal,
-                id_beneficiaire:data.id_beneficiaire
+                id_benevole:data.id_benevole
 
             });
         } catch (error) {
@@ -145,14 +145,14 @@ function Activity() {
     
   
 
-    const handleRegistration = async (eventId, benevoleId) => {
+    const handleRegistration = async (eventId, beneficiareId) => {
         setLoading(true);
         setError(null);
 
         try {
             const response = await axios.post(`http://127.0.0.1:8000/api/beneficiary/activites/registrations/${eventId}`, {
                 ID_event: eventId,
-                ID_Benevole: benevoleId
+                ID_Beneficiaire: beneficiareId
             });
 
             if (response.status === 201) {
@@ -171,12 +171,12 @@ function Activity() {
         }
     };
     
-    const cancelRegistration = async (eventId, benevoleId) => {
+    const cancelRegistration = async (eventId, beneficiareId) => {
         setLoading(true);
         setError(null);
     
         try {
-            const response = await axios.delete(`http://127.0.0.1:8000/api/beneficiary/registrations/delete/${eventId}/${benevoleId}`);
+            const response = await axios.delete(`http://127.0.0.1:8000/api/beneficiary/activites/registrations/delete/${eventId}/${beneficiareId}`);
     
             if (response.status === 200) {
                 setSuccess(false);
@@ -333,9 +333,9 @@ function Activity() {
                                             <h2>{event.titre}</h2>
                                             <p className="p_details">Description: {event.description || 'No description provided'}</p><br></br>
                                             <div></div>
-                                            {event.id_beneficiaire && (
+                                            {event.id_benevole && (
                                             <div>
-                                                <p>Bénéficiaire : {event.beneficiary.nom} {event.beneficiary.prenom}</p>
+                                                <p>Bénévole : {event.volunteer.nom} {event.volunteer.prenom}</p>
                                             </div>
                                         )}
                                         </div>
