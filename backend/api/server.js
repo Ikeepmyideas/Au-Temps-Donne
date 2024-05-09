@@ -9,10 +9,13 @@ const beneficiaryRoutes = require('./routes/beneficiaryRoutes');
 const partenaireRoutes = require('./routes/partenaireRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const eventRoutes = require('./routes/eventRoutes');
-const CampagneRoutes = require('./routes/CampagneRoutes')
+const entrepotsRoutes = require('./routes/entrepotsRoutes');
 
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Use cookie-parser middleware
 app.use(cookieParser());
 
@@ -23,14 +26,12 @@ app.use(cookieParser());
 require('dotenv').config();
 
 const cors = require('cors');
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
 const corsOptions = {
-  origin: 'http://localhost:3000', // Adjust this to match your frontend origin
+  origin: ['http://localhost:3000','http://localhost:3001', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
   credentials: true,
 };
+
+
 
 // Enable CORS with the specified options
 app.use(cors(corsOptions));
@@ -42,6 +43,8 @@ app.use(logger);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); 
+  res.header("Access-Control-Allow-Origin", "http://10.0.2.2:8000"); 
+  res.header("Access-Control-Allow-Origin", "http://10.0.2.3:8000"); 
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
@@ -62,7 +65,8 @@ app.use('/api/beneficiary', beneficiaryRoutes);
 app.use('/api/partenaire', partenaireRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/event', eventRoutes);
-app.use('/api/campagne', CampagneRoutes);
+app.use('/api/entrepot', entrepotsRoutes);
+
 
 app.get('/debug', (req, res) => {
   console.log('Request Headers - Cookie:', req.headers.cookie);
@@ -73,6 +77,7 @@ app.get('/debug', (req, res) => {
 
 app.get('/api/data', (req, res) => {
   try {
+      // your logic here
       res.json({ data: 'Here is your JSON data' });
   } catch (error) {
       console.error(error);

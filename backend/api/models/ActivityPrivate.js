@@ -15,7 +15,9 @@ const ActivityPrive = sequelize.define('activites_prives', {
   id_lieu: { type: Sequelize.INTEGER },
   nom_service: { type: Sequelize.STRING(100) },
   id_beneficiaire: { type: Sequelize.INTEGER },
-  id_benevole: { type: Sequelize.INTEGER }
+  id_benevole: { type: Sequelize.INTEGER },
+  image :  { type: Sequelize.STRING(255) },
+
 }, {
   timestamps: false
 });

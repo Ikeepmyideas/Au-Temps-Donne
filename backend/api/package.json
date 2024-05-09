@@ -19,6 +19,7 @@
     "nodemailer": "^6.9.13",
     "onesignal": "^0.1.2",
     "onesignal-node": "^3.4.0",
+    "pdfkit": "^0.15.0",
     "react-router-dom": "^6.23.0",
     "sequelize": "^6.37.3"
   }

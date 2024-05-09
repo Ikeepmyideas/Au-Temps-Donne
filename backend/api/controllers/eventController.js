@@ -20,12 +20,15 @@ const ActivityPrive = require('../models/ActivityPrivate');
 const Service = require('../models/Service');
 const Blog = require('../models/Blog');
 const EvenementBenevole = require('../models/EvenementBenevole');
+const EvenementBeneficiaire = require('../models/EvenementBeneficiaire');
+
 const RegisterF = require('../models/InscriptionFormation');
+const Disponibilite = require('../models/Disponibilite');
 
 const Notification = require( '../models/notifications' );
 const jwt = require('jsonwebtoken');
 const sequelize = require('../config/db'); 
-const { Op } = require('sequelize'); 
+const Sequelize = require('sequelize');
 
 const s3 = new AWS.S3({
   endpoint: 's3.eu-central-1.wasabisys.com',
@@ -82,17 +85,21 @@ exports.createActivityPrive = async (req, res) => {
     adresseComplete,
     ville,
     code_postal,
-    nomBeneficiaire,
-    prenomBeneficiaire,
-    nomBenevole,
-    prenomBenevole,
+    id_benevole,   
+    id_beneficiaire,  
     nom_service
   } = req.body;
+  
   const t = await sequelize.transaction();
 
   try {
-    const benevoleId = await getBenevoleId(nomBenevole, prenomBenevole);
-    const beneficiaireId = await getBeneficiaireId(nomBeneficiaire, prenomBeneficiaire);
+
+    const benevole = await Volunteer.findByPk(id_benevole, { transaction: t });
+
+    if (!benevole ) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Benevole or Beneficiaire not found.' });
+    }
 
     const currentDate = new Date();
     const startDate = new Date(date_activite);
@@ -116,43 +123,50 @@ exports.createActivityPrive = async (req, res) => {
         defaults: { adresse: adresseComplete, ville, code_postal },
         transaction: t
       });
-
-
     }
 
-    const existingEvent = await ActivityPrive.findOne({
-      attributes: ['id_benevole', 'id_beneficiaire', 'heure_debut', 'date_activite'],
+    const existingActivity = await ActivityPrive.findOne({
       where: {
-        date_activite,
-        heure_debut,
+        date_activite: startDate,
+        id_lieu: lieu.id_lieu,
         [Op.or]: [
-          { id_benevole: benevoleId },
-          { id_beneficiaire: beneficiaireId }
+          { [Op.and]: [{ heure_debut: { [Op.lte]: heure_debut } }, { heure_fin: { [Op.gte]: heure_debut } }] },
+          { [Op.and]: [{ heure_debut: { [Op.lte]: heure_fin } }, { heure_fin: { [Op.gte]: heure_fin } }] },
+          { [Op.and]: [{ heure_debut: { [Op.gte]: heure_debut } }, { heure_fin: { [Op.lte]: heure_fin } }] }
         ]
       },
       transaction: t
     });
 
-    if (existingEvent) {
-      throw new Error('Un événement avec le même nom et prénom de bénévole/bénéficiaire, la même date et heure existe déjà.');
+
+
+    if (existingActivity) {
+      await t.rollback();
+      return res.status(400).json({ error: 'An activity with the same start and end times already exists.' });
     }
 
-    const [benevole, benevoleCreated] = await Volunteer.findOrCreate({
-      where: { nom: nomBenevole, prenom: prenomBenevole },
-      defaults: { nom: nomBenevole, prenom: prenomBenevole },
+    const overlappingBooking = await ActivityPrive.findOne({
+      where: {
+        id_benevole: id_benevole,
+        id_beneficiaire: id_beneficiaire,
+        date_activite: startDate,
+        [Op.or]: [
+          { [Op.and]: [{ heure_debut: { [Op.lte]: heure_fin } }, { heure_fin: { [Op.gte]: heure_debut } }] }
+        ]
+      },
       transaction: t
     });
 
-    const [beneficiaire, beneficiaireCreated] = await Beneficiary.findOrCreate({
-      where: { nom: nomBeneficiaire, prenom: prenomBeneficiaire },
-      defaults: { nom: nomBeneficiaire, prenom: prenomBeneficiaire },
-      transaction: t
-    });
+    if (overlappingBooking) {
+      await t.rollback();
+      return res.status(400).json({ error: 'This volunteer is already booked for another activity at the same time.' });
+    }
 
-    const file = req.files ? req.files['image'] : null;
-    let imageUrl = null;
-    if (file && file[0]) {
-      imageUrl = await uploadFileToWasabi(file[0], 'activities', `${titre}-${Date.now()}`);
+    let imageUrl = ""; // Default image path
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`; 
+    } else {
+      console.log("No file uploaded, using default image.");
     }
 
     await ActivityPrive.create({
@@ -162,14 +176,14 @@ exports.createActivityPrive = async (req, res) => {
       heure_fin,
       titre,
       id_lieu: lieu.id_lieu,
-      id_beneficiaire: beneficiaire.id,
-      id_benevole: benevole.id,
-      image: imageUrl, 
+      id_benevole,
+      id_beneficiaire,
+      image: imageUrl,
       nom_service
     }, { transaction: t });
 
     await t.commit();
-    res.status(201).send('Activité privée ajoutée avec succès.');
+    res.status(201).json({ message: 'Activity successfully added' });
   } catch (error) {
     await t.rollback();
     console.error('Erreur lors de l\'ajout de l\'activité privée : ', error);
@@ -177,13 +191,54 @@ exports.createActivityPrive = async (req, res) => {
   }
 };
 
-async function getBenevoleId(nom, prenom) {
-  const benevole = await Volunteer.findOne({ where: { nom, prenom } });
-  if (!benevole) {
-    throw new Error(`Bénévole non trouvé avec le nom ${nom} et le prénom ${prenom}`);
-  }
-  return benevole.id;
-}
+
+
+const Op = Sequelize.Op;
+
+exports.getVolunteersDisponibles = async (req, res) => {
+    try {
+        const { date, startTime, endTime } = req.params;
+
+        if (!date || !startTime || !endTime) {
+            return res.status(400).send("All parameters (date, startTime, endTime) are required.");
+        }
+
+        const jourDate = new Date(date);
+
+
+        const startDate = new Date(`${date}T${startTime}:00Z`); 
+        const endDate = new Date(`${date}T${endTime}:00Z`);
+        const availableVolunteers = await Disponibilite.findAll({
+            where: {
+                jour: {
+                  [Op.eq]: jourDate
+                },
+                heure_debut: {
+                    [Op.lte]: startTime
+                },
+                heure_fin: {
+                    [Op.gte]: endTime
+                }
+            },
+            include: [{
+                model: Volunteer,
+                as: 'benevole',
+                attributes: ['nom', 'prenom', 'email', 'telephone'] // Customize the attributes as needed
+            }]
+        });
+
+        // Check if any volunteers were found
+        if (availableVolunteers.length === 0) {
+            return res.status(404).send('No available volunteers found.');
+        }
+
+        // Sending successful response
+        res.json(availableVolunteers);
+    } catch (error) {
+        console.error('Error retrieving available volunteers:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
 
 async function getBeneficiaireId(nom, prenom) {
   const beneficiaire = await Beneficiary.findOne({ where: { nom, prenom } });
@@ -249,7 +304,6 @@ exports.createActivity = async (req, res) => {
     let lieu;
 
     if (adresseId) {
-      // Utilisateur a sélectionné une adresse existante
       lieu = await Lieu.findByPk(adresseId, { transaction: t });
       if (!lieu) {
         await t.rollback();
@@ -278,14 +332,15 @@ exports.createActivity = async (req, res) => {
 
     if (existingActivity) {
       await t.rollback();
-      return res.status(400).json({ error: 'Une activité avec les mêmes dates de début et de fin existe déjà.' });
+      return res.status(400).json({ error: 'An activity with the same start and end times already exists.' });
     }
 
-    const file = req.files ? req.files['image'] : null;
-    let imageUrl = null;
-
-    if (file && file[0]) {
-      imageUrl = await uploadFileToWasabi(file[0], 'activities', `${titre}-${Date.now()}`);
+    // Handle file upload
+    let imageUrl = ""; // Default image path
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`; 
+    } else {
+      console.log("No file uploaded, using default image.");
     }
 
     await Activity.create({
@@ -294,20 +349,22 @@ exports.createActivity = async (req, res) => {
       heure_debut,
       heure_fin,
       titre,
-      id_lieu: lieu.id_lieu, 
-      image: imageUrl,
+      id_lieu: lieu.id_lieu,
+      image: imageUrl, 
       nom_service,
       nb_benevoles
     }, { transaction: t });
 
     await t.commit();
-    res.status(201).send('Activité ajoutée avec succès.');
+    res.status(201).json({ message: 'Activity successfully added' });
+
   } catch (error) {
     await t.rollback();
-    console.error('Erreur lors de l\'ajout de l\'activité : ', error);
-    res.status(500).send('Erreur lors de l\'ajout de l\'activité : ' + error.message);
+    console.error('Error adding activity: ', error);
+    res.status(500).send('Error adding activity: ' + error.message);
   }
 };
+
 
 exports.updateActivity = async (req, res) => {
   const { id } = req.params;
@@ -871,25 +928,84 @@ exports.deleteEventPrive = async (req, res) => {
   }
 };
 exports.deleteEvent = async (req, res) => {
-  const { eventId } = req.params; 
+  const { eventId } = req.params;
+
+  let t;
 
   try {
+      t = await sequelize.transaction();
+
+      const deleteBenevole = await EvenementBenevole.destroy({
+          where: {
+              ID_event: eventId
+          },
+          transaction: t
+      });
+
+      const deleteBeneficiaire = await EvenementBeneficiaire.destroy({
+          where: {
+            ID_event: eventId
+          },
+          transaction: t
+      });
+
       const result = await Activity.destroy({
           where: {
-              ID_Activite: eventId 
-          }
+              ID_Activite: eventId
+          },
+          transaction: t
       });
 
       if (result > 0) {
+          await t.commit();
           res.status(200).json({ message: "Événement supprimé avec succès." });
       } else {
+          await t.rollback();
           res.status(404).json({ message: "Événement non trouvé." });
       }
   } catch (error) {
+      // Rollback on error
+      await t.rollback();
       console.error("Erreur lors de la suppression de l'événement :", error);
       res.status(500).json({ message: "Erreur lors de la suppression de l'événement.", error: error.message });
   }
 };
+exports.deleteFormation = async (req, res) => {
+  const { ID_Formation } = req.params;
+
+  let t;
+
+  try {
+      t = await sequelize.transaction();
+
+      const deleteBenevole = await RegisterF.destroy({
+          where: {
+              id: ID_Formation
+          },
+          transaction: t
+      });
+
+      const result = await Formation.destroy({
+          where: {
+              ID_Formation: ID_Formation
+          },
+          transaction: t
+      });
+
+      if (result > 0) {
+          await t.commit();
+          res.status(200).json({ message: "Événement supprimé avec succès." });
+      } else {
+          await t.rollback();
+          res.status(404).json({ message: "Événement non trouvé." });
+      }
+  } catch (error) {
+      await t.rollback();
+      console.error("Erreur lors de la suppression de l'événement :", error);
+      res.status(500).json({ message: "Erreur lors de la suppression de l'événement.", error: error.message });
+  }
+};
+
 exports.addPartenaire = async (req, res) => {
   const { nom, email, telephone, adresseComplete, ville, code_postal } = req.body;
 
@@ -973,6 +1089,24 @@ exports.getRegistrations = async (req, res) => {
       res.status(500).send('Internal Server Error');
   }
 };
+exports.getRegistrationsBenef = async (req, res) => {
+  const { ID_event } = req.params;
+
+  try {
+      const registrations = await EvenementBeneficiaire.findAll({
+          where: { ID_event: ID_event },
+          include: [{
+              model: Beneficiary,
+              as: 'beneficiary'  
+          }]
+      });
+
+      return res.status(200).json(registrations);
+  } catch (error) {
+      console.error('Error fetching registrations:', error);
+      res.status(500).send('Internal Server Error');
+  }
+};
 exports.removeVolunteerFromEvent = async (req, res) => {
   const { ID_event, ID_Benevole } = req.params;
 
@@ -981,6 +1115,28 @@ exports.removeVolunteerFromEvent = async (req, res) => {
           where: {
             ID_event: ID_event,
             ID_Benevole: ID_Benevole
+          }
+      });
+
+      if (result === 0) {
+          return res.status(404).send('No registration found with the given IDs.');
+      }
+
+      res.send('Volunteer unregistered successfully.');
+  } catch (error) {
+      console.error('Failed to remove volunteer from event:', error);
+      res.status(500).send('Internal Server Error');
+  }
+};
+
+exports.removeBeneficiaryFromEvent = async (req, res) => {
+  const { ID_event, ID_Beneficiaire } = req.params;
+
+  try {
+      const result = await EvenementBeneficiaire.destroy({
+          where: {
+            ID_event: ID_event,
+            ID_Beneficiaire: ID_Beneficiaire
           }
       });
 

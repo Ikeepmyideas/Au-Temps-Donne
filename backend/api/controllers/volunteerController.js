@@ -10,7 +10,8 @@ const Activity = require('../models/Activity');
 const Lieu= require('../models/Lieu');
 const { Op } = require('sequelize'); 
 const argon2 = require('argon2');
-
+const Disponibilite = require('../models/Disponibilite');
+const PDFDocument = require('pdfkit');
 require('dotenv').config(); 
 
 
@@ -565,8 +566,156 @@ const sendReminderNotification = async () => {
 };
 
 
+const displayAvailability = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    const decodedToken = jwt.decode(accessToken);
+    const userId = decodedToken.id;
+
+    const disponibilites = await Disponibilite.findAll({
+      where: { id_benevole: userId }
+    });
+    res.json(disponibilites);
+  } catch (error) {
+    console.error('Error fetching availability:', error);
+    res.status(500).json({ message: 'Error fetching availability' });
+  }
+};
+
+const updateAvailability = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    const decodedToken = jwt.decode(accessToken);
+    const userId = decodedToken.id;
+
+
+    const { id_disponibilite } = req.params; 
+    const { jour, heure_debut, heure_fin } = req.body;
+
+    if (!id_disponibilite) {
+      return res.status(400).json({ message: 'ID of availability is required' });
+    }
+
+    const updatedAvailability = await Disponibilite.update(
+      { jour, heure_debut, heure_fin },
+      { where: { id_disponibilite } }
+    );
+
+    if (updatedAvailability) {
+      res.json({ message: 'Availability updated successfully' });
+    } else {
+      res.status(404).json({ message: 'Availability not found or could not be updated' });
+    }
+  } catch (error) {
+    console.error('Error updating availability:', error);
+    res.status(500).json({ message: 'Error updating availability' });
+  }
+};
+
+const deleteAvailability = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    const decodedToken = jwt.decode(accessToken);
+    const userId = decodedToken.id;
+
+    const { id_disponibilite } = req.params; 
+
+    await Disponibilite.destroy({ where: { id_disponibilite, id_benevole: userId } });
+    res.json({ message: 'Availability deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting availability:', error);
+    res.status(500).json({ message: 'Error deleting availability' });
+  }
+};
+
+
+const createAvailability = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token; 
+    const decodedToken = jwt.decode(accessToken);
+    const userId = decodedToken.id;
+
+    const { jour, heure_debut, heure_fin } = req.body;
+
+    // Créer la disponibilité
+    const newAvailability = await Disponibilite.create({
+      jour,
+      heure_debut,
+      heure_fin,
+      id_benevole: userId 
+    });
+
+    res.status(201).json({ message: 'Disponibilité créée avec succès', availability: newAvailability });
+  } catch (error) {
+    console.error('Erreur lors de la création de la disponibilité :', error);
+    res.status(500).json({ message: 'Erreur lors de la création de la disponibilité' });
+  }
+};
+
+const deleteAccount = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    const decodedToken = jwt.decode(accessToken);
+    const userId = decodedToken.id;
+    const volunteer = await Volunteer.findByPk(userId);
+    if (!volunteer) {
+      return res.status(404).json({ success: false, message: 'Volunteer not found' });
+    }
+    await volunteer.destroy();
+    res.status(200).json({ success: true, message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete account' });
+  }
+};
+
+const exportUserInfoAsPDF = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    const decodedToken = jwt.decode(accessToken);
+    const userId = decodedToken.id;
+    console.log('User ID:', userId);
+    
+    const volunteer = await Volunteer.findByPk(userId);
+    if (!volunteer) {
+      console.log('Volunteer not found');
+      return res.status(404).json({ success: false, message: 'Volunteer not found' });
+    }
+
+    const doc = new PDFDocument();
+    const buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+      const pdfData = Buffer.concat(buffers);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="volunteer_info_${userId}.pdf"`);
+      res.send(pdfData);
+      console.log('PDF sent successfully');
+    });
+
+    doc.fontSize(20).text('Informations', { align: 'center' }).moveDown();
+    doc.fontSize(12).text(`Role : Bénévole`);
+    doc.fontSize(12).text(`Nom complet: ${volunteer.nom} ${volunteer.prenom}`);
+    doc.fontSize(12).text(`Date de naissance: ${volunteer.date_de_naissance}`);
+    doc.fontSize(12).text(`Genre: ${volunteer.genre}`);
+    doc.fontSize(12).text(`Email: ${volunteer.email}`);
+    doc.fontSize(12).text(`Numéro de téléphone: ${volunteer.telephone}`);
+    // Add more information as needed
+
+    doc.end();
+  } catch (error) {
+    console.error('Error exporting volunteer information:', error);
+    res.status(500).json({ success: false, message: 'Failed to export volunteer information as PDF' });
+  }
+};
 
 module.exports = { 
+  displayAvailability,
+  updateAvailability,
+  deleteAvailability,
+  createAvailability,
+  deleteAccount,
+  exportUserInfoAsPDF,
   getFormationsForVolunteer,
   deleteRegistrationFormation,
   checkRegistrationStatusFormation,

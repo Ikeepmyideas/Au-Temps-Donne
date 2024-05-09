@@ -13,7 +13,8 @@ const Activity = sequelize.define('activites', {
     titre: { type: Sequelize.STRING(100), allowNull: false },
     id_lieu: { type: Sequelize.INTEGER },
     nom_service: { type: Sequelize.STRING(100) },
-    nb_benevoles : { type: Sequelize.INTEGER }
+    nb_benevoles : { type: Sequelize.INTEGER },
+    image :  { type: Sequelize.STRING(255) },
 }, {
     timestamps: false
   });

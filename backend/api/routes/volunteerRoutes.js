@@ -1,7 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');const { getFormationsForVolunteer,deleteRegistrationFormation,checkRegistrationStatusFormation,addRegistrationFormation,getEventsAllForVolunteer, getEventsPvForVolunteer,getEventsForVolunteer,registerVolunteer,deleteRegistration ,checkRegistrationStatus, loginVolunteer,getUserInfo,addRegistration } = require('../controllers/volunteerController');
+const multer = require('multer');
+const { 
+  displayAvailability,
+  updateAvailability,
+  deleteAvailability,
+  createAvailability,
+  deleteAccount,
+  exportUserInfoAsPDF,
+  getFormationsForVolunteer,
+  deleteRegistrationFormation,
+  checkRegistrationStatusFormation,
+  addRegistrationFormation,
+  getEventsAllForVolunteer, 
+  getEventsPvForVolunteer,
+  getEventsForVolunteer,
+  registerVolunteer,
+  deleteRegistration ,
+  checkRegistrationStatus, 
+  loginVolunteer,getUserInfo,
+  addRegistration }
+   = require('../controllers/volunteerController');
 const authentication = require('../middleware/authentication');
+const cors = require('cors');
 
 const storage = multer.memoryStorage(); 
 
@@ -9,6 +30,11 @@ const upload = multer({ storage: storage }).fields([
   { name: 'casier_judiciaire', maxCount: 1 },
   { name: 'justificatif_permis', maxCount: 1 }
 ]);
+
+router.use(cors({
+  origin: ['http://localhost:3000', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+  credentials: true // Allow credentials (cookies)
+}));
 
 router.post('/registerVolunteer', (req, res, next) => {
   upload(req, res, function (err) {
@@ -56,5 +82,12 @@ router.get('/activities/:benevoleId', getEventsForVolunteer);
 router.get('/activities-prv/:benevoleId', getEventsPvForVolunteer);
 router.get('/activities-all/:benevoleId', getEventsAllForVolunteer);
 router.get('/formations/:id_benevole', getFormationsForVolunteer);
+
+
+router.get('/availability', displayAvailability);
+router.post('/add-to-availability', createAvailability);
+router.put('/updateAvailability/:id_disponibilite', updateAvailability);
+router.delete('/deleteAvailability/:id_disponibilite', deleteAvailability);
+router.get('/getpdf', exportUserInfoAsPDF);
 
 module.exports = router;
