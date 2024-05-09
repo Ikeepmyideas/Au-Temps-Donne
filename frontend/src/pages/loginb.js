@@ -28,7 +28,7 @@ const LoginForm = () => {
             localStorage.setItem('accessToken', json.accessToken);
             localStorage.setItem('userType', json.userType);
 
-            const redirectPath = json.status_validation === 'en attente' ? '/candidat' : `/${role}/dashboard`;
+            const redirectPath = json.statut_validation === 'en attente' ? '/candidat' : `/${role}/dashboard`;
             window.location.href = redirectPath;
             return true; 
         } catch (err) {

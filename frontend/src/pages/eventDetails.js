@@ -262,7 +262,27 @@ function EventDetails() {
     
         doc.save('details_evenement_participants.pdf');
     };
-    
+    function deleteEvent(eventId) {
+        fetch(`http://127.0.0.1:8000/api/event/activites/delete/${eventId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to delete event');
+            }
+        })
+        .then(data => {
+            alert(data.message); 
+            sessionStorage.setItem('successMessageDelete', 'Evenement supprimé avec succès!');
+            navigate('/admin/activites');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting event: ' + error.message); 
+        });
+    }
 
     
     useEffect(() => {
@@ -386,7 +406,7 @@ function EventDetails() {
                                         <Link to="/allEvents"> 
                                             <img id="retour" height="20px" width="20px" src={retour} alt="Retour" /> 
                                         </Link>
-                                        <h3>Détails de l'événement</h3>
+                                        <h3 className='title_event'>Détails de l'événement</h3>
                                     </div>
                                     <div className="box-container">
                                         <div className="elm_box_details">
@@ -414,13 +434,15 @@ function EventDetails() {
                                         </div>
                                         </div>
                                     </div>
+                                    <div id="btn_grp">
                                     <button type="button" className="btn_act" onClick={() => setMode('edit')}>Modifier</button>
-
+                                    <button type="button" className="btn_act" onClick={() => deleteEvent(event.ID_Activite)}>Supprimer</button>
+</div>
                                     </div>
                                     </div>
                                     <div className="participant-list">
                                        <div className="header">
-                                        <h3>Liste des participants</h3>
+                                        <h3 className='title_event'>Liste des participants</h3>
                                         </div>
                                         <div className="list-container">
                                             <div className="list-card">

@@ -17,29 +17,6 @@ html{
     transition: width 0.3s ease;
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    border-radius: 10px;
-    overflow: hidden;
-    background:
-    url('../assets/background.png') no-repeat center top fixed,
-    url('../assets/point1.png') no-repeat top fixed,
-    url('../assets/point2.png') no-repeat bottom fixed;
-
-
-    background-size: cover;
-    font-size: 16px;
-    padding-bottom: 50px;
-
-}
-body {
-    max-height: 100vh; 
-    overflow-y: auto;
-    padding-bottom: 100px;
-
-}
 
 div#page1 {
     width: 100%;

@@ -354,7 +354,6 @@ header, ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 20px;
 }
 .view-all {
   padding: 8px 15px;
@@ -1237,4 +1236,11 @@ input[type="time"] {
 }
 #p_candidat{
   padding: 20px;
+}
+.day-c {
+  width: 5px;
+  height: 5px; 
+  background-color: #811d1d;
+  border-radius: 60%; 
+  padding-top: 10px; 
 }

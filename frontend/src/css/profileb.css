@@ -8,7 +8,10 @@
     margin-left: 300px;
 
   }
-  
+  .imgpdf {
+    width: 50px;
+    margin-bottom: -5px;
+  }
   #bigpieces {
     display: flex;
     align-items: center;
@@ -18,7 +21,9 @@
     padding: 20px;
     margin-bottom: 20px;
   }
-  
+  .title-profile{
+    margin-bottom: 20px;
+  }
   .profile-image {
     flex: 1;
     margin-right: 20px;
@@ -34,6 +39,7 @@
   
   .user-info {
     flex: 2;
+    margin-left: 20px;
   }
   
   .user-info h1 {
@@ -179,7 +185,6 @@ div#right1{
   display: flex;
   align-items: center;
   border-radius: 20px;
-  overflow: hidden;
   background-color: white;
   padding: 5px;
   border: 1px solid;
@@ -198,8 +203,7 @@ div#right1{
     width: 100px; 
     height: 100px; 
     border-radius: 50%; 
-    overflow: hidden; 
-    position: relative; 
+
 }
 
 .circle img {
@@ -248,7 +252,9 @@ div#right1{
         margin-left: 365px; 
     }
 
- 
+#profile_title{
+  margin-bottom: 40px;
+}
 .hr2 {
     background-color: #EEF2F6;
     width: 95%;
@@ -275,10 +281,7 @@ p{
 }
 
 nav {
-  background-color: white;
-  scroll-behavior: smooth;
-  height: 100vh; 
-  
+  background-color: white;  
   position: fixed;
 
   padding: 10px 15px;
@@ -326,11 +329,7 @@ nav a {
   visibility: hidden;
   transition: var(--transition1);
 }
-.nav-max { 
-  width: 250px;
-  transition: var(--transition2);
-  scroll-behavior: smooth;
-}
+
 #fav{
   text-decoration: none; color: #94A3B8;font-size: 18px;
 }
@@ -384,9 +383,6 @@ li img {
   padding-top: 0px;
 }
 
-header, ul {
-  overflow: hidden;  
-}
 
 #hr2 {
     margin-top: 25px;
@@ -414,7 +410,6 @@ header, ul {
   background: #FFFFFF;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
   margin-bottom: 20px;
 }
 
@@ -429,6 +424,43 @@ img#picprofile {
   margin-top: -7px;
   border-radius: 20px;
 }
+.btn_update{
+  display: block;
+  margin-top: 60px;
+  border-radius: 25px;
+  padding: 6px 10px;
+  background-color: #EB5454;
+  color: white;
+  border: 2px solid #EB5454; 
+  transition: background-color 0.3s ease, color 0.3s ease; 
+}
 
+
+.btn_update:hover {
+  background-color: #C04343; 
+  color: #FFF;
+  border-color: #BF3E3E; 
+}
+.availability-form{
+  margin-left: 50px;
+}
+
+.selected-availability{
+  padding-top: 20px;
+}
+.btn_profile{
+  display: block;
+  border-radius: 25px;
+  padding: 2px 8px;
+  margin-right: 10px;
+  background-color: #EB5454;
+  color: white;
+  border: 2px solid #EB5454; 
+  transition: background-color 0.3s ease, color 0.3s ease; 
+}
+.btn-p{
+  margin-top: 20px;
+  display: flex;
+}
 
   }

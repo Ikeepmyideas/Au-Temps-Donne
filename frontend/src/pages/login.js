@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import '../css/loginb.css';
 import Logo from '../assets/logo.png';
 

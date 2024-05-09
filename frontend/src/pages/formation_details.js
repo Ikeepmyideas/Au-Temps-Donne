@@ -262,6 +262,28 @@ function FormationDetails() {
     
         doc.save('details_evenement_participants.pdf');
     };
+
+    function deleteEvent(ID_Formation) {
+        fetch(`http://127.0.0.1:8000/api/event/formations/delete/${ID_Formation}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to delete event');
+            }
+        })
+        .then(data => {
+            alert(data.message); 
+            sessionStorage.setItem('successMessageDelete', 'Evenement supprimé avec succès!');
+            navigate('/admin/formations');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting event: ' + error.message); 
+        });
+    }
     
 
     
@@ -415,10 +437,12 @@ function FormationDetails() {
                                         </div>
                                         </div>
                                     </div>
-                                    <center>
+                                    <div id="btn_grp">
                                     <button type="button" className="btn_act" onClick={() => setMode('edit')}>Modifier</button>
+                                    <button type="button" className="btn_act" onClick={() => deleteEvent(event.ID_Formation)}>Supprimer</button>
 
-                                    </center>
+
+                                    </div>
 
                                     </div>
                                     </div>
@@ -429,17 +453,10 @@ function FormationDetails() {
                                         <div className="list-container">
                                             <div className="list-card">
                                                 <h4>Bénévoles</h4>
-                                                <Link id="voir" to={`/admin/volunteers/${ID_Formation}`} className="btn-link">Voir la liste</Link>
+                                                <Link id="voir" to={`/admin/volunteersF/${ID_Formation}`} className="btn-link">Voir la liste</Link>
                                                 <div className="download-button">
                                                     <button  id="download" className="btn-link" onClick={handleDownloadPDF}>Télécharger</button>
                                                 </div>
-                                            </div>
-                                            <div className="list-card">
-                                                <h4>Bénéficiaires</h4>
-                                                <Link id="voir" to={`/admin/beneficiaires/${ID_Formation}`} className="btn-link">Voir la liste</Link>
-                                                <div className="download-button">
-                                                <button  id="download" className="btn-link" onClick={handleDownloadBenefPDF}>Télécharger</button>
-                                            </div>
                                             </div>
                                         </div>
                                     </div>

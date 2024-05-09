@@ -133,7 +133,7 @@ function Event() {
                 <div className="lists">
                  
                     <div className="table-header">
-                        <h3>Mes evenements a venir :</h3>
+                        <h3 className="title_dashboard" >Mes evenements a venir :</h3>
                         <Link to="/beneficiary/activity-avenir/${userInfo.id}" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
                         
                     </div>
@@ -142,7 +142,7 @@ function Event() {
                         <div key={index} className="elm_box">
                             <div className="infos">
                                 <div className="info">
-                                    <img height="180px" src={`assets/${event.image}`} style={{ borderRadius: '25px' }} />
+                                    <img height="180px" src={`${event.image}`} style={{ borderRadius: '25px' }} />
                                     <div className="info-container">
                                         <div className="hour">
                                             <img id="img-time" height="20px" src={horlogeIcon} />
@@ -171,7 +171,7 @@ function Event() {
                     </div>
                     <div></div>
                     <div className="table-header">
-                        <h3>Tous les évènements</h3>
+                        <h3 className="title_dashboard" >Tous les évènements</h3>
                         <Link to="/beneficiary/all-events" className="view-all">Voir Tout<img className="voir-all-icon" src={viewIcon} alt="Voir tout" /></Link>
                        
                     </div>

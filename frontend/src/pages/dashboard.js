@@ -63,7 +63,7 @@ function Dashboard() {
           </div>
           <div className="main_table">
             <div className="table-header">
-              <h3>Status Candidats</h3>
+              <h3  className="title_dashboard">Status des candidats</h3>
               <a href="/admin/status" className="view-all">Voir Tout<img className="voir-all-icon" src={view} alt="View All"/></a>
             </div>
             <div className="table_bnv">

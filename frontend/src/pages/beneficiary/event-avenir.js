@@ -7,6 +7,8 @@ import NavMenu from '../navMenuBeneficiary';
 import viewIcon from '../../assets/voir_all.png';
 import addIcon from '../../assets/add.png';
 import horlogeIcon from '../../assets/horloge.png';
+import image from "../../assets/donation.png"
+
 function Event() {
     const [events, setEvents] = useState([]);
     const [userInfo, setUserInfo] = useState(null);
@@ -85,7 +87,7 @@ function Event() {
             <div key={index} className="elm_box">
                 <div className="infos">
                 <div className="info">
-                        <img height="180px" src={`/assets/${event.image}`} style={{ borderRadius: '25px' }} alt="Event" />
+                        <img height="180px" src={`http://localhost:8000${event.image}` || image } style={{ borderRadius: '25px' }} alt="Event" />
                         <div className="info-container">
                             <div className="hour">
                                 <img id="img-time" height="20px" src={horlogeIcon} alt="Horloge" />
@@ -131,7 +133,7 @@ function Event() {
                     <div className="container_search">
                         <div className="table-header">
                             <div className="header">
-                                <Link to="/volunteer/evenements">
+                                <Link to="/beneficiary/evenements">
                                     <img id="retour" height="20px" width="20px" src={retour} alt="Retour" />
                                 </Link>
                                 <h3 className='title_event'>Mes événements à venir :</h3>

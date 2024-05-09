@@ -130,7 +130,7 @@ function Activity() {
           if (userInfo) {
             try {
               const ID_Benevole = userInfo.id; 
-              const response = await axios.get(`http://127.0.0.1:8000/api/beneficiary/registrations/${eventId}/${ID_Benevole}`);
+              const response = await axios.get(`http://127.0.0.1:8000/api/beneficiary/activites/registrations/${eventId}/${ID_Benevole}`);
               if (response.status === 200) {
                 setShowSuccessAlert(true);
               }
@@ -360,7 +360,7 @@ function Activity() {
                                     </div>
                                     <div>
                                     
-                                        { userInfo && (
+                                        { !event.id_benevole && userInfo && (
                                             <div>
                                                 {showSuccessAlert || success ? (
                                                     <center>

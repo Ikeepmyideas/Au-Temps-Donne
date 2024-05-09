@@ -51,7 +51,7 @@ function Event() {
                             <div key={index} className="elm_box">
                                 <div className="infos">
                                     <div className="info">
-                                        <img height="180px" src={`assets/${activity.image}`} style={{ borderRadius: '25px' }} />
+                                        <img height="180px" src={`http://localhost:8000${activity.image}`} style={{ borderRadius: '25px' }} />
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />

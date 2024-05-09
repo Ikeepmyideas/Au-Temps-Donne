@@ -3,6 +3,7 @@ import '../css/admin.css';
 import NavMenu from './navMenu';
 import viewIcon from '../assets/voir_all.png';
 import addIcon from '../assets/add.png';
+import image from "../assets/donation.png"
 import horlogeIcon from '../assets/horloge.png';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -69,11 +70,11 @@ function Event() {
                             <div key={index} className="elm_box">
                                 <div className="infos">
                                     <div className="info">
-                                        <img height="180px" src={`assets/${activity.image}`} style={{ borderRadius: '25px' }} />
+                                        <img height="180px" src={image} style={{ borderRadius: '25px' }} />
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />
-                                                <p className="time"> {formatTime(activity.activity && activity.activity.heure_debut ? activity.activity.heure_debut :activity.heure_debut)} | {activity.date_activite}</p>
+                                                <p className="time"> {formatTime(activity.heure_debut)} | {activity.date_activite}</p>
                                             </div>
                                         </div>
                                     </div>

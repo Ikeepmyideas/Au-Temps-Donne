@@ -33,7 +33,8 @@ import Formations from './pages/showAllFormation';
 import FormationsD from './pages/showFormationDetails'
 import EventAvenir from './pages/event-avenir';
 import EventAvenirB from './pages/beneficiary/event-avenir';
-import Profileb from './pages/profileb';
+import Profileb from './pages/beneficiary/profileb';
+import Profilev from './pages/profilev';
 import InfosUser from './pages/infosUser';
 import DonsPages from './pages/dons';
 import Candidat from './pages/candidat';
@@ -41,8 +42,11 @@ import Dashboardb from './pages/dashboardb';
 import EventsForB from './pages/beneficiary/Evenements';
 import AllEventsB from './pages/beneficiary/all-events';
 import DetailsEventB from './pages/beneficiary/activity-details';
-
+import UpdateProfileForm from './pages/beneficiary/UpdateProfileForm';
+import UpdateAvailability from './pages/UpdateAvailabilityForm';
 import Dons from './pages/dons';
+import VolunteersF from './pages/volunteersF';
+
 // Import styles
 import './css/home.css';
 import './css/signup.css';  
@@ -82,6 +86,7 @@ function App() {
             <Route path="/admin/membres" element={<MembreList />} />
             <Route path="/admin/events" element={<Event />} />
             <Route path="/admin/formations" element={<Formation />} />
+            <Route path="/admin/volunteersF" element={<VolunteersF />} />
             <Route path="/admin/formations/:ID_Formation" element={<FormationDetails />} />
             <Route path="/admin/activites" element={<AllEvent />} />
             <Route path="/admin/activiteprv" element={<Activiteprv />} />
@@ -96,7 +101,10 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute userType="volunteer"/>}>
+          <Route path="/candidat" element={<Candidat />} />
           <Route path="/volunteer/dashboard" element={<Dashboardv />} />
+          <Route path="/volunteer/profile" element={<Profilev />} />
+          <Route path="/volunteer/UpdateAvailability" element={<UpdateAvailability />} />
           <Route path="/volunteer/evenements" element={<Events />} />
           <Route path="/volunteer/all-events" element={<AllEvents />} />
           <Route path="/volunteer/activity-details/:eventId" element={<DetailsEvent />} />
@@ -107,6 +115,8 @@ function App() {
         </Route>
         <Route element={<ProtectedRoute userType="beneficiary"/>}>
              <Route path="/candidat" element={<Candidat />} />
+             <Route path="/beneficiary/profile" element={<Profileb />} />
+             <Route path="/beneficiary/UpdateProfileFormb" element={<UpdateProfileForm />} />
              <Route path="/beneficiary/dashboard" element={<Dashboardb />} />
              <Route path="/beneficiary/evenements" element={<EventsForB />} />
             <Route path="/beneficiary/all-events" element={<AllEventsB />} />

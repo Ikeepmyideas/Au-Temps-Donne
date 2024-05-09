@@ -111,8 +111,8 @@ function NavMenuV() {
             <span>Dashboard</span>
           </Link>
         </li>
-        <li className={highlight['/beneficiary/profilb'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/beneficiary/Profilb">
+        <li className={highlight['/beneficiary/profile'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/beneficiary/Profile">
             <img className="image" src={membre} alt="Profil"/>
             <span>Profil</span>
           </Link>
