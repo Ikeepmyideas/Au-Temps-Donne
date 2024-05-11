@@ -41,7 +41,7 @@ const Denree = sequelize.define("denrees", {
     allowNull: true,
     references: {
       model: "maraudes",
-      key: "id_maraude"
+      key: "ID"
     }
   },
     Date_ajout: {
