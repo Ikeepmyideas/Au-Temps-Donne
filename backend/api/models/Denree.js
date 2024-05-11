@@ -33,7 +33,7 @@ const Denree = sequelize.define("denrees", {
     allowNull: false,
     references: {
       model: "commercants_partenaire",
-      key: "id_commercant"
+      key: "ID_Commercant"
     }
   },
   id_maraude: {
