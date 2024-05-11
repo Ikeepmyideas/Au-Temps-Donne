@@ -1268,3 +1268,13 @@ input[type="time"] {
   border-radius: 8px;
 
 }
+
+#trash{
+  color: red;
+}
+#edit {
+  color: orange;
+}
+#maraude{
+  color: green;
+}

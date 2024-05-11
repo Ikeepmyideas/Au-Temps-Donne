@@ -117,10 +117,10 @@ function Newsletter() {
             <section className="content">
                 <section className="lists">
                     <div className="list_type">
-                        <Link to="/list" className={currentPath === '/list' ? 'active' : 'link_list'}>Bénévole</Link>
-                        <Link to="/beneficiaires" className={currentPath === '/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/beneficiaires' ? { color: '#D23939' } : null}>Bénéficiaries</Link>
-                        <Link to="/partners" className={currentPath === '/partners' ? 'active' : 'link_list'} style={currentPath === '/partners' ? { color: '#D23939' } : null}>Partenaires</Link>
-                        <Link to="/newsletter" className={currentPath === '/newsletter' ? 'active' : 'link_list'} style={currentPath === '/newsletter' ? { color: '#D23939' } : null}>Newsletter</Link>
+                        <Link to="/admin/list" className={currentPath === '/admin/list' ? 'active' : 'link_list'}>Bénévole</Link>
+                        <Link to="/admin/beneficiaires" className={currentPath === '/admin/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/admin/beneficiaires' ? { color: '#D23939' } : null}>Bénéficiaries</Link>
+                        <Link to="/admin/partners" className={currentPath === '/admin/partners' ? 'active' : 'link_list'} style={currentPath === '/admin/partners' ? { color: '#D23939' } : null}>Partenaires</Link>
+                        <Link to="/admin/newsletter" className={currentPath === '/admin/newsletter' ? 'active' : 'link_list'} style={currentPath === '/admin/newsletter' ? { color: '#D23939' } : null}>Newsletter</Link>
                     </div>
                     <div className="container_search">
                         <div className="add_user">
@@ -153,7 +153,7 @@ function Newsletter() {
                         </div>
                     )}
                     <div className="table-header">
-                        <h3>Liste Partenaires</h3>
+                        <h3 className="title_dashboard">Liste des inscriptions</h3>
                     </div>
                     <div className="table_bnv">
                         <table>

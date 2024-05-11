@@ -52,7 +52,7 @@ import Profilec from './pages/partner/profile';
 import ChangePasswordC from './pages/partner/changepassword';
 import Supportc from './pages/partner/contactsupport';
 import Documentsc from './pages/partner/documents';
-
+import Support from './pages/beneficiary/Support';
 import './css/home.css';
 import './css/signup.css';  
 import './css/admin.css';
@@ -122,6 +122,7 @@ function App() {
         <Route element={<ProtectedRoute userType="beneficiary"/>}>
              <Route path="/candidat" element={<Candidat />} />
              <Route path="/beneficiary/profile" element={<Profileb />} />
+             <Route path="/beneficiary/support" element={<Support />} />
              <Route path="/beneficiary/UpdateProfileFormb" element={<UpdateProfileForm />} />
              <Route path="/beneficiary/dashboard" element={<Dashboardb />} />
              <Route path="/beneficiary/evenements" element={<EventsForB />} />

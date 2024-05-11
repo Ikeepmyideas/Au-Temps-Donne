@@ -3,6 +3,10 @@ import '../css/admin.css';
 import NavMenu from './navMenu';
 import { Link, redirect, useLocation,useNavigate } from 'react-router-dom';
 import addIcon from '../assets/add.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEye  ,faInfoCircle , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
+
 function Partners() {
     const [partenaires, setPartenaires] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -10,6 +14,7 @@ function Partners() {
     const currentPath = location.pathname;
     const [nom, setNom] = useState('');
     const [email, setEmail] = useState('');
+    const [telephone, setTelephone] = useState('');
     const [adresseComplete, setAdresseComplete] = useState('');
     const [ville, setVille] = useState('');
     const [codePostal, setCodePostal] = useState('');
@@ -52,6 +57,7 @@ function Partners() {
             const newPartenaire = {
                 nom,
                 email,
+                telephone,
                 adresseComplete,
                 ville,
                 code_postal: codePostal,
@@ -131,10 +137,10 @@ function Partners() {
             <section className="content">
                 <section className="lists">
                     <div className="list_type">
-                        <Link to="/list" className={currentPath === '/list' ? 'active' : 'link_list'}>Bénévole</Link>
-                        <Link to="/beneficiaires" className={currentPath === '/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/beneficiaires' ? { color: '#D23939' } : null}>Bénéficiaries</Link>
-                        <Link to="/partners" className={currentPath === '/partners' ? 'active' : 'link_list'} style={currentPath === '/partners' ? { color: '#D23939' } : null}>Partenaires</Link>
-                        <Link to="/newsletter" className={`link_list ${currentPath === '/newsletter' ? '' : 'link_list'}`}>Newsletter</Link>
+                        <Link to="/admin/list" className={currentPath === '/list' ? 'active' : 'link_list'}>Bénévole</Link>
+                        <Link to="/admin/beneficiaires" className={currentPath === '/admin/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/beneficiaires' ? { color: '#D23939' } : null}>Bénéficiaries</Link>
+                        <Link to="/admin/partners" className={currentPath === '/admin/partners' ? 'active' : 'link_list'} style={currentPath === '/admin/partners' ? { color: '#D23939' } : null}>Partenaires</Link>
+                        <Link to="/admin/newsletter" className={`link_list ${currentPath === '/admin/newsletter' ? '' : 'link_list'}`}>Newsletter</Link>
                     </div>
                     <div className="container_search">
                         <div className="add_user">
@@ -186,8 +192,8 @@ function Partners() {
                                         <td>{partenaire.email}</td>
                                         <td>{partenaire.telephone}</td>
                                         <td className="action">
-                                            <a href={`consult.php?name=${encodeURIComponent(partenaire.nom)}&surname=${encodeURIComponent(partenaire.email)}`} className="action-btn details">Consulter</a>
-                                            <button onClick={() => deletePartenaire(partenaire.email)} className="action-btn refuser">Supprimer</button>
+                                            <a href={`consult.php?name=${encodeURIComponent(partenaire.nom)}&surname=${encodeURIComponent(partenaire.email)}`} ><FontAwesomeIcon icon={faEye } style={{ color: 'blue', 'paddingRight': "10px" }}/></a>
+                                            <button id="trash" onClick={() => deletePartenaire(partenaire.email)} ><FontAwesomeIcon icon={faTrash}/></button>
                                         </td>
                                     </tr>
                                 ))}
@@ -213,7 +219,9 @@ function Partners() {
                            <label htmlFor="email">Email :</label>
                             <input type="email" id="email" name="email" value={email} onChange={e => setEmail(e.target.value)} required/>
 
-                            
+                            <label htmlFor="telephone">Telephone :</label>
+                            <input type="text" id="telephone" name="telephone" value={telephone} onChange={e => setTelephone(e.target.value)} required />
+           
                             <label htmlFor="adresse">Adresse :</label>
                             <input type="text" id="adresse" name="adresse" value={adresseComplete} onChange={e => setAdresseComplete(e.target.value)} required/>
 

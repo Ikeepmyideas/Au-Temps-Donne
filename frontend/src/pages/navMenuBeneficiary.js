@@ -24,8 +24,9 @@ function NavMenuV() {
 
   const titles = {
     "/beneficiary/dashboard": "Dashboard",
-    "/beneficiary/evenements": "Événements",
+    "/beneficiary/Profile": "Profile",
     "/beneficiary/maraude": "Maraudes",
+    "/beneficiary/support": "Support",
     "/beneficiary/documents": "Documents"
   };
   const [profileImagePath, setProfileImagePath] = useState('');
@@ -58,8 +59,9 @@ function NavMenuV() {
   useEffect(() => {
     const pathHighlight = {
       "/beneficiary/dashboard": "Dashboard",
-      "/beneficiary/evenements": "Événements",
+      "/beneficiary/Profile": "Profile",
       "/beneficiary/m": "Messagerie",
+      "/beneficiary/support": "Support",
       "/beneficiary/documents": "Documents"
 
     };
@@ -111,10 +113,10 @@ function NavMenuV() {
             <span>Dashboard</span>
           </Link>
         </li>
-        <li className={highlight['/beneficiary/profile'] ? "highlighted" : ""}>
+        <li className={highlight['/beneficiary/Profile'] ? "highlighted" : ""}>
           <Link className='nav-link' to="/beneficiary/Profile">
             <img className="image" src={membre} alt="Profil"/>
-            <span>Profil</span>
+            <span>Profile</span>
           </Link>
         </li>
         <li className={highlight['/beneficiary/evenements'] ? "highlighted" : ""}>
@@ -125,21 +127,23 @@ function NavMenuV() {
         </li>
         <li className={highlight['/maraude'] ? "highlighted" : ""}>
           <Link className='nav-link' to="/beneficiary/maraude">
-            <img className="image" src={mard} alt="Maraude"/>
+            <img className="image" src={chat} alt="Maraude"/>
             <span>Messagerie</span>
           </Link>
         </li>
         <hr className="hr2"/>
-        <li className="menu_title">
-          <strong><span>SUPPORT</span></strong>
-        </li>
+   
+       
         <li>
-          <Link className='nav-link' to="/volunteer/settings">
+          <Link className={highlight['/beneficiary/support'] ? "highlighted" : ""}>
             <img src={settings} alt="Settings"/>
-            <span>Paramètres</span>
+            <span>Support</span>
           </Link>
+          
         </li>
-        <li>
+       
+          <li>
+
           <Link className='nav-link' to="/volunteer/logout">
             <img src={exit} alt="Exit"/>
             <span>Déconnexion</span>
@@ -171,9 +175,7 @@ function NavMenuV() {
       <div id="right2">
           <img height="20px" src={notif} alt="Notification Icon"/>
       </div>
-      <div className="circle">
-          <Link to="/profile"><img src="assets/gojo.jpg" alt="Profile"/></Link>
-      </div>
+
     </section>
     
   </>

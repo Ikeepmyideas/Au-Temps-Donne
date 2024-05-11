@@ -4,6 +4,9 @@ import NavMenu from './navMenu';
 import { Link, useNavigate } from 'react-router-dom';
 import addIcon from '../assets/add.png';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEye  ,faInfoCircle , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
 
 function MembreList() {
   const [admins, setAdmins] = useState([]);
@@ -60,7 +63,6 @@ function MembreList() {
 
     fetchAdmins();
     fetchVolunteers();
-    handleAddVolunteerAsAdmin();
 
     if (sessionStorage.getItem('successMessage')) {
       setShowSuccessAlertadd(true);
@@ -80,7 +82,7 @@ function MembreList() {
   const addNewAdmin = async event => {
     event.preventDefault();
     try {
-      const newPartenaire = {
+      const newAdmin = {
         nom,
         prenom,
         email
@@ -90,7 +92,7 @@ function MembreList() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newPartenaire)
+        body: JSON.stringify(newAdmin)
       });
 
       if (!response.ok) {
@@ -143,33 +145,47 @@ function MembreList() {
     }
   };
 
-  const handleAddVolunteerAsAdmin = async (volunteerEmail) => {
-    if (!volunteerEmail) {
-      console.error('Email is undefined or null.');
-      return; 
-    }
+  const addNewBAdmin = async (event, volunteerEmail) => {
+    event.preventDefault();
   
     try {
+      const newAdmin = {
+        email: volunteerEmail
+      };
+  
       const response = await fetch('http://localhost:8000/api/admin/addVolunteerToAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: volunteerEmail })
+        body: JSON.stringify(newAdmin)
       });
   
       if (!response.ok) {
-        throw new Error('Réponse réseau non OK');
+        throw new Error('Erreur réseau ou du serveur');
       }
   
-      const data = await response.json();
-      setSuccessMessage(data.message);
+      const contentType = response.headers.get('content-type');
+      let data;
+  
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { text };
+      }
+  
+      if (data.text) {
+        console.log('Réponse en texte:', data.text);
+      }
+  
+      sessionStorage.setItem('successMessage', 'Admin ajouté avec succès!');
+      navigate(0); // Assuming `navigate` is a function to redirect (e.g., from `react-router-dom`)
     } catch (error) {
-      console.error('Erreur lors de la requête:', error);
-      alert('Erreur serveur. Veuillez réessayer.');
+      console.error('Erreur lors de l\'ajout du partenaire:', error);
+      alert('Erreur lors de l\'ajout du partenaire: ' + error.message);
     }
   };
-  
 
   return (
     <>
@@ -177,7 +193,7 @@ function MembreList() {
       <section className="content">
         <section className="lists">
           <div className="table-header">
-            <h2>Gestionnaire des administrateurs</h2>
+            <h2 className="title_dashboard">Gestionnaire des administrateurs</h2>
           </div>
           <div className="container_search">
             <div className="add_user">
@@ -210,7 +226,7 @@ function MembreList() {
             </div>
           )}
           <div className="table-header">
-            <h3>Liste des administrateurs</h3>
+            <h3 className="title_dashboard">Liste des administrateurs</h3>
           </div>
           <div className="table_bnv">
             <table>
@@ -229,8 +245,8 @@ function MembreList() {
                     <td>{admin.email}</td>
                     <td>{admin.telephone}</td>
                     <td className="action">
-                      <Link to={`/consulter.php?nom=${encodeURIComponent(admin.nom)}&prenom=${encodeURIComponent(admin.prenom)}`} className="action-btn details">Consulter</Link>
-                      <button onClick={() => deleteAdmin(admin.email)} className="action-btn refuser">Supprimer</button>
+                      <Link to={`/consulter.php?nom=${encodeURIComponent(admin.nom)}&prenom=${encodeURIComponent(admin.prenom)}`} ><FontAwesomeIcon icon={faEye } style={{ color: 'blue', 'paddingRight': "10px" }}/></Link>
+                      <button id="trash" onClick={() => deleteAdmin(admin.email)} ><FontAwesomeIcon icon={faTrash}/></button>
                     </td>
                   </tr>
                 ))}
@@ -251,7 +267,7 @@ function MembreList() {
           </button>
           <div id="statutButtons">
             <button className={`btn_event_type ${showFormType === 'new' ? 'active' : ''}`} onClick={handleShowNewForm} id="newButton">Nouveau</button>
-            <button className={`btn_event_type ${showFormType === 'volunteer' ? 'active' : ''}`} onClick={handleShowVolunteerForm} id="volunteerButton">Bénéficiaire</button>
+            <button className={`btn_event_type ${showFormType === 'volunteer' ? 'active' : ''}`} onClick={handleShowVolunteerForm} id="volunteerButton">Bénévole</button>
           </div>
           <form id="newForm" style={{ display: showFormType === 'new' ? 'block' : 'none' }} onSubmit={addNewAdmin}>
             <div className="scrollable-content">
@@ -263,33 +279,38 @@ function MembreList() {
 
               <label htmlFor="email">Email :</label>
               <input type="email" id="email" name="email" value={email} onChange={e => setEmail(e.target.value)} required />
+
+             
             </div>
             <input className="btn_event" type="submit" value="Ajouter" />
           </form>
           <form id="volunteerForm" style={{ display: showFormType === 'volunteer' ? 'block' : 'none' }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Prénom</th>
-                  <th>Email</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {volunteers.map(volunteer => (
-                  <tr key={volunteer.id}>
-                    <td>{volunteer.nom}</td>
-                    <td>{volunteer.prenom}</td>
-                    <td>{volunteer.email}</td>
-                    <td>
-                      <button onClick={() => handleAddVolunteerAsAdmin(volunteer.email)}>Ajouter comme Admin</button>
-                    </td>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </form>
+                </thead>
+                <tbody>
+                  {volunteers.map(volunteer => (
+                    <tr key={volunteer.id}>
+                      <td>{volunteer.nom}</td>
+                      <td>{volunteer.prenom}</td>
+                      <td>{volunteer.email}</td>
+                      <td>
+                        <button
+                          onClick={(event) => addNewBAdmin(event, volunteer.email)}
+                        >
+              <FontAwesomeIcon icon={faPlusCircle} style={{ color: 'green', fontSize: '24px' }} /></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </form>
         </div>
       </section>
     </>

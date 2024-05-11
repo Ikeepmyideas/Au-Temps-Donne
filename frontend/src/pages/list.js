@@ -3,6 +3,9 @@ import '../css/admin.css';
 import NavMenu from './navMenu';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import addIcon from '../assets/add.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEye  ,faInfoCircle , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
 
 function List() {
     const [volunteers, setVolunteers] = useState([]);
@@ -115,10 +118,10 @@ function List() {
             <section className="content">
                 <section className="lists">
                     <div className="list_type">
-                        <Link to="/list" className={currentPath === '/list' ? 'active' : ''} style={{ color: currentPath === '/list' ? '#D23939' : '' }}>Bénévoles</Link>
+                        <Link to="/admin/list" className={currentPath === '/admin/list' ? 'active' : ''} style={{ color: currentPath === '/admin/list' ? '#D23939' : '' }}>Bénévoles</Link>
                         <Link to="/admin/beneficiaires" className={currentPath === '/admin/beneficiaires' ? 'active link_list' : 'link_list'}>Bénéficiaires</Link>
-                        <Link to="/admin/partners" className={currentPath === '/partners' ? 'active link_list' : 'link_list'}>Partenaires</Link>
-                        <Link to="/newsletter" className={currentPath === '/newsletter' ? 'active' : ''}>Newsletter</Link>
+                        <Link to="/admin/partners" className={currentPath === '/admin/partners' ? 'active link_list' : 'link_list'}>Partenaires</Link>
+                        <Link to="/admin/newsletter" className={currentPath === '/admin/newsletter' ? 'active' : ''}>Newsletter</Link>
                     </div>
                     <div className="container_search">
                         <div className="add_user">
@@ -150,7 +153,7 @@ function List() {
                         </div>
                     )}
                     <div className="table-header">
-                        <h3>Liste des Bénévoles</h3>
+                        <h3 className="title_dashboard">Liste des Bénévoles</h3>
                     </div>
                     <div className="table_bnv">
                         <table>
@@ -169,8 +172,8 @@ function List() {
                                         <td>{volunteer.email}</td>
                                         <td>{volunteer.telephone}</td>
                                         <td className="action">
-                                            <Link to={`/consulter.php?nom=${encodeURIComponent(volunteer.nom)}&prenom=${encodeURIComponent(volunteer.prenom)}`} className="action-btn details">Consulter</Link>
-                                            <button onClick={() => confirmerSuppression(volunteer.email)} className="action-btn refuser">Supprimer</button>
+                                            <Link to={`/consulter.php?nom=${encodeURIComponent(volunteer.nom)}&prenom=${encodeURIComponent(volunteer.prenom)}`} ><FontAwesomeIcon icon={faEye } style={{ color: 'blue', 'paddingRight': "10px" }}/></Link>
+                                            <button id="trash" onClick={() => confirmerSuppression(volunteer.email)} ><FontAwesomeIcon icon={faTrash}/></button>
                                         </td>
                                     </tr>
                                 ))}

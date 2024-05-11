@@ -3,6 +3,9 @@ import '../css/admin.css';
 import NavMenu from './navMenu';
 import { Link, useLocation,useNavigate } from 'react-router-dom';
 import addIcon from '../assets/add.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEye  ,faInfoCircle , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
 
 function BeneficiaryList() {
     const [beneficiaries, setBeneficiaries] = useState([]);
@@ -123,10 +126,10 @@ function BeneficiaryList() {
             <section className="content">
                 <section className="lists">
                     <div className="list_type">
-                        <Link to="/list" className={currentPath === '/list' ? 'active' : 'link_list'}>Bénévole</Link>
-                        <Link to="/beneficiaires" className={currentPath === '/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/beneficiaires' ? { color: '#D23939' } : null}>Bénéficiaries</Link>
-                        <Link to="/partners" className={`link_list ${currentPath === '/partners' ? '' : 'link_list'}`}>Partenaires</Link>
-                        <Link to="/newsletter" className={`link_list ${currentPath === '/newsletter' ? '' : 'link_list'}`}>Newsletter</Link>
+                        <Link to="/admin/list" className={currentPath === '/admin/list' ? 'active' : 'link_list'}>Bénévole</Link>
+                        <Link to="/admin/beneficiaires" className={currentPath === '/admin/beneficiaires' ? 'active' : 'link_list'} style={currentPath === '/admin/beneficiaires' ? { color: '#D23939' } : null}>Bénéficiaries</Link>
+                        <Link to="/admin/partners" className={`link_list ${currentPath === '/admin/partners' ? '' : 'link_list'}`}>Partenaires</Link>
+                        <Link to="/admin/newsletter" className={`link_list ${currentPath === '/admin/newsletter' ? '' : 'link_list'}`}>Newsletter</Link>
                     </div>
                     <div className="container_search">
                     <div className="add_user">
@@ -159,7 +162,7 @@ function BeneficiaryList() {
                         </div>
                     )}
                     <div className="table-header">
-                        <h3>Liste Beneficiaries</h3>
+                        <h3 className="title_dashboard">Liste Beneficiaries</h3>
                     </div>
                     <div className="table_bnv">
                         <table>
@@ -178,8 +181,8 @@ function BeneficiaryList() {
                                         <td>{beneficiary.email}</td>
                                         <td>{beneficiary.telephone}</td>
                                         <td className="action">
-                                            <a href={`consult.php?name=${encodeURIComponent(beneficiary.nom)}&surname=${encodeURIComponent(beneficiary.prenom)}`} className="action-btn details">Consulter</a>
-                                            <button onClick={() => confirmDeletion(beneficiary.email)} className="action-btn refuser">Supprimer</button>
+                                            <a href={`consult.php?name=${encodeURIComponent(beneficiary.nom)}&surname=${encodeURIComponent(beneficiary.prenom)}`} ><FontAwesomeIcon icon={faEye } style={{ color: 'blue', 'paddingRight': "10px" }}/></a>
+                                            <button  id="trash" onClick={() => confirmDeletion(beneficiary.email)} ><FontAwesomeIcon icon={faTrash}/></button>
                                         </td>
                                     </tr>
                                 ))}
