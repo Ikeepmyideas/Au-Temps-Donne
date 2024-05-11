@@ -45,12 +45,13 @@ const Maraude = sequelize.define('maraude', {
     tableName: "maraude",
     timestamps: false
 });
+Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
 
-Maraude.associate = function(models) {
-  Maraude.belongsTo(models.Volunteer, {
-    foreignKey: 'ChauffeurID',
-    as: 'Chauffeur'
-  });
+// Maraude.associate = function(models) {
+//   Maraude.belongsTo(models.Volunteer, {
+//     foreignKey: 'ChauffeurID',
+//     as: 'Chauffeur'
+//   });
   Maraude.belongsTo(models.Stocks, {
     foreignKey: 'StockID',
     as: 'Stock'
