@@ -9,7 +9,7 @@ const { Op } = require('sequelize');
 const Activity = require('../models/Activity');
 const ActivityPrive = require('../models/ActivityPrivate');
 const Lieu= require('../models/Lieu');
-
+const DemandeService = require('../models/Demande');
 const Beneficiary = require('../models/Beneficiary');
 const EvenementBeneficiaire = require('../models/EvenementBeneficiaire');
 const argon2 = require('argon2');
@@ -416,10 +416,35 @@ const getEventsAllForBeneficiary= async (req, res) => {
   }
 };
 
+const addDemandeServicePrive = async (req, res) => {
+  const { id_beneficiaire, titre, service, message } = req.body;
 
+  try {
+    const nouvelleDemande = await DemandeService.create({
+      id_beneficiaire,
+      titre,
+      service,
+      message
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Demande de service privé ajoutée avec succès',
+      demande: nouvelleDemande
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de la demande de service privé :', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'ajout de la demande de service privé',
+      error: error.message
+    });
+  }
+};
 
 
 module.exports = {
+  addDemandeServicePrive,
   getEventsForBeneficiary,
   getEventsPvForBeneficiary,
   getEventsAllForBeneficiary,

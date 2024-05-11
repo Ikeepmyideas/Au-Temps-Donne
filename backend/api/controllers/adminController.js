@@ -560,36 +560,33 @@ exports.getAllVolunteersAndBeneficiaries = async (req, res) => {
   }
 };
 
-
 exports.addVolunteerToAdmins = async (req, res) => {
-  const t = await sequelize.transaction(); 
+  const t = await sequelize.transaction(); // Démarrez une transaction Sequelize
+
   try {
     const { email } = req.body;
-    
+
+    // Recherchez le bénévole par email
     const volunteer = await Volunteer.findOne({ where: { email } }, { transaction: t });
     if (!volunteer) {
-      await t.rollback(); // Annulez la transaction en cas de bénévole introuvable
+      await t.rollback(); // Annulez la transaction
       return res.status(404).json({ message: "Bénévole introuvable" });
     }
 
+    // Vérifiez si le bénévole est déjà un administrateur
     const existingAdmin = await Admin.findOne({ where: { email } }, { transaction: t });
     if (existingAdmin) {
-      await t.rollback(); 
+      await t.rollback(); // Annulez la transaction
       return res.status(400).json({ message: "Le bénévole est déjà un administrateur" });
     }
 
+    // Créez un nouvel administrateur en copiant les informations du bénévole
     await Admin.create({
       email: volunteer.email,
       nom: volunteer.nom,
       prenom: volunteer.prenom,
-      mot_de_passe: volunteer.mot_de_passe 
+      mot_de_passe: volunteer.mot_de_passe // Copiez d'autres champs si nécessaire
     }, { transaction: t });
-
-    const removeFromVolunteers = req.body.removeFromVolunteers === true;
-    
-    if (removeFromVolunteers) {
-      await Volunteer.destroy({ where: { email } }, { transaction: t });
-    }
 
     await t.commit(); // Validez la transaction
     res.status(200).json({ message: "Le bénévole a été ajouté à la liste des administrateurs avec succès" });
@@ -752,7 +749,7 @@ exports.getAllBlogs = async (req, res) => {
 };
 
 exports.addPartenaire = async (req, res) => {
-  const { nom, email, adresseComplete, ville, code_postal } = req.body;
+  const { nom, email,telephone, adresseComplete, ville, code_postal } = req.body;
 
   try {
     const generatePassword = () => {
@@ -773,6 +770,7 @@ exports.addPartenaire = async (req, res) => {
       const partenaire = await Partenaire.create({
           nom,
           email,
+          telephone,
           password: hashedPassword,
           adresse: adresseComplete,
           ville,
@@ -919,5 +917,111 @@ exports.getAllAdresses = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des adresses', error: error }); 
   }
 };
+const Denree = require('../models/Denree');
+
+exports.getVolunteersDisponibles = async (req, res) => {
+  try {
+      const { date, startTime } = req.query;  
+
+      if (!date || !startTime ) {
+          return res.status(400).send("All parameters are required.");
+      }
+
+      const jourDate = new Date(date + 'T00:00:00Z'); 
+
+      const startDate = new Date(`${date}T${startTime}:00Z`); 
+
+      const availableVolunteers = await Disponibilite.findAll({
+          where: {
+              jour: jourDate,
+              heure_debut: {
+                  [Op.lte]: startDate 
+              }
+              
+          },
+          include: [{
+              model: Volunteer,
+              as: 'benevole',
+              attributes: ['nom', 'prenom', 'email', 'telephone'],
+              where: { permis_conduire: "oui" } 
+          }]
+      });
+
+      if (availableVolunteers.length === 0) {
+          return res.status(404).send('No available volunteers found.');
+      }
+
+      res.json(availableVolunteers.map(vol => vol.benevole)); 
+  } catch (error) {
+      console.error('Error retrieving available volunteers:', error);
+      res.status(500).send('Internal Server Error');
+  }
+};
+exports.getLieuByPartner = async (req, res) => {
+  try {
+    const partnerId = req.params.partnerId; 
+    const partner = await Partenaire.findByPk(partnerId);
+
+    if (!partner) {
+      return res.status(404).json({ error: 'Partenaire non trouvé' });
+    }
+    const lieu = await Lieu.findByPk(partner.ID_Adresse);
+
+    if (!lieu) {
+      return res.status(404).json({ error: 'Lieu non trouvé' });
+    }
+    res.status(200).json(lieu);
+  } catch (error) {
+    console.error('Erreur lors de la récupération du lieu:', error);
+    res.status(500).json({ error: 'Erreur serveur lors de la récupération du lieu' });
+  }
+};
+
+Partenaire.hasMany(Denree, { foreignKey: 'id_commercant' });
+Denree.belongsTo(Partenaire, { foreignKey: 'id_commercant' });
 
 
+exports.getAllEntrepots = async (req, res) => {
+  try {
+    const allEntrepots = await Entrepot.findAll();
+    res.status(200).json({data: allEntrepots});
+  } catch (error) {
+    console.error("Error during execution : ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+exports.getPartnersWithGoods = async (req, res) => {
+  try {
+    const partners = await Partenaire.findAll({
+      include: [{
+        model: Denree,
+        where: {
+          id_maraude: null,
+          id_stock: null
+        },
+        required: false 
+      }]
+    });
+    const formattedPartners = partners.map(partner => {
+      return {
+        nom: partner.nom,
+        id: partner.ID_Commercant,
+        goods: partner.denrees.map(denree => ({
+          ID_Denree: denree.ID_Denree,
+          type: denree.type,
+          date_peremption: denree.date_peremption,
+          quantite: denree.quantite,
+          ID_Stock: denree.ID_Stock,
+          nom: denree.nom,
+          id_commercant: denree.id_commercant,
+          id_maraude: denree.id_maraude,
+          Date_ajout: denree.Date_ajout
+        }))
+      };
+    });
+    res.status(200).json(formattedPartners);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching partners with goods' });
+  }
+};

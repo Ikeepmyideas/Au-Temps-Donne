@@ -12,6 +12,7 @@ const Maraude = require('../models/Maraude');
 const Volunteer = require('../models/Volunteer');
 const Disponibilite = require('../models/Disponibilite');
 
+
 require('dotenv').config(); 
 exports.loginAdmin = async (req, res) => {
     try {
@@ -238,7 +239,7 @@ const getVolunteersDisponibles = async (req, res) => {
             include: [{
                 model: Volunteer,
                 as: 'benevole',
-                attributes: ['nom', 'prenom', 'email', 'telephone'],
+                attributes: ['id','nom', 'prenom', 'email', 'telephone'],
                 where: { permis_conduire: "oui" } 
             }]
         });
@@ -253,8 +254,88 @@ const getVolunteersDisponibles = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+const axios = require('axios');
 
+
+const generateItinerary = async (req, res) => {
+    try {
+        const { addresses } = req.body;
+        const apiKey = 'AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4';
+
+        // Function to resolve address to coordinates using Google Maps Geocoding API
+        const resolveAddress = async (address) => {
+            try {
+                const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+                    params: {
+                        address: address,
+                        key: apiKey
+                    }
+                });
+
+                if (response.data.results && response.data.results.length > 0) {
+                    const location = response.data.results[0].geometry.location;
+                    const coordinates = `${location.lat},${location.lng}`;
+                    console.log(`Resolved address "${address}" to coordinates: ${coordinates}`);
+                    return { address, coordinates };
+                } else {
+                    throw new Error('Address not found');
+                }
+            } catch (error) {
+                console.error(`Error resolving address "${address}":`, error);
+                throw new Error(`Failed to resolve address "${address}"`);
+            }
+        };
+
+        // Resolve all points' addresses to coordinates
+        const resolvedPoints = await Promise.all(addresses.map(resolveAddress));
+
+        // Construct the route request URL
+        const waypoints = resolvedPoints.map(point => `via:${point.coordinates}`).join('|');
+        const routeRequestURL = `https://maps.googleapis.com/maps/api/directions/json?origin=${resolvedPoints[0].coordinates}&destination=${resolvedPoints[resolvedPoints.length - 1].coordinates}&waypoints=${waypoints}&key=${apiKey}`;
+
+        // Make request to Google Maps Directions API to get route
+        const routeResponse = await axios.get(routeRequestURL);
+
+        
+// Extract estimated travel time by car in seconds
+        const estimatedCarTimeInSeconds = routeResponse.data.routes[0].legs.reduce((total, leg) => total + leg.duration.value, 0);
+
+        // Convert travel time to hours and minutes
+        const hours = Math.floor(estimatedCarTimeInSeconds / 3600);
+        const minutes = Math.ceil((estimatedCarTimeInSeconds % 3600) / 60);
+
+        // Extract route data from response
+        const route = routeResponse.data.routes[0];
+
+        // Extract all points along the route
+        const routeCoordinates = route.legs.flatMap(leg => leg.steps.map(step => [step.start_location.lat, step.start_location.lng]));
+
+        // Extract start and end addresses
+        const startAddress = resolvedPoints[0].address;
+        const destinationAddress = resolvedPoints[resolvedPoints.length - 1].address;
+
+        // Log estimated car time
+        console.log(`Estimated car time: ${hours} hours and ${minutes} minutes`);
+
+        // Prepare response
+        const itineraryData = {
+            routeCoordinates,
+            startAddress,
+            destinationAddress,
+            estimatedCarTime: { hours, minutes } // Estimated travel time by car in hours and minutes
+        };
+
+        // Send itinerary data back to client
+        res.json(itineraryData);
+    } catch (error) {
+        console.error('Error generating itinerary:', error);
+        res.status(500).json({ error: 'Failed to generate itinerary' });
+    }
+};
+
+module.exports = { generateItinerary };
 module.exports = {
+    generateItinerary,
     getVolunteersDisponibles,
     addMaraude,
     getAllStockedDenrees,

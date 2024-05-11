@@ -90,4 +90,14 @@ router.put('/updateAvailability/:id_disponibilite', updateAvailability);
 router.delete('/deleteAvailability/:id_disponibilite', deleteAvailability);
 router.get('/getpdf', exportUserInfoAsPDF);
 
+router.put('/processQrCode', async (req, res) => {
+  try {
+      const qrCodeData = req.body.qrCodeData;
+      await updateDenreesWithQRCodeInfo(qrCodeData);
+      res.status(200).send('Denrees updated successfully.');
+  } catch (error) {
+      console.error('Error processing QR code:', error);
+      res.status(500).send('Failed to process QR code.');
+  }
+});
 module.exports = router;

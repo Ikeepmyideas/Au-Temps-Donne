@@ -19,6 +19,8 @@ const Partenaire = sequelize.define('commercants_partenaire', {
     password: {
         type: Sequelize.STRING
     },
+    telephone: { type: Sequelize.STRING },
+
 
     adresse: { type: Sequelize.STRING },
 

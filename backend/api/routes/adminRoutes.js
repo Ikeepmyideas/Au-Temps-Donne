@@ -65,4 +65,9 @@ router.put('/admin', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
   });
+
+const itineraryController = require('../controllers/itineraryController');
+router.post('/generate-itinerary', itineraryController.generateItinerary);
+router.get('/entrepots', adminController.getAllEntrepots);
+router.get('/partner/:partnerId/lieu', adminController.getLieuByPartner);
 module.exports = router;

@@ -1177,3 +1177,59 @@ exports.getAllAdresses = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des adresses', error: error }); 
   }
 };
+exports.getAllEventsForAdmin = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [eventsNormal, eventsPrivate, formations] = await Promise.all([
+      EvenementBenevole.findAll({
+        include: [{
+          model: Activity,
+          as: 'activity',
+          where: { date_activite: { [Op.gte]: today } }, 
+          include: [{
+            model: Lieu,
+            as: 'lieuA',
+            attributes: ['adresse', 'ville', 'code_postal']
+          }]
+        }],
+        order: [[{ model: Activity, as: 'activity' }, 'date_activite', 'ASC']] 
+      }),
+      ActivityPrive.findAll({
+        where: { date_activite: { [Op.gte]: today } },
+        include: [{
+          model: Lieu,
+          as: 'lieu',
+          attributes: ['adresse', 'ville', 'code_postal']
+        }],
+        order: [['date_activite', 'ASC']]
+      }),
+      RegisterF.findAll({
+        include: [{
+          model: Formation,
+          as: 'formation',
+          where: { date_debut: { [Op.gte]: today } }, 
+          include: [{
+            model: Lieu,
+            as: 'lieuF',
+            attributes: ['adresse', 'ville', 'code_postal']
+          }]
+        }],
+        order: [[{ model: Formation, as: 'formation' }, 'date_debut', 'ASC']] 
+      }),
+    ]);
+
+    const combinedEvents = [...eventsNormal, ...eventsPrivate, ...formations];
+
+    if (combinedEvents.length > 0) {
+      res.status(200).json(combinedEvents);
+    } else {
+      res.status(404).json({ message: 'Aucun événement trouvé.' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des événements pour l\'administrateur :', error);
+    res.status(500).json({ message: 'Erreur interne du serveur lors de la récupération des événements.' });
+  }
+};
+

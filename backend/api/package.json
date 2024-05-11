@@ -22,6 +22,7 @@
     "onesignal": "^0.1.2",
     "onesignal-node": "^3.4.0",
     "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.3",
     "react-router-dom": "^6.23.0",
     "sequelize": "^6.37.3"
   }

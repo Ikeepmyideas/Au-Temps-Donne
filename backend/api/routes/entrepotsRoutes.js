@@ -6,6 +6,7 @@ const dentreeController = require('../controllers/denreeController');
 const authentication = require('../middleware/authentication');
 const cors = require('cors');
 const {
+  generateItinerary,
   getVolunteersDisponibles,
   addMaraude,
   getAllStockedDenrees,
@@ -34,5 +35,8 @@ router.get('/AllStocks', getAllStockedDenrees );
 
 router.get('/VolunteerAvailable', getVolunteersDisponibles);
 
-router.post('/addMaraude', addMaraude )
+router.post('/addMaraude', addMaraude );
+
+router.post('/itinerary', generateItinerary);
+
 module.exports = router;

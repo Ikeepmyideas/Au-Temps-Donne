@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const eventController = require('../controllers/eventController');
-const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const {createActivity} = require('../controllers/eventController');
 const authentication = require('../middleware/authentication');
@@ -21,11 +20,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Applying CORS policy - You can configure it as per your requirements
-router.use(cors());
+const cors = require('cors');
 
-// Authentication middleware - Uncomment if authentication is set up and required
-// router.use(authentication);
+router.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:3001','http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+    credentials: true // Allow credentials (cookies)
+  }));
 
 router.post('/addActivity', upload.single('image'), eventController.createActivity);
 router.post('/addActivityPrive', upload.single('image'), eventController.createActivityPrive);
@@ -49,6 +49,8 @@ router.delete('/formations/delete/:ID_Formation', eventController.deleteFormatio
 
 router.get('/activites/registrations/:ID_event', eventController.getRegistrations);
 router.get('/activites/registrationsBenef/:ID_event', eventController.getRegistrationsBenef);
+
+router.get('/AllActivitesAvenir', eventController.getAllEventsForAdmin);
 
 router.post('/activites/registrations', eventController.addRegistration);
 router.delete('/activites/registrations/:ID_event/volunteers/:ID_Benevole', eventController.removeVolunteerFromEvent);
