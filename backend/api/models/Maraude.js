@@ -30,7 +30,7 @@ const Maraude = sequelize.define('maraude', {
   ChauffeurID: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'Volunteer', // Ensure this matches the name used in sequelize.define() for the Benevole model
+      model: 'benevoles', // Ensure this matches the name used in sequelize.define() for the Benevole model
       key: 'id' // Assume primary key is 'ID' in the Benevole model
     }
   },
