@@ -46,6 +46,7 @@ const Maraude = sequelize.define('maraude', {
     timestamps: false
 });
 Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
+console.log(Maraude.associations);
 
 
 // Maraude.associate = function(models) {
