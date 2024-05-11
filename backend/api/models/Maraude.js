@@ -56,6 +56,6 @@ Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
     foreignKey: 'StockID',
     as: 'Stock'
   });
-};
+
 
 module.exports = Maraude;
