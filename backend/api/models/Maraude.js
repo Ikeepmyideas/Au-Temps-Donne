@@ -52,10 +52,10 @@ Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
 //     foreignKey: 'ChauffeurID',
 //     as: 'Chauffeur'
 //   });
-  Maraude.belongsTo(models.Stocks, {
-    foreignKey: 'StockID',
-    as: 'Stock'
-  });
+  // Maraude.belongsTo(models.Stocks, {
+  //   foreignKey: 'StockID',
+  //   as: 'Stock'
+  // });
 
 
 module.exports = Maraude;
