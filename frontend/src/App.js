@@ -46,8 +46,13 @@ import UpdateProfileForm from './pages/beneficiary/UpdateProfileForm';
 import UpdateAvailability from './pages/UpdateAvailabilityForm';
 import Dons from './pages/dons';
 import VolunteersF from './pages/volunteersF';
+import Loginc from './pages/loginc';
+import Dashboardc from './pages/partner/dashboardc';
+import Profilec from './pages/partner/profile';
+import ChangePasswordC from './pages/partner/changepassword';
+import Supportc from './pages/partner/contactsupport';
+import Documentsc from './pages/partner/documents';
 
-// Import styles
 import './css/home.css';
 import './css/signup.css';  
 import './css/admin.css';
@@ -73,6 +78,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signup_success" element={<SignupSuccess />} />
         <Route path="/loginb" element={<Loginb />} />
+        <Route path="/loginc" element={<Loginc />} />
         <Route path="/" element={<Home />} />
         <Route path="/dons" element={<Dons />} />
 
@@ -124,6 +130,16 @@ function App() {
             <Route path="/beneficiary/activity-avenir/:id" element={<EventAvenirB />} />
 
         </Route>
+
+        <Route element={<ProtectedRoute userType="partner"/>}>
+        <Route path="/partner/dashboard" element={<Dashboardc />} />
+        <Route path="/partner/documents" element={<Documentsc />} />
+        <Route path="/partner/Profile" element={<Profilec />} />
+        <Route path="/partner/modifypassword" element={<ChangePasswordC />} />
+        <Route path="/partner/Support" element={<Supportc />} />
+      
+        </Route>
+
 
       </Routes>
     </Router>

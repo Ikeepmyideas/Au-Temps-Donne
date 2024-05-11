@@ -167,7 +167,7 @@ function Partners() {
                         </div>
                     )}
                     <div className="table-header">
-                        <h3>Liste Partenaires</h3>
+                        <h3 className="title_dashboard">Liste Partenaires</h3>
                     </div>
                     <div className="table_bnv">
                         <table>

@@ -117,7 +117,7 @@ function List() {
                     <div className="list_type">
                         <Link to="/list" className={currentPath === '/list' ? 'active' : ''} style={{ color: currentPath === '/list' ? '#D23939' : '' }}>Bénévoles</Link>
                         <Link to="/admin/beneficiaires" className={currentPath === '/admin/beneficiaires' ? 'active link_list' : 'link_list'}>Bénéficiaires</Link>
-                        <Link to="/partners" className={currentPath === '/partners' ? 'active link_list' : 'link_list'}>Partenaires</Link>
+                        <Link to="/admin/partners" className={currentPath === '/partners' ? 'active link_list' : 'link_list'}>Partenaires</Link>
                         <Link to="/newsletter" className={currentPath === '/newsletter' ? 'active' : ''}>Newsletter</Link>
                     </div>
                     <div className="container_search">

@@ -16,6 +16,8 @@ const ProtectedRoute = ({ userType }) => {
         return <Navigate to="/loginb" replace />;
       case 'beneficiary':
         return <Navigate to="/loginb" replace />;
+      case 'partner':
+        return <Navigate to="/loginc" replace />;
       default:
         return <Navigate to="/loginb" replace />;
     }

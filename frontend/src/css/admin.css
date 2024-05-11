@@ -1244,3 +1244,27 @@ input[type="time"] {
   border-radius: 60%; 
   padding-top: 10px; 
 }
+#overlay2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: none; 
+  z-index: 1000; 
+}
+/* Style pour la pop-up */
+
+#popupForm2 {
+  position: fixed; 
+  top: 50%;
+  left: 50%; 
+  transform: translate(-50%, -50%);
+  background-color: white; 
+  padding: 20px;
+  z-index: 1001; 
+  display: none; 
+  border-radius: 8px;
+
+}
