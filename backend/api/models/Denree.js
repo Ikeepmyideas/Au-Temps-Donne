@@ -40,7 +40,7 @@ const Denree = sequelize.define("denrees", {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: "maraudes",
+      model: "Maraude",
       key: "ID"
     }
   },
