@@ -3,13 +3,31 @@ const sequelize = require('../config/db');
 const Lieu = require('./Lieu');
 
 const Partenaire = sequelize.define('commercants_partenaire', {
-    ID_Commercant: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-    nom: { type: Sequelize.STRING(100), allowNull: false },
-    email: { type: Sequelize.STRING(100), allowNull: false },
-    password: { type: Sequelize.STRING(255), allowNull: false }, 
-    telephone: { type: Sequelize.STRING(10) },
-    ID_Adresse: { type: Sequelize.INTEGER }
+    ID_Commercant: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    nom: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    email: {
+        type: Sequelize.STRING
+    },
+
+    password: {
+        type: Sequelize.STRING
+    },
+
+    adresse: { type: Sequelize.STRING },
+
+    ville: { type: Sequelize.STRING },
+
+    code_postal: { type: Sequelize.STRING(5) }
 }, {
+
+
     tableName: 'commercants_partenaire', 
     timestamps: false
 });

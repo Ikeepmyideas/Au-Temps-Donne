@@ -273,6 +273,22 @@ async function sendWelcomeEmail(email, name, password) {
       console.error('Erreur lors de l\'envoi de l\'email de bienvenue:', error);
   }
 }
+async function sendWelcomeEmailPartenaire(email, name, organization) {
+  const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: 'Bienvenue dans notre communauté de partenaires !',
+      text: `Bonjour ${name},\n\nNous vous souhaitons la bienvenue en tant que partenaire de notre communauté. Votre soutien est essentiel pour notre mission. Voici vos informations de connexion :\n\nEmail : ${email}\nOrganisation : ${organization}\n\nNous sommes impatients de collaborer avec vous pour atteindre nos objectifs communs.\n\nBienvenue dans notre communauté de partenaires !`,
+      html: `<p>Bonjour <strong>${name}</strong>,</p><p>Nous vous souhaitons la bienvenue en tant que partenaire de notre communauté. Votre soutien est essentiel pour notre mission. Voici vos informations de connexion :</p><ul><li>Email : ${email}</li><li>Organisation : ${organization}</li></ul><p>Nous sommes impatients de collaborer avec vous pour atteindre nos objectifs communs.</p><p>Bienvenue dans notre communauté de partenaires !</p>`,
+  };
+
+  try {
+      await transporter.sendMail(mailOptions);
+      console.log('Email de bienvenue pour le partenaire envoyé avec succès');
+  } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de bienvenue pour le partenaire:', error);
+  }
+}
 
 exports.addBeneficiary = async (req, res) => {
   try {
@@ -736,49 +752,41 @@ exports.getAllBlogs = async (req, res) => {
 };
 
 exports.addPartenaire = async (req, res) => {
-  const { nom, email, telephone, adresseComplete, ville, code_postal } = req.body;
-
-  // Generate a random 12-digit password
-  const generatePassword = () => {
-      return Array.from(crypto.randomFillSync(new Uint8Array(6))).map((item) => {
-          return Math.floor(item / 25.6); // Scale to 0-9
-      }).join('');
-  };
-
-  const password = generatePassword();
-
-  const t = await sequelize.transaction();
+  const { nom, email, adresseComplete, ville, code_postal } = req.body;
 
   try {
-      // Rechercher ou créer un lieu (adresse) en fonction des critères
-      const [lieu, created] = await Lieu.findOrCreate({
-          where: { adresse: adresseComplete, ville, code_postal },
-          defaults: { adresse: adresseComplete, ville, code_postal },
-          transaction: t
-      });
+    const generatePassword = () => {
+    
+    const passwordLength = 12;
+      return crypto.randomBytes(passwordLength).toString('hex').slice(0, passwordLength);
+    };
 
-      await Partenaire.create({
+      const password = generatePassword();
+
+      const hashedPassword = await argon2.hash(password);
+
+      const existingPartner = await Partenaire.findOne({ where: { email } });
+      if (existingPartner) {
+          return res.status(409).json({ message: "il existe déjà" });
+      }
+  
+      const partenaire = await Partenaire.create({
           nom,
           email,
-          telephone,
-          password, 
-          id_Adresse: lieu.id_lieu, // Associer l'ID du lieu au partenaire
-      }, { transaction: t });
+          password: hashedPassword,
+          adresse: adresseComplete,
+          ville,
+          code_postal
+      });
 
-      // Valider la transaction
-      await t.commit();
+      await sendWelcomeEmailPartenaire(email, nom, password);
 
-      // Répondre avec le statut 201 (Created) et un message de succès
-      res.status(201).send('Partenaire ajouté avec succès.');
-  } catch (error) {
-      // En cas d'erreur, annuler la transaction
-      await t.rollback();
-      console.error('Erreur lors de l\'ajout de Partenaire : ', error);
-      // Répondre avec le statut 500 (Internal Server Error) et un message d'erreur
-      res.status(500).send('Erreur lors de l\'ajout de Partenaire : ' + error.message);
+      res.status(201).json({ message: "partenaire créé avec succès", partenaire });
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du partenaire : ', error);
+      res.status(500).send('Erreur lors de l\'ajout du partenaire : ' + error.message);
   }
 };
-
 exports.deletePartenaire = async (req, res) => {
   const { email } = req.body; 
   const t = await sequelize.transaction();

@@ -1,14 +1,38 @@
 const express = require('express');
 const router = express.Router();
-const entrepotController = require('../controllers/entrepotController');
+
+const dentreeController = require('../controllers/denreeController');
+
 const authentication = require('../middleware/authentication');
 const cors = require('cors');
+const {
+  getVolunteersDisponibles,
+  addMaraude,
+  getAllStockedDenrees,
+    createEntrepot,
+    getAllEntrepots,
+    updateEntrepot,
+    deleteEntrepot
+} = require('../controllers/entrepotController');
 
 router.use(cors({
     origin: ['http://localhost:3000','http://localhost:3001', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
     credentials: true 
   }));
 
-router.post('/login', entrepotController.loginAdmin);
+router.post('/addEntrepot',createEntrepot );
 
+router.get('/AllEntrepots',getAllEntrepots );
+
+router.put('/updateEntrepot/:id',updateEntrepot );
+
+router.delete('/deleteEntrepot/:id',deleteEntrepot );
+
+
+router.get('/AllDenrees',dentreeController.getAllDenrees );
+router.get('/AllStocks', getAllStockedDenrees );
+
+router.get('/VolunteerAvailable', getVolunteersDisponibles);
+
+router.post('/addMaraude', addMaraude )
 module.exports = router;

@@ -1,10 +1,14 @@
 const Denree = require('../models/Denree');
+const Partenaire = require("../models/Partenaire");
 
 // Controller functions for denrees
 
 exports.getAllDenrees = async (req, res) => {
   try {
-    const denrees = await Denree.findAll();
+    const denrees = await Denree.findAll({
+      include: [{ model: Partenaire, as: 'commercant', attributes: ['nom'] }]
+    });
+
     res.json(denrees);
   } catch (error) {
     console.error(error);
