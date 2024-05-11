@@ -39,10 +39,6 @@ const Denree = sequelize.define("denrees", {
   id_maraude: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    references: {
-      model: "Maraude",
-      key: "ID"
-    }
   },
     Date_ajout: {
     type: DataTypes.DATE,
