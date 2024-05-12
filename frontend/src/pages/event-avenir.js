@@ -15,7 +15,7 @@ function Event() {
     useEffect(() => {
         async function fetchUserData() {
             try {
-                const response = await fetch('http://localhost:8000/api/volunteer/userinfo', {
+                const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -42,14 +42,14 @@ function Event() {
                     setErrorMessage('');
 
                     if (filter === 'Activités') {
-                        response = await axios.get(`http://127.0.0.1:8000/api/volunteer/activities/${userInfo.id}`);
+                        response = await axios.get(`https://au-temps-donne-api.onrender.com/api/volunteer/activities/${userInfo.id}`);
                     } else if (filter === 'ActivitésP') {
-                        response = await axios.get(`http://127.0.0.1:8000/api/volunteer/activities-prv/${userInfo.id}`);
+                        response = await axios.get(`https://au-temps-donne-api.onrender.com/api/volunteer/activities-prv/${userInfo.id}`);
                     } else if (filter === 'all') {
-                        response = await axios.get(`http://127.0.0.1:8000/api/volunteer/activities-all/${userInfo.id}`);
+                        response = await axios.get(`https://au-temps-donne-api.onrender.com/api/volunteer/activities-all/${userInfo.id}`);
                     }
                     else if (filter === 'formations') {
-                        response = await axios.get(`http://127.0.0.1:8000/api/volunteer/formations/${userInfo.id}`);
+                        response = await axios.get(`https://au-temps-donne-api.onrender.com/api/volunteer/formations/${userInfo.id}`);
                     }
 
                     if (response && response.status === 200) {
