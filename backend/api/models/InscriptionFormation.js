@@ -22,6 +22,11 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
   id_benevole: {
     type: DataTypes.INTEGER,
     allowNull: false
+    references: {
+      model: benevoles,
+      key: "id",
+      unique: true
+    }
   },
   date_inscription: {
     type: DataTypes.DATE,
@@ -35,7 +40,7 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
 Volunteer.hasMany(InscriptionFormation, { foreignKey: 'id_benevole' });
 InscriptionFormation.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
 
-//InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'Formation' });
-//Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
+InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'Formation' });
+Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
 
 module.exports = InscriptionFormation;
