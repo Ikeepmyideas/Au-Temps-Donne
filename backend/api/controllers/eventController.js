@@ -21,7 +21,7 @@ const Service = require('../models/Service');
 const Blog = require('../models/Blog');
 const EvenementBenevole = require('../models/EvenementBenevole');
 const EvenementBeneficiaire = require('../models/EvenementBeneficiaire');
-
+const fs = require('fs');
 const RegisterF = require('../models/InscriptionFormation');
 const Disponibilite = require('../models/Disponibilite');
 
@@ -334,6 +334,13 @@ exports.createActivity = async (req, res) => {
       await t.rollback();
       return res.status(400).json({ error: 'An activity with the same start and end times already exists.' });
     }
+
+
+  // Get the current working directory
+    const currentDirectory = process.cwd();
+
+    console.log("Current working directory:", currentDirectory);
+
 
     // Handle file upload
     let imageUrl = ""; // Default image path
