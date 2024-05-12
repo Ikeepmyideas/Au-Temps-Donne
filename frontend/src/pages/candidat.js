@@ -40,9 +40,9 @@ const Candidat = () => {
           try {
             let url;
             if (userType === 'volunteer') {
-              url = 'http://localhost:8000/api/volunteer/userinfo';
+              url = 'https://au-temps-donne-api.onrender.com/api/volunteer/userinfo';
             } else if (userType === 'beneficiary') {
-              url = 'http://localhost:8000/api/beneficiary/userinfo';
+              url = 'https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo';
             } else {
               console.error('Invalid user type');
               return;
