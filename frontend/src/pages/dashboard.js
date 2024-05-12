@@ -12,7 +12,7 @@ function Dashboard() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch('http://localhost:8000/api/admin/all/latest');
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/all/latest');
         if (response.ok) {
           const data = await response.json();
           console.log('Données des bénévoles et bénéficiaires récupérées:', data);
@@ -27,7 +27,7 @@ function Dashboard() {
 
     async function fetchUpcomingEvents() {
       try {
-        const response = await fetch('http://localhost:8000/api/event/AllActivitesAvenir', {
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/event/AllActivitesAvenir', {
           method: 'GET',
           credentials: 'include'
         });
