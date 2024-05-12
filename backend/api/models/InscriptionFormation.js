@@ -34,6 +34,6 @@ Volunteer.hasMany(InscriptionFormation, { foreignKey: 'id_benevole' });
 InscriptionFormation.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
 
 //InscriptionFormation.belongsTo(Formation, { foreignKey: 'ID_Formation', as: 'formation' });
-Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
+//Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
 
 module.exports = InscriptionFormation;
