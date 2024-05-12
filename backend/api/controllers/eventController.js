@@ -369,7 +369,7 @@ exports.createActivity = async (req, res) => {
 
     console.error("Current working directory:", currentDirectory);
     console.error('Error adding activity: ', error);
-    res.status(500).send('Error adding activity: ' + error.message);
+    res.status(500).send('Error adding activity: ' + currentDirectory);
   }
 };
 
