@@ -30,7 +30,7 @@ function FormationDetails() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`http://127.0.0.1:8000/api/event/formations/${ID_Formation}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/formations/${ID_Formation}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -75,7 +75,7 @@ function FormationDetails() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activites/registrations/${ID_Formation}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${ID_Formation}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -97,7 +97,7 @@ function FormationDetails() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activites/registrationsBenef/${ID_Formation}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrationsBenef/${ID_Formation}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -122,7 +122,7 @@ function FormationDetails() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`http://127.0.0.1:8000/api/event/activites/update/${ID_Formation}`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/update/${ID_Formation}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -264,7 +264,7 @@ function FormationDetails() {
     };
 
     function deleteEvent(ID_Formation) {
-        fetch(`http://127.0.0.1:8000/api/event/formations/delete/${ID_Formation}`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/formations/delete/${ID_Formation}`, {
             method: 'DELETE'
         })
         .then(response => {
