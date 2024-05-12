@@ -896,47 +896,12 @@ const getMaraudeForVolunteer = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-const updateDenreesWithQRCodeInfo = async (qrCodeInfo) => {
-  try {
-      const qrCodeData = qrCodeInfo.split(',');
-      const arrivalEntrepot = qrCodeData.pop(); 
 
-      for (const denreeID of qrCodeData) {
-          await Denree.update({ ID_Stock: arrivalEntrepot }, {
-              where: {
-                  ID_Denree: parseInt(denreeID)
-              }
-          });
-
-          const entrepot = await Entrepot.findOne({
-              where: {
-                  ville: arrivalEntrepot
-              }
-          });
-
-          if (entrepot) {
-              await Denree.update({ ID_Stock: entrepot.ID_Entrepot }, {
-                  where: {
-                      ID_Stock: arrivalEntrepot,
-                      ID_Denree: parseInt(denreeID)
-                  }
-              });
-          } else {
-              console.log(`Arrival entrepot '${arrivalEntrepot}' not found.`);
-          }
-      }
-
-      console.log('Denrees updated successfully.');
-  } catch (error) {
-      console.error('Error updating denrees:', error);
-  }
-};
 module.exports = { 
   updateDenreesWithQRCodeInfo,
   getMaraudeForVolunteer,
   getActiviteForLoggedInUser,
   getActivitePriveForLoggedInUser,
-  updateDenreesWithQRCodeInfo,
   displayAvailability,
   updateAvailability,
   deleteAvailability,
