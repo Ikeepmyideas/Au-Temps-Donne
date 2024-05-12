@@ -10,7 +10,7 @@ function Dashboardb() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch('http://localhost:8000/api/beneficiary/userinfo', {
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
           method: 'GET',
           credentials: 'include'
         });
@@ -31,7 +31,7 @@ function Dashboardb() {
     async function fetchEvents() {
       if (userInfo) {
         try {
-          const response = await fetch(`http://127.0.0.1:8000/api/beneficiary/activities-all/${userInfo.id}`);
+          const response = await fetch(`https://au-temps-donne-api.onrender.com/api/beneficiary/activities-all/${userInfo.id}`);
           if (response.ok) {
             const eventData = await response.json();
             setEvents(eventData);
