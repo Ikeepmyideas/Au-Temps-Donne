@@ -13,7 +13,7 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      model: "Formation",
+      model: "formations", // Corrected reference to the table name
       key: "ID_Formation"
     }
   },
@@ -33,7 +33,7 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
 Volunteer.hasMany(InscriptionFormation, { foreignKey: 'id_benevole' });
 InscriptionFormation.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
 
-InscriptionFormation.belongsTo(Formation, { foreignKey: 'ID_Formation', as: 'formation' });
+InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'formation' }); // Corrected foreign key
 Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
 
 module.exports = InscriptionFormation;
