@@ -7,6 +7,7 @@ const Formation = sequelize.define('formation', {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
+    unique: true
   },
   titre: { 
     type: DataTypes.STRING, 
