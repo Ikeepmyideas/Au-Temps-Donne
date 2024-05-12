@@ -10,7 +10,7 @@ const Formation = sequelize.define('formations', {
   date_fin: { type: Sequelize.DATE },
   heure_debut: { type: Sequelize.TIME },
   heure_fin: { type: Sequelize.TIME },
-  id_lieu: {type: Sequelize .INTEGER}
+  id_lieu: { type: Sequelize.INTEGER, allowNull: false }
 }, {
   timestamps: false
 });
