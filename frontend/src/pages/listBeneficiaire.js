@@ -21,7 +21,7 @@ function BeneficiaryList() {
 
 
     useEffect(() => {
-         fetch('http://localhost:8000/api/admin/beneficiaires')
+         fetch('https://au-temps-donne-api.onrender.com/api/admin/beneficiaires')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -51,7 +51,7 @@ function BeneficiaryList() {
 
     const confirmDeletion = (email) => {
         if (window.confirm('Are you sure you want to delete this beneficiary?')) {
-            fetch(`http://localhost:8000/api/admin/beneficiaires/delete`, {
+            fetch(`https://au-temps-donne-api.onrender.com/api/admin/beneficiaires/delete`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ function BeneficiaryList() {
             email
         };
 
-        fetch('http://localhost:8000/api/admin/addBeneficiary', {
+        fetch('https://au-temps-donne-api.onrender.com/api/admin/addBeneficiary', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
