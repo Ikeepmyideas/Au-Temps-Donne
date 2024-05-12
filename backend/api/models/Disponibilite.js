@@ -13,7 +13,7 @@ const Disponibilite = sequelize.define('disponibilite', {
         allowNull: false,
         references: {        
             model: Volunteer,
-            key: 'id_benevole' 
+            key: 'id' 
         }
     },
     jour: {
