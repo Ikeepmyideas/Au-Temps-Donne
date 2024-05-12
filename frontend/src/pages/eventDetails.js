@@ -30,7 +30,7 @@ function EventDetails() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activites/${eventId}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -75,7 +75,7 @@ function EventDetails() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activites/registrations/${eventId}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -97,7 +97,7 @@ function EventDetails() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activites/registrationsBenef/${eventId}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrationsBenef/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -122,7 +122,7 @@ function EventDetails() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`http://127.0.0.1:8000/api/event/activites/update/${eventId}`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/update/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ function EventDetails() {
         doc.save('details_evenement_participants.pdf');
     };
     function deleteEvent(eventId) {
-        fetch(`http://127.0.0.1:8000/api/event/activites/delete/${eventId}`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/delete/${eventId}`, {
             method: 'DELETE'
         })
         .then(response => {
