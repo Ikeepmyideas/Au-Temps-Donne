@@ -8,7 +8,7 @@ const pgClient = new Client({
 pgClient.connect();
 
 // Read SQL file
-const sqlFilePath = 'au_temps_donne.sql';
+const sqlFilePath = 'pa.sql';
 const sql = fs.readFileSync(sqlFilePath, 'utf8');
 
 // Execute SQL commands
