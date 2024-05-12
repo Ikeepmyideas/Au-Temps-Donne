@@ -12,7 +12,7 @@ function Status() {
 
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/admin/all') 
+        fetch('https://au-temps-donne-api.onrender.com/api/admin/all') 
             .then(response => response.json())
             .then(fetchedData => {
                 console.log('Données des bénévoles et bénéficiaires récupérées:', fetchedData);
@@ -23,7 +23,7 @@ function Status() {
 
     const accept = async (email, type) => {
         const newStatus = 'accepté';
-        const url = type === 'Benevole' ? 'http://localhost:8000/api/admin/volunteers/update-status' : 'http://localhost:8000/api/admin/beneficiaires/update-status';
+        const url = type === 'Benevole' ? 'https://au-temps-donne-api.onrender.com/api/admin/volunteers/update-status' : 'https://au-temps-donne-api.onrender.com/api/admin/beneficiaires/update-status';
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -46,7 +46,7 @@ function Status() {
 
     const reject = async (email, type) => {
         const newStatus = 'refusé';
-        const url = type === 'Benevole' ? 'http://localhost:8000/api/admin/volunteers/update-status' : 'http://localhost:8000/api/admin/beneficiaires/update-status';
+        const url = type === 'Benevole' ? 'https://au-temps-donne-api.onrender.com/api/admin/volunteers/update-status' : 'https://au-temps-donne-api.onrender.com/api/admin/beneficiaires/update-status';
         try {
             const response = await fetch(url, {
                 method: 'POST',
