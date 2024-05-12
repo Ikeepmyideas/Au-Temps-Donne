@@ -13,7 +13,7 @@ function InfoUser() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/admin/infosUser/${typePath}/${email}`);
+                const response = await fetch(`https://au-temps-donne-api.onrender.com/api/admin/infosUser/${typePath}/${email}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch user data');
                 }
