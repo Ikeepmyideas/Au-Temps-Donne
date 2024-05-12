@@ -29,7 +29,7 @@ function Event() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/partenaire/allProducts', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/allProducts', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ function Event() {
 
     const fetchUser = async () => {
         try{
-            const res = await fetch('http://localhost:8000/api/partenaire/getMe', {
+            const res = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/getMe', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ function Event() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:8000/api/partenaire/addProduct', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/addProduct', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ function Event() {
     
         try {
             console.log("LOLLLLLL : " + selectedProduct.ID_Denree);
-            const response = await fetch(`http://localhost:8000/api/partenaire/denree/${selectedProduct.ID_Denree}/updateProduct`, {
+            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/partenaire/denree/${selectedProduct.ID_Denree}/updateProduct`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ function Event() {
 
     const handleDelete = async (productId) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/partenaire/denree/${productId}/deleteProduct`, {
+            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/partenaire/denree/${productId}/deleteProduct`, {
                 method: 'DELETE',                
                 headers: {
                     'Content-Type': 'application/json',
