@@ -55,7 +55,7 @@ function Signup() {
 
     const fetchServices = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/admin/services', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/services', {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' },
             });
@@ -81,7 +81,7 @@ function Signup() {
         else {
             try {
                 const formDataToSend = createFormData();
-                const response = await fetch(`http://127.0.0.1:8000/api/${role === 'beneficiary' ? 'beneficiary/registerBeneficiary' : 'volunteer/registerVolunteer'}`, {
+                const response = await fetch(`https://au-temps-donne-api.onrender.com/api/${role === 'beneficiary' ? 'beneficiary/registerBeneficiary' : 'volunteer/registerVolunteer'}`, {
                     method: 'POST',
                     body: formDataToSend,
                 });
