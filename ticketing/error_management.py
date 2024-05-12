@@ -5,7 +5,7 @@ from mysql.connector import Error
 import configparser
 from tkinter import ttk 
 from PIL import Image, ImageTk
-import pyttsx3 
+import pyttsx3
 
 
 
@@ -30,20 +30,34 @@ def connect():
         print(f'Error connecting to database: {str(e)}')
         raise
 
+
+import argon2
+
 def authenticate(email, password):
     conn = connect()
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM administrateurs WHERE email = %s AND mot_de_passe = %s", (email, password))
+            cursor.execute("SELECT id, mot_de_passe FROM administrateurs WHERE email = %s", (email,))
             admin = cursor.fetchone()
             if admin:
-                return True, admin[0] 
+                stored_hash = admin[1] 
+                print("Fetched hashed password from the database:", stored_hash)
+                print("Password provided for authentication:", password)
+                
+                if argon2.PasswordHasher().verify(stored_hash, password):
+                    print("Password verification successful.")
+                    return True, admin[0] 
+                else:
+                    print("Password verification failed.")
+            else:
+                print("Admin with email", email, "not found.")
         except Error as e:
             print(f'Error during authentication: {str(e)}')
         finally:
             conn.close()
     return False, None
+
 
 def create_table_problems(conn):
     try:
@@ -338,7 +352,7 @@ def add_problem_window(admin_id):
 
     type_var = tk.StringVar()
     type_var.set("other")
-    type_menu = tk.OptionMenu(window, type_var, "urgent", "other")
+    type_menu = tk.OptionMenu(window, type_var, "urgent", "normal","critique")
     type_menu.grid(row=1, column=1, padx=10, pady=5)
 
     label_admin = tk.Label(window, text="Assign to Admin:")
