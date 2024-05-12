@@ -76,6 +76,114 @@ const uploadFileToWasabi = async (file, folderName, fileName) => {
       console.error('Erreur lors de l\'envoi de l\'email de confirmation de candidature :', error.message);
     }
   };
+
+
+
+/*ANDROID STUDIO APP FUNCTIONS*/
+const loginVolunteerapp = async (req, res) => {
+  try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+          return res.status(400).json({ error: 'Email and password are required' });
+      }
+
+      const volunteer = await Volunteer.findOne({ where: { email } });
+      if (!volunteer) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      const passwordMatch = await argon2.verify(volunteer.mot_de_passe, password);
+      if (!passwordMatch) {
+          return res.status(401).json({ error: 'Invalid password' });
+      }
+
+      const token = generateToken(volunteer.id, volunteer.email);
+      const userType = "volunteer"
+
+      res.set('Authorization', `Bearer ${token}`);
+      console.log('JWT Token:', token);
+
+      res.cookie('access_token', token, {
+          httpOnly: true,
+          maxAge: 3600000, 
+          sameSite: 'none',
+          path: '/', 
+          
+      });
+
+      res.status(200).json({token}); 
+
+  } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const getUserInfoapp = async (req, res) => {
+  try {
+      const authorizationHeader = req.headers.authorization;
+  
+      if (!authorizationHeader) {
+        return res.status(401).json({ error: 'No authorization header found' });
+      }
+  
+      if (!authorizationHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Invalid authorization header format' });
+      }
+  
+      const token = authorizationHeader.substring(7);
+  
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      if (!decoded) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+
+      const volunteer = await Volunteer.findByPk(decoded.id);
+      if (!volunteer) {
+          return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      }
+
+      res.status(200).json({ volunteer });
+  } catch (error) {
+      console.error('Erreur lors de l\'obtention des informations utilisateur :', error);
+      res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+const getActivitePriveForLoggedInUser = async (req, res) => {
+  try {
+      const authorizationHeader = req.headers.authorization;
+
+      if (!authorizationHeader) {
+          return res.status(401).json({ error: 'No authorization header found' });
+      }
+
+      if (!authorizationHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ error: 'Invalid authorization header format' });
+      }
+
+      const token = authorizationHeader.substring(7);
+
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      if (!decoded) {
+          return res.status(401).json({ error: 'Invalid token' });
+      }
+
+      const userId = decoded.id;
+
+      const activites = await ActivitePrive.findAll({ where: { id_benevole: userId } });
+      
+      res.status(200).json({ activites });
+  } catch (error) {
+      console.error('Error getting activities for logged-in user:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+/*END */
+
+
+
   const generatePresignedUrlForWasabi = (bucket, key, expiresInSeconds) => {
     const params = {
       Bucket: bucket,
