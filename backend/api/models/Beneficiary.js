@@ -16,7 +16,9 @@ const Beneficiary = sequelize.define('beneficiaires', {
   statut_validation: { type: Sequelize.STRING(20) },
   genre: { type: Sequelize.STRING },
   besoin: { type: Sequelize.STRING },
-  avis_impot:{ type: Sequelize.STRING },
+  avis_impot: {
+  type: Sequelize.TEXT
+}
   date_inscription: { type: Sequelize.DATE }
 
 }, 
