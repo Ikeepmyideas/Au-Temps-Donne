@@ -24,7 +24,6 @@ const {
   loginVolunteer,getUserInfo,
   addRegistration,
   getUserInfoapp,
-  getActivitePriveForLoggedInUser,
   loginVolunteerapp,
   updateDenreesWithQRCodeInfo }
    = require('../controllers/volunteerController');
