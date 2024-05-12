@@ -38,7 +38,7 @@ function FormationsD() {
 
     const fetchEventDetails = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/event/formations/${ID_Formation}`);
+            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/event/formations/${ID_Formation}`);
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }
@@ -61,7 +61,7 @@ function FormationsD() {
     };
     const fetchEventPDetails = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/event/formations/${ID_Formation}`);
+            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/event/formations/${ID_Formation}`);
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }
@@ -106,7 +106,7 @@ function FormationsD() {
     useEffect(() => {
         async function fetchUserData() {
           try {
-            const response = await fetch('http://localhost:8000/api/volunteer/userinfo', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
               method: 'GET',
               credentials: 'include'
             });
@@ -130,7 +130,7 @@ function FormationsD() {
           if (userInfo) {
             try {
               const ID_Benevole = userInfo.id; 
-              const response = await axios.get(`http://127.0.0.1:8000/api/volunteer/formations/registrations/${ID_Formation}/${ID_Benevole}`);
+              const response = await axios.get(`https://au-temps-donne-api.onrender.com/api/volunteer/formations/registrations/${ID_Formation}/${ID_Benevole}`);
               if (response.status === 200) {
                 setShowSuccessAlert(true);
               }
@@ -150,7 +150,7 @@ function FormationsD() {
         setError(null);
 
         try {
-            const response = await axios.post(`http://127.0.0.1:8000/api/volunteer/formations/registrations/${ID_Formation}`, {
+            const response = await axios.post(`https://au-temps-donne-api.onrender.com/api/volunteer/formations/registrations/${ID_Formation}`, {
                 id_formation: ID_Formation,
                 id_benevole: benevoleId
             });
@@ -176,7 +176,7 @@ function FormationsD() {
         setError(null);
     
         try {
-            const response = await axios.delete(`http://127.0.0.1:8000/api/volunteer/formations/registrations/delete/${ID_Formation}/${benevoleId}`);
+            const response = await axios.delete(`https://au-temps-donne-api.onrender.com/api/volunteer/formations/registrations/delete/${ID_Formation}/${benevoleId}`);
     
             if (response.status === 200) {
                 setSuccess(false);
