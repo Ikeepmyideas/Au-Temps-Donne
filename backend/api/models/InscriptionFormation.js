@@ -13,7 +13,7 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      model: "formation",
+      model: "formations",
       key: "ID_Formation"
     }
   },
