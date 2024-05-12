@@ -874,5 +874,9 @@ module.exports = {
   getUserInfo, 
   registerVolunteer, 
   loginVolunteer, 
-  addRegistration 
+  addRegistration,
+  loginVolunteerapp,
+  getUserInfoapp,
+  getActivitePriveForLoggedInUser
+  
 };
