@@ -33,7 +33,7 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
 Volunteer.hasMany(InscriptionFormation, { foreignKey: 'id_benevole' });
 InscriptionFormation.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
 
-InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'Formation' });
-Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
+//InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'Formation' });
+//Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
 
 module.exports = InscriptionFormation;
