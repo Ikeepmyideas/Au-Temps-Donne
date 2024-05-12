@@ -20,14 +20,14 @@ const YourComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const partnersResponse = await axios.get('http://localhost:8000/api/admin/partners');
+        const partnersResponse = await axios.get('https://au-temps-donne-api.onrender.com/api/admin/partners');
         setPartners(partnersResponse.data.map(partner => ({
           ...partner,
           adresse: '',
           ville: ''
         })));
 
-        const entrepotsResponse = await axios.get('http://localhost:8000/api/admin/entrepots');
+        const entrepotsResponse = await axios.get('https://au-temps-donne-api.onrender.com/api/admin/entrepots');
         setEntrepots(entrepotsResponse.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -47,7 +47,7 @@ const YourComponent = () => {
 
   const handlePartnerChange = async (partnerId) => {
     try {
-      const lieuResponse = await axios.get(`http://localhost:8000/api/admin/partner/${partnerId}/lieu`);
+      const lieuResponse = await axios.get(`https://au-temps-donne-api.onrender.com/api/admin/partner/${partnerId}/lieu`);
       const { adresse, ville, latitude, longitude } = lieuResponse.data;
       const selectedPartner = partners.find(partner => partner.id === parseInt(partnerId));
       const updatedSelectedPartners = [...selectedPartners, { ...selectedPartner, adresse, ville, latitude, longitude }];
@@ -74,7 +74,7 @@ const YourComponent = () => {
 
 
     try {
-      const response = await axios.post('http://localhost:8000/api/admin/generate-itinerary', { addresses: allAddresses, date_circuit: selectedDate, selectedPartners: selectedPartners }); // Send selected partners in the request body
+      const response = await axios.post('https://au-temps-donne-api.onrender.com/api/admin/generate-itinerary', { addresses: allAddresses, date_circuit: selectedDate, selectedPartners: selectedPartners }); // Send selected partners in the request body
       const { routeCoordinates, startAddress, destinationAddress, estimatedTime, estimatedCarTime } = response.data;
       
       setCarTime(estimatedCarTime);
