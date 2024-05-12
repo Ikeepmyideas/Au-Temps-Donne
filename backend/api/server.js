@@ -21,17 +21,14 @@ app.use(cookieParser());
 
 // Middleware setup
 app.use(bodyParser.json());
-app.use(cookieParser());
 
 require('dotenv').config();
 
 const cors = require('cors');
 const corsOptions = {
-  origin: [' https://au-temps-donne-frontend.onrender.com/','http://localhost:3001', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+  origin: ['https://au-temps-donne-frontend.onrender.com', 'http://localhost:3001', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'],
   credentials: true,
 };
-
-
 
 // Enable CORS with the specified options
 app.use(cors(corsOptions));
@@ -40,24 +37,6 @@ const port = process.env.PORT || 8000;
 const logger = require('./middleware/logger');
 
 app.use(logger);
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); 
-  res.header("Access-Control-Allow-Origin", "https://au-temps-donne-frontend.onrender.com");
-  res.header("Access-Control-Allow-Origin", "http://10.0.2.2:8000"); 
-  res.header("Access-Control-Allow-Origin", "http://10.0.2.3:8000"); 
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
-    return res.status(200).json({});
-  }
-  next();
-});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -70,13 +49,11 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/event', eventRoutes);
 app.use('/api/entrepot', entrepotsRoutes);
 
-
 app.get('/debug', (req, res) => {
   console.log('Request Headers - Cookie:', req.headers.cookie);
   console.log('Parsed Cookies:', req.cookies);
   res.send('Check the server console for cookie information.');
 });
-
 
 app.get('/api/data', (req, res) => {
   try {
@@ -87,6 +64,7 @@ app.get('/api/data', (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({
@@ -94,6 +72,7 @@ app.use((err, req, res, next) => {
       message: err.message
   });
 });
+
 app.use((req, res, next) => {
   const error = new Error('Not found');
   error.status = 404;
