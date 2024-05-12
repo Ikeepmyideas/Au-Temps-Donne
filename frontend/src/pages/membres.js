@@ -25,6 +25,7 @@ function MembreList() {
   const [showSuccessAlertAdd, setShowSuccessAlertAdd] = useState(false);
 
   const handleShowNewForm = () => {
+    
     setShowFormType('new');
   };
 
@@ -35,7 +36,7 @@ function MembreList() {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/admin/admins');
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/admins');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -49,7 +50,7 @@ function MembreList() {
 
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/admin/volunteersAdmin');
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/volunteersAdmin');
         if (!response.ok) {
           throw new Error('Réponse réseau non OK');
         }
@@ -87,7 +88,7 @@ function MembreList() {
         prenom,
         email
       };
-      const response = await fetch('http://localhost:8000/api/admin/addAdmin', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/addAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
