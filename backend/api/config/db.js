@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { Client } = require('pg');
-const connectionString = process.env.DATABASE_URL_POSTGRE;
+const connectionString = process.env.DATABASE_URL;;
 const pgClient = new Client({
   connectionString: connectionString,
 });
