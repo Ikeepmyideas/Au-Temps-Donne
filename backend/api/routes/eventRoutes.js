@@ -7,6 +7,7 @@ const authentication = require('../middleware/authentication');
 
 const multer = require('multer');
 
+const fs = require('fs');
 
 const path = require('path');
 
