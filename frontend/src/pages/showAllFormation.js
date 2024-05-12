@@ -13,7 +13,7 @@ function Formation() {
     const currentPath = location.pathname;
     const [events, setEvents] = useState([]);
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/event/formations')
+        fetch('https://au-temps-donne-api.onrender.com/api/event/formations')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
