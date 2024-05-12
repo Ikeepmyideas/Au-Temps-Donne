@@ -19,7 +19,7 @@ function ParticipantsList() {
         let isMounted = true;
 
         const fetchParticipants = () => {
-            fetch(`http://127.0.0.1:8000/api/event/activites/registrations/${eventId}`)
+            fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${eventId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch participants');
@@ -42,7 +42,7 @@ function ParticipantsList() {
         };
 
         const fetchEventDetails = () => {
-            fetch(`http://127.0.0.1:8000/api/event/activites/${eventId}`)
+            fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/${eventId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch event details');
@@ -70,7 +70,7 @@ function ParticipantsList() {
 
         
     const handleDelete = (ID_Benevole) => {
-        fetch(`http://127.0.0.1:8000/api/event/activites/registrations/${eventId}/volunteers/${ID_Benevole}`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${eventId}/volunteers/${ID_Benevole}`, {
             method: 'DELETE'
         })
         .then(response => {
@@ -95,7 +95,7 @@ function ParticipantsList() {
 
         const eventMessage = `Rappel pour l'événement "${eventDetails.titre}" le ${eventDetails.date_activite} à ${eventDetails.heure_debut}: N'oubliez pas votre participation.`;
 
-        fetch(`http://127.0.0.1:8000/api/event/notifications`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/notifications`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
