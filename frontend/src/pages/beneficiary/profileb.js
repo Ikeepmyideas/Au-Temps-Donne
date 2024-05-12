@@ -9,7 +9,7 @@ function Profileb() {
 
   const logout = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/beneficiary/logout', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
         method: 'GET',
         credentials: 'include'
       });
@@ -28,7 +28,7 @@ function Profileb() {
     async function fetchData() {
       try {
         // Try fetching beneficiary info
-        const beneficiaryInfoResponse = await fetch('http://localhost:8000/api/beneficiary/userinfo', {
+        const beneficiaryInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
           method: 'GET',
           credentials: 'include'
         });
@@ -38,7 +38,7 @@ function Profileb() {
           setUserInfo(beneficiaryData.beneficiary);
         } else {
           // If fetching beneficiary info fails, try fetching volunteer info
-          const volunteerInfoResponse = await fetch('http://localhost:8000/api/volunteer/userinfo', {
+          const volunteerInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
             method: 'GET',
             credentials: 'include'
           });
