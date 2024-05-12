@@ -20,7 +20,7 @@ function UpdateAvailabilityForm() {
     e.preventDefault();
     try {
       // Attempt to update availability
-      const updateResponse = await fetch(`http://localhost:8000/api/volunteer/availability`, {
+      const updateResponse = await fetch(`https://au-temps-donne-api.onrender.com/api/volunteer/availability`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ function UpdateAvailabilityForm() {
       } else {
         console.error('Failed to update availability:', updateResponse.statusText);
         // Attempt to create availability if update fails
-        const createResponse = await fetch('http://localhost:8000/api/volunteer/add-to-availability', {
+        const createResponse = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/add-to-availability', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
