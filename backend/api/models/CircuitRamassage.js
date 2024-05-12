@@ -1,57 +1,27 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Volunteer = require('./Volunteer');
-const Entrepot = require('./Entrepot');
-const Denree = require('./Denree');
-const Partenaire = require('./Partenaire');
 
-
-const Collecte = sequelize.define("collecte", {
-  id_collecte: {
+const CircuitRamassage = sequelize.define("circuit_ramassage", {
+  ID_Circuit: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  date_collecte: {
+  date_circuit: {
     type: DataTypes.DATE,
-    allowNull: false
-  },
-  LieuDepart: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  LieuArrivee: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  id_denree: {
-    type: DataTypes.INTEGER,
     allowNull: false
   },
   ID_Route: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: false
   },
-  
-  id_chauffeur: {
+  ID_Benevole: {
     type: DataTypes.INTEGER,
     allowNull: true
   }
 }, {
-  tableName: "collecte",
+  tableName: "circuit_ramassage",
   timestamps: false
 });
 
-
-
-Collecte.belongsTo(Volunteer, {
-  foreignKey: 'ChauffeurID',
-  as: 'Chauffeur'
-});
-
-Collecte.belongsTo(Denree, {
-  foreignKey: 'id_denree',
-  as: 'Denree'
-});
-
-module.exports = Collecte;
+module.exports = CircuitRamassage;

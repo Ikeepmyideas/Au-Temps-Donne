@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const Partenaire = require("./Partenaire");
+const Maraude = require("./Maraude");
 
 const Denree = sequelize.define("denrees", {
   ID_Denree: {
@@ -33,21 +34,25 @@ const Denree = sequelize.define("denrees", {
     allowNull: false,
     references: {
       model: "commercants_partenaire",
-      key: "id_commercant"
+      key: "ID_Commercant"
     }
   },
-  id_maraude: {
+ id_maraude: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: "maraudes",
-      key: "id_maraude"
+      model: "maraude",
+      key: "ID"
     }
   },
     Date_ajout: {
     type: DataTypes.DATE,
     allowNull: true,
   },
+statut_collecte: {
+type: DataTypes.STRING,
+allowNull: true,
+},
 
   }, {
     tableName: "denrees",
