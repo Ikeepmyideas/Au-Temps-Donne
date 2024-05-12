@@ -2,10 +2,57 @@ import React, { useEffect, useState } from 'react';
 import '../css/board.css';
 import NavMenu from './navMenu';
 import view from '../assets/voir_all.png';
-
+import { Link } from 'react-router-dom';
+import addIcon from '../assets/add.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit,faSearch , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
+import { LoadScript, GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
 function Stocks() {
   const [denrees, setDenrees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+  const [volunteers, setVolunteers] = useState([]);
+  const [entrepots, setEntrepots] = useState([]);
+  const [date_collecte, setDateDebut] = useState('');
+  const [showCollecteModal, setShowCollecteModal] = useState(false);
+
+  const fetchAvailableVolunteersForTime = async () => {
+
+    
+    const url = new URL('http://localhost:8000/api/entrepot/VolunteerAvailable');
+    const params = { date: date_collecte.split('T')[0], startTime: date_collecte.split('T')[1]};
+    url.search = new URLSearchParams(params).toString();
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Failed to fetch available volunteers');
+        }
+        const data = await response.json();
+        setVolunteers(data);
+    } catch (error) {
+        console.error('Error fetching available volunteers:', error.message);
+    }
+};
+
+const fetchEntrepots = async () => {
+  try {
+      const response = await fetch('http://localhost:8000/api/entrepot/AllEntrepots');
+      if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des entrepôts');
+      }
+      const entrepotsData = await response.json();
+      setEntrepots(entrepotsData);
+  } catch (error) {
+      console.error('Erreur lors de la récupération des entrepôts:', error.message);
+  }
+};
+useEffect(() => {
+    fetchAvailableVolunteersForTime();
+    fetchEntrepots();
+
+}, []); 
+
 
   useEffect(() => {
     const fetchDenrees = async () => {
@@ -36,6 +83,123 @@ function Stocks() {
       day: 'numeric',
     });
   };
+
+
+  const toggleCollecteModal = (denree) => {
+    setSelected(denree);
+
+    setShowCollecteModal(!showCollecteModal);
+};
+
+const CollecteModal = () => (
+  <div className="modal" style={{ display: showCollecteModal + "modal" ? 'block' : 'none' }}>
+      <div className="modal-content">
+          
+          <span className="close" onClick={toggleCollecteModal}>&times;</span>
+      
+          <h2>Ajouter une nouvelle maraude</h2>
+          <form  onSubmit={handlecollecteFormSubmit}>
+              <div className="scrollable-content">
+              <label htmlFor="date_collecte">Date:</label>
+              <input type="datetime-local" id="date_collecte" name="date_collecte" value={date_collecte} onChange={e => setDateDebut(e.target.value)} required />
+
+              <Link type="button" onClick={fetchAvailableVolunteersForTime}>
+              <FontAwesomeIcon icon={faSearch }className="square-icon" /> 
+          </Link>
+              <label htmlFor="id_chauffeur">Chauffeur:</label>
+                  <select id="id_chauffeur" name="id_chauffeur" required>
+                      <option>Séléctionner unn bénévole disponible</option>
+                      {volunteers.map((volunteer) => (
+                          <option key={volunteer.id} value={volunteer.id}>
+                              {volunteer.prenom} {volunteer.nom} {volunteer.id}
+                          </option>
+                      ))}
+                  </select>
+
+                  <br></br>
+                
+
+                  <label htmlFor="LieuDepart">Lieu de départ :</label>
+          <input
+              type="text"
+              id="LieuDepart"
+              name="LieuDepart"
+              value={
+                  selected &&
+                  `${selected.commercant.adresse}, ${selected.commercant.code_postal} ${selected.commercant.ville}`
+              }
+              required          />    
+
+
+              <label htmlFor="LieuArrivee">Lieu d'arrivée:</label>
+              <select id="LieuArrivee" name="LieuArrivee" required>
+                  <option>Séléctionner un entrepot </option>
+                  {entrepots.map((entrepot) => (
+                      <option key={entrepot.adresse} value={entrepot.adresse}>
+                          {entrepot.adresse} 
+                      </option>
+                  ))}
+              </select>
+                
+              </div>
+
+              <button type="submit">Submit</button>
+
+          </form>
+      </div>
+  </div>
+);
+const handlecollecteFormSubmit = async (event) => {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const collecteData = {
+      date_collecte: formData.get('date_collecte'),
+      LieuDepart: formData.get('LieuDepart'),
+      LieuArrivee: formData.get('LieuArrivee'),
+      id_chauffeur: formData.get('id_chauffeur'),
+      id_denree: selected.ID_Denree
+  };
+
+  try {
+      const response = await fetch('http://localhost:8000/api/entrepot/addCollecte', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(collecteData)
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to create maraude');
+      }
+
+      // La collecte a été créée avec succès
+      alert('Maraude created successfully!');
+
+      // Maintenant, déclencher la génération de l'itinéraire
+      const generateItineraryResponse = await fetch('AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(collecteData) // Envoyez les mêmes données de collecte à l'API de génération de l'itinéraire
+      });
+
+      if (generateItineraryResponse.ok) {
+          const itineraryData = await generateItineraryResponse.json();
+          console.log('Itinerary generated:', itineraryData);
+
+          // Maintenant, vous pouvez traiter les données de l'itinéraire comme nécessaire dans votre application front-end
+      } else {
+          throw new Error('Failed to generate itinerary');
+      }
+
+  } catch (error) {
+      console.error('Error creating maraude:', error.message);
+      alert(`Failed to create maraude: ${error.message}`);
+  }
+};
+
 
   return (
     <body className="adminbody">
@@ -71,7 +235,18 @@ function Stocks() {
           <td>{denree.commercant && denree.commercant.nom}</td>
           <td className={denree.ID_Stock === null ? 'red-text' : 'green-text'}>
             {denree.ID_Stock === null ? 'Non collecté' : 'Collecté'}
-          </td>        </tr>
+          </td>   
+          <td>
+       
+            <button  id="collecte"    onClick={() => toggleCollecteModal(denree)}>
+              Ajouter 
+              </button>
+              
+              
+              {showCollecteModal && <CollecteModal selectedStock={selected}/>}
+</td>     
+          
+          </tr>
       ))}
     </tbody>
   </table>

@@ -8,7 +8,7 @@ import Entrepots from './pages/entrepots'
 
 import WebFont from 'webfontloader'; 
 import ProtectedRoute from './pages/hooks/authToken';
-
+import Map from './pages/map';
 // Initialize WebFont
 WebFont.load({
   google: {
@@ -26,6 +26,8 @@ function App() {
           <Route path="/entrepot/dashboard" element={<DashboardPage />} />
           <Route path="/entrepot/stocks" element={<Donrees />} />
           <Route path="/entrepot/entrepots" element={<Entrepots />} />
+          <Route path="/entrepot/map" element={<Map />} />
+
         </Route>
       </Routes>
     </Router>

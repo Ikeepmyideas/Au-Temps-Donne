@@ -4,8 +4,11 @@ import NavMenu from './navMenu';
 import { Link } from 'react-router-dom';
 import addIcon from '../assets/add.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
-
+import { faEdit,faSearch , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
+import { LoadScript, GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
+import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 function List() {
     const [entrepots, setEntrepots] = useState([]);
     const [stocks, setStocks] = useState([]);
@@ -15,6 +18,19 @@ function List() {
     const [showMaraudeModal, setShowMaraudeModal] = useState(false);
     const [volunteers, setVolunteers] = useState([]);
     const [dateDebut, setDateDebut] = useState('');
+    const [selectedStockId, setSelectedStockId] = useState(null);
+    const [itineraryData, setItineraryData] = useState(null);
+    const [showMap, setShowMap] = useState(false);
+
+    const [selectedStock, setSelectedStock] = useState(null);
+
+
+const toggleMaraudeModal = (stock) => {
+    setSelectedStock(stock);
+
+    setShowMaraudeModal(!showMaraudeModal);
+};
+
     
     const fetchAvailableVolunteersForTime = async () => {
 
@@ -38,12 +54,8 @@ function List() {
     
     useEffect(() => {
         fetchAvailableVolunteersForTime();
-    }, []); // Add dependencies based on when you need to refresh this data
+    }, []); 
     
-
-    const toggleMaraudeModal = () => {
-        setShowMaraudeModal(!showMaraudeModal);
-    };
 
     useEffect(() => {
         fetchEntrepots();
@@ -181,42 +193,62 @@ function List() {
     const MaraudeModal = () => (
         <div className="modal" style={{ display: showMaraudeModal + "modal" ? 'block' : 'none' }}>
             <div className="modal-content">
+                
                 <span className="close" onClick={toggleMaraudeModal}>&times;</span>
-                <h2>Create New Maraude</h2>
+            
+                <h2>Ajouter une nouvelle maraude</h2>
                 <form onSubmit={handleMaraudeFormSubmit}>
                     <div className="scrollable-content">
-                        <label htmlFor="nom">Nom:</label>
-                        <input type="text" id="nom" name="nom" required />
-    
-                        <label htmlFor="lieuDepart">Lieu de départ:</label>
-                        <input type="text" id="lieuDepart" name="lieuDepart" required />
-    
-                        <label htmlFor="lieuArrivee">Lieu d'arrivée:</label>
-                        <input type="text" id="lieuArrivee" name="lieuArrivee" required />
-    
-                        <label htmlFor="dateDebut">Date de début:</label>
-                        <input type="datetime-local" id="dateDebut" name="dateDebut" value={dateDebut} onChange={e => setDateDebut(e.target.value)} required />
+                    <label htmlFor="dateDebut">Date:</label>
+                    <input type="datetime-local" id="dateDebut" name="dateDebut" value={dateDebut} onChange={e => setDateDebut(e.target.value)} required />
 
-                        
-                        <button type="button" onClick={fetchAvailableVolunteersForTime}>Check Availability</button>
-
-                        <label htmlFor="description">Description:</label>
-                        <textarea id="description" name="description" required />
-    
-                        <label htmlFor="chauffeurID">Chauffeur:</label>
+                    <Link type="button" onClick={fetchAvailableVolunteersForTime}>
+                    <FontAwesomeIcon icon={faSearch }className="square-icon" /> 
+                </Link>
+                    <label htmlFor="chauffeurID">Chauffeur:</label>
                         <select id="chauffeurID" name="chauffeurID" required>
+                            <option>Séléctionner unn bénévole disponible</option>
                             {volunteers.map((volunteer) => (
                                 <option key={volunteer.id} value={volunteer.id}>
-                                    {volunteer.prenom} {volunteer.nom}
+                                    {volunteer.prenom} {volunteer.nom} {volunteer.id}
                                 </option>
                             ))}
                         </select>
 
+                        <br></br>
+                        <label htmlFor="nom">Nom:</label>
+                        <input type="text" id="nom" name="nom" required />
     
-                        <label htmlFor="stockID">Stock ID:</label>
-                        <input type="number" id="stockID" name="stockID" required />
+                        <label htmlFor="lieuDepart">Lieu de départ :</label>
+                <input
+                    type="text"
+                    id="lieuDepart"
+                    name="lieuDepart"
+                    value={
+                        selectedStock &&
+                        `${selectedStock.entrepot.adresse}, ${selectedStock.entrepot.code_postal} ${selectedStock.entrepot.ville}`
+                    }
+                    required
+                />    
+                        <label htmlFor="lieuArrivee">Lieu d'arrivée:</label>
+                        <input type="text" id="lieuArrivee" name="lieuArrivee" required />
+    
+                      
+                        
+
+                        <label htmlFor="description">Description:</label>
+                        <textarea id="description" name="description" required />
+    
+                        
+
     
                         <button type="submit">Submit</button>
+                        {showMap && itineraryData && (
+                            <div style={{ position: 'relative', width: '100%', height: '400px' }}>
+                                <MapComponent itineraryData={itineraryData} />
+                                <button onClick={() => setShowMap(false)} style={{ position: 'absolute', top: 10, right: 10 }}>Close Map</button>
+                            </div>
+                                )}
                     </div>
                 </form>
             </div>
@@ -232,7 +264,7 @@ function List() {
             dateDebut: formData.get('dateDebut'),
             description: formData.get('description'),
             chauffeurID: formData.get('chauffeurID'),
-            stockID: formData.get('stockID')
+            stockID: selectedStock.ID_Stock,
         };
     
         try {
@@ -245,14 +277,134 @@ function List() {
             });
             if (!response.ok) throw new Error('Failed to create maraude');
             alert('Maraude created successfully!');
-            toggleMaraudeModal(); // Close modal on successful creation
+            const maraude = await response.json();
+    
+            // Assuming itinerary needs only start and end location
+            await fetchItinerary([maraudeData.lieuDepart, maraudeData.lieuArrivee]);
+    
         } catch (error) {
             console.error('Error creating maraude:', error.message);
             alert(`Failed to create maraude: ${error.message}`);
         }
     };
     
-    
+ // Fetching itinerary data
+const fetchItinerary = async (locations) => {
+    try {
+        const response = await fetch('http://localhost:8000/api/entrepot/itinerary', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ addresses: locations })
+        });
+
+        if (!response.ok) {
+            const errorDetail = await response.text();  // Assuming the error details are returned as plain text
+            throw new Error(`Failed to generate itinerary: ${errorDetail}`);
+        }
+
+        const data = await response.json();
+
+        setItineraryData(data);
+        setShowMap(true);
+
+    } catch (error) {
+        console.error('Error generating itinerary:', error);
+        alert(`Failed to generate itinerary: ${error.message}`);
+    }
+};
+
+
+const MapComponent = ({ itineraryData }) => {
+    const [response, setResponse] = useState(null);
+    const [directionsError, setDirectionsError] = useState(null);
+    const [mapLoaded, setMapLoaded] = useState(false);
+    const [map, setMap] = useState(null); // State pour stocker l'objet Google Map
+    const [center, setCenter] = useState({ lat: 48.8588443, lng: 2.2943506 }); // Centre initial
+
+    const originCoordinates = itineraryData.startAddress;
+    const destinationCoordinates = itineraryData.destinationAddress;
+
+    useEffect(() => {
+        const directionsService = window.google ? new window.google.maps.DirectionsService() : null;
+
+        if (directionsService && mapLoaded && map && originCoordinates && destinationCoordinates) {
+            const request = {
+                origin: originCoordinates,
+                destination: destinationCoordinates,
+                travelMode: 'DRIVING'
+            };
+
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    setResponse(result);
+                    setDirectionsError(null);
+                } else {
+                    setResponse(null);
+                    setDirectionsError(`Erreur de chargement de l'itinéraire: ${status}`);
+                }
+            });
+        }
+    }, [mapLoaded, map, originCoordinates, destinationCoordinates]);
+
+    const onLoad = (loadedMap) => {
+        console.log('Google Maps chargé avec succès');
+        setMap(loadedMap); 
+        setMapLoaded(true);
+    };
+
+
+const handleDownloadPDF = () => {
+    const mapContainer = document.getElementById('map-container');
+
+    if (mapContainer) {
+        html2canvas(mapContainer).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF();
+            const imgHeightMM = canvas.height * 0.264583; // Convertir en millimètres (1px = 0.264583mm)
+            const imgWidthMM = canvas.width * 0.264583; // Convertir en millimètres (1px = 0.264583mm)
+
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidthMM, imgHeightMM);
+            pdf.save('route.pdf');
+        });
+    }
+};
+    return (
+        <div id="map-container">
+        {itineraryData && (
+            <p style={{marginTop:"20px", marginBottom:"20px"}}>Temps de trajet estimé en voiture : {itineraryData.estimatedCarTime.hours} heures et {itineraryData.estimatedCarTime.minutes} minutes</p>
+        )}
+        <button onClick={handleDownloadPDF}>Télécharger en PDF</button>
+
+        <LoadScript googleMapsApiKey={'AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4'}>
+            <GoogleMap
+                mapContainerStyle={{ width: '100%', height: '100vh' }}
+                zoom={8}
+                center={center}
+                onLoad={onLoad}
+            >
+                {directionsError && <p>{directionsError}</p>}
+                {response && (
+                    <DirectionsRenderer
+                        options={{
+                            directions: response,
+                            polylineOptions: {
+                                strokeColor: '#FF0000',
+                                strokeOpacity: 1.0,
+                                strokeWeight: 4
+                            }
+                        }}
+                    />
+                )}
+            </GoogleMap>
+        </LoadScript>
+
+        </div>
+
+    );
+};
+
 
     return (
         <>
@@ -405,10 +557,15 @@ function List() {
                                         <Link  id="trash">
                                             <FontAwesomeIcon icon={faTrash} /> 
                                         </Link> 
-                                        <Link id="maraude" onClick={toggleMaraudeModal}>
-                <FontAwesomeIcon icon={faHandsHelping} />
-            </Link>
-            {showMaraudeModal && <MaraudeModal />}
+                                        <Link id="maraude" onClick={() => toggleMaraudeModal(stock)}>
+                                                <FontAwesomeIcon icon={faHandsHelping} />
+                                            </Link>
+
+        
+                                    {showMaraudeModal && <MaraudeModal selectedStock={selectedStock}/>}
+
+                                    
+
                                         </td>
                                     </tr>
                                 ))}
