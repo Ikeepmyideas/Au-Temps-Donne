@@ -32,7 +32,7 @@ const upload = multer({ storage: storage }).fields([
 ]);
 
 router.use(cors({
-  origin: ['http://localhost:3000', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+  origin: ['http://localhost:3000', 'http://10.0.2.2:8000', 'https://au-temps-donne-frontend.onrender.com','http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
   credentials: true // Allow credentials (cookies)
 }));
 
