@@ -337,9 +337,7 @@ exports.createActivity = async (req, res) => {
 
 
   // Get the current working directory
-    const currentDirectory = process.cwd();
 
-    console.log("Current working directory:", currentDirectory);
 
 
     // Handle file upload
@@ -367,6 +365,9 @@ exports.createActivity = async (req, res) => {
 
   } catch (error) {
     await t.rollback();
+    const currentDirectory = process.cwd();
+
+    console.error("Current working directory:", currentDirectory);
     console.error('Error adding activity: ', error);
     res.status(500).send('Error adding activity: ' + error.message);
   }
