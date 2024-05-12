@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const Lieu = require('./Lieu');
 
-const Formation = sequelize.define('formations', {
+const Formation = sequelize.define('formation', {
   ID_Formation: {
     type: DataTypes.INTEGER,
     primaryKey: true,
