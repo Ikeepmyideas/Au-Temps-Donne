@@ -19,7 +19,13 @@ const {
   deleteRegistration ,
   checkRegistrationStatus, 
   loginVolunteer,getUserInfo,
-  addRegistration }
+  addRegistration,
+  getUserInfoapp,
+  getActivitePriveForLoggedInUser,
+  loginVolunteerapp,
+  updateDenreesWithQRCodeInfo
+  
+ }
    = require('../controllers/volunteerController');
 const authentication = require('../middleware/authentication');
 const cors = require('cors');
@@ -35,6 +41,26 @@ router.use(cors({
   origin: ['http://localhost:3000', 'http://10.0.2.2:8000', 'https://au-temps-donne-frontend.onrender.com','http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
   credentials: true // Allow credentials (cookies)
 }));
+
+
+
+router.put('/app/processQrCode', async (req, res) => {
+    try {
+        const qrCodeData = req.body.qrCodeData; 
+        await updateDenreesWithQRCodeInfo(qrCodeData);
+        res.status(200).send('Denrees updated successfully.');
+    } catch (error) {
+        console.error('Error processing QR code:', error);
+        res.status(500).send('Failed to process QR code.');
+    }
+});
+router.get('/app/userinfo', getUserInfoapp);
+router.get('/app/activites_prives', getActivitePriveForLoggedInUser);
+router.post('/app/login', loginVolunteerapp);
+
+
+
+
 
 router.post('/registerVolunteer', (req, res, next) => {
   upload(req, res, function (err) {
