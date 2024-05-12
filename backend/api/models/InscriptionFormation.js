@@ -23,7 +23,7 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: benevoles,
+      model: Volunteer,
       key: "id",
       unique: true
     }
