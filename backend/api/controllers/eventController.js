@@ -343,7 +343,7 @@ exports.createActivity = async (req, res) => {
     // Handle file upload
     let imageUrl = ""; // Default image path
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`; 
+      imageUrl = `../uploads/${req.file.filename}`; 
     } else {
       console.log("No file uploaded, using default image.");
     }
