@@ -7,10 +7,19 @@ const authentication = require('../middleware/authentication');
 
 const multer = require('multer');
 
-// Setup multer for file uploads
+
+const path = require('path');
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, '../uploads'); // Ensure this directory exists
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+        // Ensure the uploads directory exists
+        fs.mkdir(uploadDir, { recursive: true }, function(err) {
+            if (err) {
+                console.error('Error creating upload directory:', err);
+            }
+            cb(null, uploadDir);
+        });
     },
     filename: function(req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
