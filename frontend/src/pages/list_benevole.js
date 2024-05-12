@@ -9,7 +9,7 @@ function VolunteerList() {
     const currentPath = location.pathname;
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/admin/volunteers')
+        fetch('https://au-temps-donne-api.onrender.com/api/admin/volunteers')
             .then(response => response.json())
             .then(data => {
                 setVolunteers(data.filter(v => v.statut_validation.toLowerCase() === 'accepté'));
@@ -21,7 +21,7 @@ function VolunteerList() {
 
     const confirmDeletion = (email) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce bénévole ?')) {
-            fetch(`http://localhost:8000/api/admin/volunteers/delete`, {
+            fetch(`https://au-temps-donne-api.onrender.com/api/admin/volunteers/delete`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
