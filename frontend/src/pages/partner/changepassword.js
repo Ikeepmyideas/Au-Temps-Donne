@@ -22,7 +22,7 @@ const ChangePasswordPage = () => {
 
     try {
       // Send the request to change password
-      const response = await fetch('http://localhost:8000/api/partenaire/change-password', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/change-password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
