@@ -18,7 +18,7 @@ function Event() {
     useEffect(() => {
         async function fetchUserData() {
             try {
-                const response = await fetch('http://localhost:8000/api/beneficiary/userinfo', {
+                const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -45,11 +45,11 @@ function Event() {
                     setErrorMessage('');
 
                     if (filter === 'Activités') {
-                        response = await axios.get(`http://127.0.0.1:8000/api/beneficiary/activities/${userInfo.id}`);
+                        response = await axios.get(`https://au-temps-donne-api.onrender.com/api/beneficiary/activities/${userInfo.id}`);
                     } else if (filter === 'ActivitésP') {
-                        response = await axios.get(`http://127.0.0.1:8000/api/beneficiary/activities-prv/${userInfo.id}`);
+                        response = await axios.get(`https://au-temps-donne-api.onrender.com/api/beneficiary/activities-prv/${userInfo.id}`);
                     } else if (filter === 'all') {
-                        response = await axios.get(`http://127.0.0.1:8000/api/beneficiary/activities-all/${userInfo.id}`);
+                        response = await axios.get(`https://au-temps-donne-api.onrender.com/api/beneficiary/activities-all/${userInfo.id}`);
                     }
              
 
@@ -87,7 +87,7 @@ function Event() {
             <div key={index} className="elm_box">
                 <div className="infos">
                 <div className="info">
-                        <img height="180px" src={`http://localhost:8000${event.image}` || image } style={{ borderRadius: '25px' }} alt="Event" />
+                        <img height="180px" src={`https://au-temps-donne-api.onrender.com${event.image}` || image } style={{ borderRadius: '25px' }} alt="Event" />
                         <div className="info-container">
                             <div className="hour">
                                 <img id="img-time" height="20px" src={horlogeIcon} alt="Horloge" />
