@@ -31,21 +31,24 @@ function Event() {
     const formatTime = (timeString) => {
         const timeOptions = { hour: '2-digit', minute: '2-digit' };
         const time = new Date(`1970-01-01T${timeString}Z`);
-        return time.toLocaleTimeString([], timeOptions);};
-    
+        return time.toLocaleTimeString([], timeOptions);
+    };
 
     return (
         <>
             <NavMenu />
             <section className="content">
                 <div className="lists">
-                    
                     <div className="box-container">
                         {activities.map((activity, index) => (
                             <div key={index} className="elm_box">
                                 <div className="infos">
                                     <div className="info">
-                                        <img height="180px" src={`assets/${activity.image}`} style={{ borderRadius: '25px' }} />
+                                        <img
+                                            height="180px"
+                                            src={`https://au-temps-donne-api.onrender.com/${activity.image}`} // Assuming this is the correct URL to the image
+                                            style={{ borderRadius: '25px' }}
+                                        />
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />
