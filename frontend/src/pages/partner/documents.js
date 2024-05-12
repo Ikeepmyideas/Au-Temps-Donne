@@ -10,7 +10,7 @@ const AnnualReport = () => {
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/partenaire/annual-report/${year}`, {
+      const response = await fetch(`https://au-temps-donne-api.onrender.com/api/partenaire/annual-report/${year}`, {
         method: 'GET',
         credentials:'include'
       });
