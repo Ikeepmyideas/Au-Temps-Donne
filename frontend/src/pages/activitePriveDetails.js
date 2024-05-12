@@ -39,7 +39,7 @@ function EventprvDetails() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activites_prives/${eventId}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites_prives/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -66,7 +66,7 @@ function EventprvDetails() {
     };
 /*
     const fetchVolunteers = () => {
-        fetch(`http://127.0.0.1:8000/api/admin/volunteers`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/admin/volunteers`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -110,7 +110,7 @@ function EventprvDetails() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activitesprv/registrations/${eventId}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activitesprv/registrations/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -132,7 +132,7 @@ function EventprvDetails() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`http://127.0.0.1:8000/api/event/activites/registrationsBenef/${eventId}`)
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrationsBenef/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -157,7 +157,7 @@ function EventprvDetails() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`http://127.0.0.1:8000/api/event/activites_prives/update/${eventId}`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites_prives/update/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ function EventprvDetails() {
     };
 
     function deleteEvent(eventId) {
-        fetch(`http://127.0.0.1:8000/api/event/activites_prives/delete/${eventId}`, {
+        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites_prives/delete/${eventId}`, {
             method: 'DELETE'
         })
         .then(response => {
