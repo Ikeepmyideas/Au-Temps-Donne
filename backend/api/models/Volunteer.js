@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/db');
 
+
 const Volunteer = sequelize.define('benevoles', {
   id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
   nom: { type: Sequelize.STRING, allowNull: false },
@@ -18,8 +19,8 @@ const Volunteer = sequelize.define('benevoles', {
   message_candidature: { type: Sequelize.STRING },
   date_inscription: { type: Sequelize.DATE },
   permis_conduire: {type: Sequelize.STRING(3) },
-  casier_judiciaire:{ type: Sequelize.STRING(255) },
-  justificatif_permis:  { type: Sequelize.STRING(255) },
+  casier_judiciaire:{ type: Sequelize.TEXT },
+  justificatif_permis:  { type: Sequelize.TEXT },
   qualites:  { type: Sequelize.STRING },
   competences: { type: Sequelize.STRING },
   langues : { type: Sequelize.STRING },
