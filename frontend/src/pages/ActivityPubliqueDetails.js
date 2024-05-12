@@ -30,7 +30,7 @@ function Activity() {
         code_postal: ''
     });
     const fetchEventDetails = () => {
-        fetch(`https://au-temps-donne-api.onrender.com/api/admin/event/${eventId}`)
+        fetch(` https://au-temps-donne-api.onrender.com/api/admin/event/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -75,7 +75,7 @@ function Activity() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`https://au-temps-donne-api.onrender.com/api/admin/event/registrations/${eventId}`)
+        fetch(` https://au-temps-donne-api.onrender.com/api/admin/event/registrations/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -97,7 +97,7 @@ function Activity() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`https://au-temps-donne-api.onrender.com/api/admin/event/registrationsBenef/${eventId}`)
+        fetch(` https://au-temps-donne-api.onrender.com/api/admin/event/registrationsBenef/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -122,7 +122,7 @@ function Activity() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`https://au-temps-donne-api.onrender.com/api/admin/event/update/${eventId}`, {
+        fetch(` https://au-temps-donne-api.onrender.com/api/admin/event/update/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -265,7 +265,7 @@ function Activity() {
     
  /*
     const fetchParticipants = () => {
-        fetch(`https://au-temps-donne-api.onrender.com/api/admin/activites/registrations/${eventId}`)
+        fetch(`http://127.0.0.1:8000/api/admin/activites/registrations/${eventId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');

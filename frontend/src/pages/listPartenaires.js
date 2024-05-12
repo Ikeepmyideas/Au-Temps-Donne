@@ -27,7 +27,7 @@ function Partners() {
     useEffect(() => {
         const fetchPartenaires = async () => {
             try {
-                const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/Partenaires');
+                const response = await fetch(' https://au-temps-donne-api.onrender.com/api/admin/Partenaires');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -62,7 +62,7 @@ function Partners() {
                 ville,
                 code_postal: codePostal,
             };
-            const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/addPartenaire', {
+            const response = await fetch(' https://au-temps-donne-api.onrender.com/api/admin/addPartenaire', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ function Partners() {
     };
     const deletePartenaire = (email) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce Partenaire?')) {
-            fetch(`https://au-temps-donne-api.onrender.com/api/admin/Partenaires/delete`, {
+            fetch(` https://au-temps-donne-api.onrender.com/api/admin/Partenaires/delete`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

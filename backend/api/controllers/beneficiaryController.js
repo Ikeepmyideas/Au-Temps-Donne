@@ -127,7 +127,7 @@ const getActivitePriveForLoggedInUser = async (req, res) => {
         const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
         const userId = decodedToken.id;
 
-        const activites = await ActivitePrive.findAll({ where: { id_beneficiaire: userId } });
+        const activites = await ActivityPrive.findAll({ where: { id_beneficiaire: userId } });
         res.status(200).json({ activites });
     } catch (error) {
         console.error('Erreur lors de la récupération des activités de l\'utilisateur connecté :', error);

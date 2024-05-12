@@ -15,7 +15,7 @@ function Event() {
     useEffect(() => {
       async function fetchUserData() {
           try {
-              const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
+              const response = await fetch(' https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
                   method: 'GET',
                   credentials: 'include'
               });
@@ -37,7 +37,7 @@ function Event() {
 
     useEffect(() => {
         if (userInfo) {
-            fetch(`https://au-temps-donne-api.onrender.com/api/volunteer/activities-all/${userInfo.id}`)
+            fetch(` https://au-temps-donne-api.onrender.com/api/volunteer/activities-all/${userInfo.id}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Erreur réseau');
@@ -55,7 +55,7 @@ function Event() {
     }, [userInfo]);
 
     useEffect(() => {
-        fetch('https://au-temps-donne-api.onrender.com/api/event/activities/latest')
+        fetch(' https://au-temps-donne-api.onrender.com/api/event/activities/latest')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -72,7 +72,7 @@ function Event() {
 
 
     document.addEventListener('DOMContentLoaded', function() {
-      fetch('https://au-temps-donne-api.onrender.com/api/event/activities/latest') 
+      fetch(' https://au-temps-donne-api.onrender.com/api/event/activities/latest') 
         .then(response => {
           if (!response.ok) {
             throw new Error('Erreur réseau');

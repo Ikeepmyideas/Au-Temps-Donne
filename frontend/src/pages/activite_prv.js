@@ -15,7 +15,7 @@ function Event() {
     const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
    
     useEffect(() => {
-        fetch('https://au-temps-donne-api.onrender.com/api/event/activites_prives')
+        fetch(' https://au-temps-donne-api.onrender.com/api/event/activites_prives')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');

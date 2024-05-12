@@ -13,7 +13,7 @@ function Event() {
     const currentPath = location.pathname;
     const [events, setEvents] = useState([]);
     useEffect(() => {
-        fetch('https://au-temps-donne-api.onrender.com/api/event/activites')
+        fetch(' https://au-temps-donne-api.onrender.com/api/event/activites')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');

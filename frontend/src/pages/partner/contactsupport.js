@@ -12,7 +12,7 @@ function ProblemForm() {
     e.preventDefault();
     setSubmitting(true); 
     try {
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/problems', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/problems', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

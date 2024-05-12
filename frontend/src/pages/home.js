@@ -41,7 +41,7 @@ function Home() {
             const email = document.getElementById('emailInput').value;
             const currentDate = new Date().toISOString().slice(0, 10);
 
-            fetch('https://au-temps-donne-api.onrender.com/api/newsletter/add', {
+            fetch(' https://au-temps-donne-api.onrender.com/api/newsletter/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -146,7 +146,7 @@ function Home() {
           <ion-icon name="search-outline"></ion-icon>
         </button>
       
-        <form action="../connexion/login.html">
+        <form action="/loginb">
           <button type="submit" class="btn btn-primary">
               <span>Connexion</span>
               <ion-icon name="enter-outline" aria-hidden="true"></ion-icon>
@@ -163,9 +163,7 @@ function Home() {
               <section class="hero" id="home">
                 <div class="container">
 
-                  
-
-      
+                
                   <p class="section-subtitle">
                     <span>Bienvenue Au temps Donnée</span>
                   </p>

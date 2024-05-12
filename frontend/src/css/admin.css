@@ -58,6 +58,14 @@ span#current-month-year {
     border-radius: 16px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.main_table-m{
+  background-color: white;
+  margin-top: 20px;
+  border-radius: 16px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  padding-right: 15px;
+}
 .title_dashboard{
     padding: 20px;
 }
@@ -68,7 +76,7 @@ span#current-month-year {
     display: flex;
     justify-content: space-between;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
     font-family: 'Inter'; 
     margin-top: 0px;
     margin-left: 280px;
@@ -1277,4 +1285,27 @@ input[type="time"] {
 }
 #maraude{
   color: green;
+}
+
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 800px;
+  margin: 0 auto;
 }

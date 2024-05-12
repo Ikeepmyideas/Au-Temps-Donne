@@ -38,7 +38,7 @@ function FormationsD() {
 
     const fetchEventDetails = async () => {
         try {
-            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/event/formations/${ID_Formation}`);
+            const response = await fetch(` https://au-temps-donne-api.onrender.com/api/event/formations/${ID_Formation}`);
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }

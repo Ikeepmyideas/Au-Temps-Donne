@@ -17,7 +17,7 @@ function Profileb() {
 
   const logout = async () => {
     try {
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
+      const response = await fetch(' https://au-temps-donne-api.onrender.com/api/beneficiary/logout', {
         method: 'GET',
         credentials: 'include'
       });
@@ -33,7 +33,7 @@ function Profileb() {
   };
   const fetchUserInfo = async () => {
     try {
-        const volunteerInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
+        const volunteerInfoResponse = await fetch(' https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
             method: 'GET',
             credentials: 'include'
           });
@@ -51,7 +51,7 @@ function Profileb() {
   };
   const handleDeleteAccount = async () => {
     try {
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/delete', {
+      const response = await fetch(' https://au-temps-donne-api.onrender.com/api/volunteer/delete', {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -68,7 +68,7 @@ function Profileb() {
   };
   const handleExportPDF = async () => {
     try {
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/getpdf', {
+      const response = await fetch(' https://au-temps-donne-api.onrender.com/api/volunteer/getpdf', {
         method: 'GET',
         credentials: 'include'
       });
@@ -105,7 +105,7 @@ function Profileb() {
 
   const fetchAvailability = async () => {
     try {
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/availability', {
+      const response = await fetch(' https://au-temps-donne-api.onrender.com/api/volunteer/availability', {
         method: 'GET',
         credentials: 'include'
       });
@@ -128,8 +128,8 @@ function Profileb() {
   const handleAddOrUpdateAvailability = async (e) => {
     e.preventDefault();
     const url = isEditing
-      ? `https://au-temps-donne-api.onrender.com/api/volunteer/updateAvailability/${selectedAvailabilityId}`
-      : 'https://au-temps-donne-api.onrender.com/api/volunteer/add-to-availability';
+      ? ` https://au-temps-donne-api.onrender.com/api/volunteer/updateAvailability/${selectedAvailabilityId}`
+      : ' https://au-temps-donne-api.onrender.com/api/volunteer/add-to-availability';
 
     const method = isEditing ? 'PUT' : 'POST';
 
@@ -172,7 +172,7 @@ function Profileb() {
 
   const handleDeleteAvailability = async (id) => {
     try {
-      const response = await fetch(`https://au-temps-donne-api.onrender.com/api/volunteer/deleteAvailability/${id}`, {
+      const response = await fetch(` https://au-temps-donne-api.onrender.com/api/volunteer/deleteAvailability/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });

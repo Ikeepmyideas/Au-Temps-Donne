@@ -15,6 +15,8 @@ const PDFDocument = require('pdfkit');
 require('dotenv').config(); 
 const Denree = require('../models/Denree');
 const Entrepot = require('../models/Entrepot');
+const Maraude = require('../models/Maraude');
+const Stocks = require('../models/Stocks');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).fields([
@@ -51,7 +53,11 @@ const uploadFileToWasabi = async (file, folderName, fileName) => {
       throw error;
     }
   };
-  
+
+
+
+
+
   const sendWelcomeEmail = async (email, name) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -76,8 +82,74 @@ const uploadFileToWasabi = async (file, folderName, fileName) => {
       console.error('Erreur lors de l\'envoi de l\'email de confirmation de candidature :', error.message);
     }
   };
+  const generatePresignedUrlForWasabi = (bucket, key, expiresInSeconds) => {
+    const params = {
+      Bucket: bucket,
+      Key: key,
+      Expires: expiresInSeconds,
+    };
+    return s3.getSignedUrl('getObject', params);
+  };
+  
+const registerVolunteer = async (req, res, next) => {
+  try {
+    const {
+      nom, prenom, date_de_naissance, email, mot_de_passe, telephone, adresse, ville,
+      code_postal, date_adhesion, genre, permis_conduire, langues, qualites, competences, message_candidature
+    } = req.body;
+
+    const existingVolunteer = await Volunteer.findOne({ where: { email } });
+    if (existingVolunteer) {
+      return res.status(409).json({ error: 'Un utilisateur avec cet email existe déjà.' });
+    }
+
+    const casier_judiciaireFile = req.files && req.files['casier_judiciaire'] && req.files['casier_judiciaire'][0];
+    const justificatif_permisFile = req.files && req.files['justificatif_permis'] && req.files['justificatif_permis'][0];
+
+    if (!casier_judiciaireFile) {
+      return res.status(400).json({ error: 'Le fichier casier judiciaire est manquant.' });
+    }
+
+    const casier_judiciaireFileName = `${nom}_${prenom}_casier_judiciaire_${casier_judiciaireFile.originalname}`;
+    const casier_judiciaireFilePath = `casier-judiciaire/${casier_judiciaireFileName}`;
+    const casier_judiciaireURL = generatePresignedUrlForWasabi('files-volunteers', casier_judiciaireFilePath, 43200);
+
+    await uploadFileToWasabi(casier_judiciaireFile, 'casier-judiciaire', casier_judiciaireFileName);
+
+    const date_inscription = new Date();
+    const hashedPassword = await argon2.hash(mot_de_passe);
 
 
+    const newVolunteerData = {
+      nom, prenom, date_de_naissance, email, mot_de_passe: hashedPassword, telephone, adresse, ville,
+      code_postal, date_adhesion, statut_validation: 'en attente', genre, permis_conduire,
+      casier_judiciaire: casier_judiciaireURL, langues, qualites, competences, message_candidature, date_inscription
+    };
+
+
+
+    if (justificatif_permisFile) {
+      const justificatif_permisFileName = `${nom}_${prenom}_justificatif_permis_${justificatif_permisFile.originalname}`;
+      const justificatif_permisFilePath = `justificatif-permis/${justificatif_permisFileName}`;
+      const justificatif_permisURL = generatePresignedUrlForWasabi('files-volunteers', justificatif_permisFilePath, 43200);
+      
+      newVolunteerData.justificatif_permis = justificatif_permisURL;
+
+      await uploadFileToWasabi(justificatif_permisFile, 'justificatif-permis', justificatif_permisFileName);
+    }
+
+    const newVolunteer = await Volunteer.create(newVolunteerData);
+
+    await sendWelcomeEmail(email, `${prenom} ${nom}`);
+
+    res.status(201).json({ message: 'Inscription réussie', volunteer: newVolunteer });
+  } catch (error) {
+    console.error('Erreur lors de l\'inscription du bénévole :', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+module.exports = { registerVolunteer };
 
 /*ANDROID STUDIO APP FUNCTIONS*/
 const loginVolunteerapp = async (req, res) => {
@@ -184,74 +256,6 @@ const getActivitePriveForLoggedInUser = async (req, res) => {
 
 
 
-  const generatePresignedUrlForWasabi = (bucket, key, expiresInSeconds) => {
-    const params = {
-      Bucket: bucket,
-      Key: key,
-      Expires: expiresInSeconds,
-    };
-    return s3.getSignedUrl('getObject', params);
-  };
-  
-const registerVolunteer = async (req, res, next) => {
-  try {
-    const {
-      nom, prenom, date_de_naissance, email, mot_de_passe, telephone, adresse, ville,
-      code_postal, date_adhesion, genre, permis_conduire, langues, qualites, competences, message_candidature
-    } = req.body;
-
-    const existingVolunteer = await Volunteer.findOne({ where: { email } });
-    if (existingVolunteer) {
-      return res.status(409).json({ error: 'Un utilisateur avec cet email existe déjà.' });
-    }
-
-    const casier_judiciaireFile = req.files && req.files['casier_judiciaire'] && req.files['casier_judiciaire'][0];
-    const justificatif_permisFile = req.files && req.files['justificatif_permis'] && req.files['justificatif_permis'][0];
-
-    if (!casier_judiciaireFile) {
-      return res.status(400).json({ error: 'Le fichier casier judiciaire est manquant.' });
-    }
-
-    const casier_judiciaireFileName = `${nom}_${prenom}_casier_judiciaire_${casier_judiciaireFile.originalname}`;
-    const casier_judiciaireFilePath = `casier-judiciaire/${casier_judiciaireFileName}`;
-    const casier_judiciaireURL = generatePresignedUrlForWasabi('files-volunteers', casier_judiciaireFilePath, 43200);
-
-    await uploadFileToWasabi(casier_judiciaireFile, 'casier-judiciaire', casier_judiciaireFileName);
-
-    const date_inscription = new Date();
-    const hashedPassword = await argon2.hash(mot_de_passe);
-
-
-    const newVolunteerData = {
-      nom, prenom, date_de_naissance, email, mot_de_passe: hashedPassword, telephone, adresse, ville,
-      code_postal, date_adhesion, statut_validation: 'en attente', genre, permis_conduire,
-      casier_judiciaire: casier_judiciaireURL, langues, qualites, competences, message_candidature, date_inscription
-    };
-
-
-
-    if (justificatif_permisFile) {
-      const justificatif_permisFileName = `${nom}_${prenom}_justificatif_permis_${justificatif_permisFile.originalname}`;
-      const justificatif_permisFilePath = `justificatif-permis/${justificatif_permisFileName}`;
-      const justificatif_permisURL = generatePresignedUrlForWasabi('files-volunteers', justificatif_permisFilePath, 43200);
-      
-      newVolunteerData.justificatif_permis = justificatif_permisURL;
-
-      await uploadFileToWasabi(justificatif_permisFile, 'justificatif-permis', justificatif_permisFileName);
-    }
-
-    const newVolunteer = await Volunteer.create(newVolunteerData);
-
-    await sendWelcomeEmail(email, `${prenom} ${nom}`);
-
-    res.status(201).json({ message: 'Inscription réussie', volunteer: newVolunteer });
-  } catch (error) {
-    console.error('Erreur lors de l\'inscription du bénévole :', error);
-    res.status(500).json({ error: 'Erreur interne du serveur' });
-  }
-};
-
-module.exports = { registerVolunteer };
 
 const generateToken = (id, email) => {
   return jwt.sign({ id, email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
@@ -852,7 +856,98 @@ const updateDenreesWithQRCodeInfo = async (qrCodeInfo) => {
       console.error('Error updating denrees:', error);
   }
 };
+
+const getActivitePriveForLoggedInUser = async (req, res) => {
+  try {
+      const accessToken = req.cookies.access_token;
+      const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+      const userId = decodedToken.id;
+
+      const activites = await ActivityPrive.findAll({ where: { id_benevole: userId } });
+      res.status(200).json({ activites });
+  } catch (error) {
+      console.error('Erreur lors de la récupération des activités de l\'utilisateur connecté :', error);
+      res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+const getActiviteForLoggedInUser = async (req, res) => {
+  try {
+      const accessToken = req.cookies.access_token;
+      const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+      const userId = decodedToken.id;
+
+      const activites = await EvenementBenevole.findAll({ where: { id_benevole: userId } });
+      res.status(200).json({ activites });
+  } catch (error) {
+      console.error('Erreur lors de la récupération des activités de l\'utilisateur connecté :', error);
+      res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+const getMaraudeForVolunteer = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const userId = decodedToken.id;
+
+    const maraudes = await Maraude.findAll({
+      where: { ChauffeurID: userId },
+      include: [
+        {
+          model: Volunteer,
+          as: 'Chauffeur'
+        },
+        { model: Stocks, as: 'Stock'}
+      ]
+    });
+
+    res.status(200).json({ maraudes });
+  } catch (error) {
+    console.error('Error fetching maraudes for the connected user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+const updateDenreesWithQRCodeInfo = async (qrCodeInfo) => {
+  try {
+      const qrCodeData = qrCodeInfo.split(',');
+      const arrivalEntrepot = qrCodeData.pop(); 
+
+      for (const denreeID of qrCodeData) {
+          await Denree.update({ ID_Stock: arrivalEntrepot }, {
+              where: {
+                  ID_Denree: parseInt(denreeID)
+              }
+          });
+
+          const entrepot = await Entrepot.findOne({
+              where: {
+                  ville: arrivalEntrepot
+              }
+          });
+
+          if (entrepot) {
+              await Denree.update({ ID_Stock: entrepot.ID_Entrepot }, {
+                  where: {
+                      ID_Stock: arrivalEntrepot,
+                      ID_Denree: parseInt(denreeID)
+                  }
+              });
+          } else {
+              console.log(`Arrival entrepot '${arrivalEntrepot}' not found.`);
+          }
+      }
+
+      console.log('Denrees updated successfully.');
+  } catch (error) {
+      console.error('Error updating denrees:', error);
+  }
+};
 module.exports = { 
+  updateDenreesWithQRCodeInfo,
+  getMaraudeForVolunteer,
+  getActiviteForLoggedInUser,
+  getActivitePriveForLoggedInUser,
   updateDenreesWithQRCodeInfo,
   displayAvailability,
   updateAvailability,
@@ -877,6 +972,5 @@ module.exports = {
   addRegistration,
   loginVolunteerapp,
   getUserInfoapp,
-  getActivitePriveForLoggedInUser
-  
+  getActivitePriveForLoggedInUser 
 };

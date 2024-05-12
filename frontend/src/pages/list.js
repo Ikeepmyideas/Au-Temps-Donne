@@ -20,7 +20,7 @@ function List() {
     const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
 
     useEffect(() => {
-        fetch('https://au-temps-donne-api.onrender.com/api/admin/volunteers')
+        fetch(' https://au-temps-donne-api.onrender.com/api/admin/volunteers')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -46,7 +46,7 @@ function List() {
 
     const confirmerSuppression = (email) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce bénévole ?')) {
-            fetch(`https://au-temps-donne-api.onrender.com/api/admin/volunteers/delete`, {
+            fetch(` https://au-temps-donne-api.onrender.com/api/admin/volunteers/delete`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ function List() {
             email,
         };
 
-        fetch('https://au-temps-donne-api.onrender.com/api/admin/addVolunteer', {
+        fetch(' https://au-temps-donne-api.onrender.com//api/admin/addVolunteer', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

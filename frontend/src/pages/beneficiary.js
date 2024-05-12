@@ -19,7 +19,7 @@ function ParticipantsBenefList() {
         let isMounted = true;
 
         const fetchParticipants = () => {
-            fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrationsBenef/${eventId}`)
+            fetch(` https://au-temps-donne-api.onrender.com/api/event/activites/registrationsBenef/${eventId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch participants');
@@ -42,7 +42,7 @@ function ParticipantsBenefList() {
         };
 
         const fetchEventDetails = () => {
-            fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/${eventId}`)
+            fetch(` https://au-temps-donne-api.onrender.com/api/event/activites/${eventId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch event details');
@@ -70,7 +70,7 @@ function ParticipantsBenefList() {
 
         
     const handleDelete = (ID_Beneficiaire) => {
-        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${eventId}/beneficiares/${ID_Beneficiaire}`, {
+        fetch(` https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${eventId}/beneficiares/${ID_Beneficiaire}`, {
             method: 'DELETE'
         })
         .then(response => {
@@ -95,7 +95,7 @@ function ParticipantsBenefList() {
 
         const eventMessage = `Rappel pour l'événement "${eventDetails.titre}" le ${eventDetails.date_activite} à ${eventDetails.heure_debut}: N'oubliez pas votre participation.`;
 
-        fetch(`https://au-temps-donne-api.onrender.com/api/event/notifications`, {
+        fetch(` https://au-temps-donne-api.onrender.com/api/event/notifications`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

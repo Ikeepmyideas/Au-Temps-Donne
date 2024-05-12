@@ -75,7 +75,7 @@ function FormationDetails() {
     let isMounted = true;
 
     const fetchParticipants = () => {
-        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${ID_Formation}`)
+        fetch(` https://au-temps-donne-api.onrender.com/api/event/activites/registrations/${ID_Formation}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -97,7 +97,7 @@ function FormationDetails() {
             });
     };
     const fetchParticipantsBenef = () => {
-        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/registrationsBenef/${ID_Formation}`)
+        fetch(` https://au-temps-donne-api.onrender.com/api/event/activites/registrationsBenef/${ID_Formation}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch participants');
@@ -122,7 +122,7 @@ function FormationDetails() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/update/${ID_Formation}`, {
+        fetch(` https://au-temps-donne-api.onrender.com/api/event/activites/update/${ID_Formation}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

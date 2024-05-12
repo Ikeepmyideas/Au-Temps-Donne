@@ -17,7 +17,8 @@ import settings from '../assets/settings.png';
 import exit from '../assets/exit.png';
 import mard from '../assets/messages.png';
 import '../css/admin.css';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTruck,faEye,faMap,faSearch , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
 function NavMenu() {
   const location = useLocation();
   const [highlight, setHighlight] = useState({});
@@ -36,7 +37,7 @@ function NavMenu() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/userinfo', {
+        const response = await fetch(' https://au-temps-donne-api.onrender.com/api/admin/userinfo', {
           method: 'GET',
           credentials: 'include'
         });
@@ -134,7 +135,7 @@ function NavMenu() {
         </li>
         <li className={highlight['/admin/maraude'] ? "highlighted" : ""}>
           <Link className='nav-link' to="/admin/maraude">
-            <img className="image" src={mard} alt="Maraude"/>
+          <FontAwesomeIcon icon={faTruck} style={{ marginLeft:'25px' }} />
             <span>Maraudes</span>
           </Link>
         </li>

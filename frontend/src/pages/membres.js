@@ -35,7 +35,7 @@ function MembreList() {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/admins');
+        const response = await fetch('http://localhost:8000/api/admin/admins');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -49,7 +49,7 @@ function MembreList() {
 
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/volunteersAdmin');
+        const response = await fetch('http://localhost:8000/api/admin/volunteersAdmin');
         if (!response.ok) {
           throw new Error('Réponse réseau non OK');
         }
@@ -87,7 +87,7 @@ function MembreList() {
         prenom,
         email
       };
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/addAdmin', {
+      const response = await fetch('http://localhost:8000/api/admin/addAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -121,7 +121,7 @@ function MembreList() {
 
   const deleteAdmin = email => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce admin?')) {
-      fetch(`https://au-temps-donne-api.onrender.com/api/admin/delete`, {
+      fetch(` https://au-temps-donne-api.onrender.com/api/admin/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -153,7 +153,7 @@ function MembreList() {
         email: volunteerEmail
       };
   
-      const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/addVolunteerToAdmin', {
+      const response = await fetch(' https://au-temps-donne-api.onrender.com/api/admin/addVolunteerToAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

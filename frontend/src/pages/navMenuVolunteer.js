@@ -36,7 +36,7 @@ function NavMenuV() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
+        const response = await fetch(' https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
           method: 'GET',
           credentials: 'include'
         });
@@ -74,7 +74,7 @@ function NavMenuV() {
   const currentPath = location.pathname.replace(/\/$/, "");
 
   useEffect(() => {
-    const navLinks = document.querySelectorAll('#horiz .nav-link');
+    const navLinks = document.querySelectorAll('#horiz2 .nav-link');
     navLinks.forEach(link => {
         const linkPath = new URL(link.href).pathname.replace(/\/$/, "");
         if (linkPath === currentPath) {
@@ -98,7 +98,8 @@ function NavMenuV() {
         <div className="user-info">
         {userInfo && (
           <div>
-            <center><h3 >Bienvenue {userInfo.prenom}</h3></center>
+            <center><h3 >Bienvenue {userInfo.prenom}</h3>
+            <p>Bénévole</p></center>
 
           </div>
         )}
@@ -125,10 +126,10 @@ function NavMenuV() {
             <span>Événements</span>
           </Link>
         </li>
-        <li className={highlight['/maraude'] ? "highlighted" : ""}>
+        <li className={highlight['/volunteer/maraude'] ? "highlighted" : ""}>
           <Link className='nav-link' to="/volunteer/maraude">
             <img className="image" src={mard} alt="Maraude"/>
-            <span>Maraudes</span>
+            <span>Maraudes et collecte</span>
           </Link>
         </li>
         <li className={highlight['/documents'] ? "highlighted" : ""}>

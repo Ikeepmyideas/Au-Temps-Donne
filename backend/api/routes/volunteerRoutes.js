@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { 
+  getMaraudeForVolunteer,
+  getActiviteForLoggedInUser,
+  getActivitePriveForLoggedInUser,
   displayAvailability,
   updateAvailability,
   deleteAvailability,
@@ -23,9 +26,7 @@ const {
   getUserInfoapp,
   getActivitePriveForLoggedInUser,
   loginVolunteerapp,
-  updateDenreesWithQRCodeInfo
-  
- }
+  updateDenreesWithQRCodeInfo }
    = require('../controllers/volunteerController');
 const authentication = require('../middleware/authentication');
 const cors = require('cors');
@@ -38,10 +39,9 @@ const upload = multer({ storage: storage }).fields([
 ]);
 
 router.use(cors({
-  origin: ['http://localhost:3000', 'http://10.0.2.2:8000', 'https://au-temps-donne-frontend.onrender.com','http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+  origin: [' https://au-temps-donne-frontend.onrender.com/', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
   credentials: true // Allow credentials (cookies)
 }));
-
 
 
 router.put('/app/processQrCode', async (req, res) => {
@@ -57,9 +57,6 @@ router.put('/app/processQrCode', async (req, res) => {
 router.get('/app/userinfo', getUserInfoapp);
 router.get('/app/activites_prives', getActivitePriveForLoggedInUser);
 router.post('/app/login', loginVolunteerapp);
-
-
-
 
 
 router.post('/registerVolunteer', (req, res, next) => {
@@ -106,6 +103,10 @@ router.get('/registrations/:eventId/:benevoleId',checkRegistrationStatus);
 router.delete('/registrations/delete/:eventId/:benevoleId',deleteRegistration);
 router.get('/activities/:benevoleId', getEventsForVolunteer);
 router.get('/activities-prv/:benevoleId', getEventsPvForVolunteer);
+router.get('/activites-prives', getActivitePriveForLoggedInUser);
+router.get('/activites', getActiviteForLoggedInUser);
+router.get('/maraudes', getMaraudeForVolunteer);
+
 router.get('/activities-all/:benevoleId', getEventsAllForVolunteer);
 router.get('/formations/:id_benevole', getFormationsForVolunteer);
 

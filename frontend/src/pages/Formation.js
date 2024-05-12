@@ -16,7 +16,7 @@ function History() {
     const [showSuccessAlertadd, setShowSuccessAlertadd] = useState(false);
    
     useEffect(() => {
-        fetch('https://au-temps-donne-api.onrender.com/api/event/formations')
+        fetch(' https://au-temps-donne-api.onrender.com/api/event/formations')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');

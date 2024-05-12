@@ -12,7 +12,7 @@ function Event() {
     const currentPath = location.pathname;
 
     useEffect(() => {
-        fetch('https://au-temps-donne-api.onrender.com/api/event/activites')
+        fetch(' https://au-temps-donne-api.onrender.com/api/event/activites')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
@@ -51,7 +51,7 @@ function Event() {
                             <div key={index} className="elm_box">
                                 <div className="infos">
                                     <div className="info">
-                                        <img height="180px" src={`http://localhost:8000${activity.image}`} style={{ borderRadius: '25px' }} />
+                                        <img height="180px" src={`https://au-temps-donne-api.onrender.com${activity.image}`} style={{ borderRadius: '25px' }} />
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} />

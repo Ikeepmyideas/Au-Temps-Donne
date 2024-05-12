@@ -161,7 +161,7 @@ function NavMenu() {
           <img height="20px" src={chat} alt="Chat Icon"/>
       </div>
       <div id="right2">
-          <img height="10px" src={notif} alt="Notification Icon"/>
+          <img height="20px" src={notif} alt="Notification Icon"/>
       </div>
 
     </section>

@@ -21,7 +21,7 @@ const Service = require('../models/Service');
 const Blog = require('../models/Blog');
 const EvenementBenevole = require('../models/EvenementBenevole');
 const EvenementBeneficiaire = require('../models/EvenementBeneficiaire');
-const fs = require('fs');
+
 const RegisterF = require('../models/InscriptionFormation');
 const Disponibilite = require('../models/Disponibilite');
 
@@ -335,15 +335,10 @@ exports.createActivity = async (req, res) => {
       return res.status(400).json({ error: 'An activity with the same start and end times already exists.' });
     }
 
-
-  // Get the current working directory
-
-
-
     // Handle file upload
     let imageUrl = ""; // Default image path
     if (req.file) {
-      imageUrl = `../uploads/${req.file.filename}`; 
+      imageUrl = `/uploads/${req.file.filename}`; 
     } else {
       console.log("No file uploaded, using default image.");
     }
@@ -365,14 +360,8 @@ exports.createActivity = async (req, res) => {
 
   } catch (error) {
     await t.rollback();
-
-    const currentDirectory = process.cwd();
-
-    console.error("Current working directory:", currentDirectory);
-
     console.error('Error adding activity: ', error);
-
-    res.status(500).send('Error adding activity: ' + error.message + ' Current directory: ' + currentDirectory);
+    res.status(500).send('Error adding activity: ' + error.message);
   }
 };
 
@@ -703,7 +692,7 @@ exports.getLatestActivities = async (req, res) => {
         model: Lieu, 
         as: 'lieu' 
       }],
-      order: [['date_create', 'DESC']],
+      order: [['ID_Activite', 'DESC']],
       limit: 4
     });
     

@@ -7,20 +7,10 @@ const authentication = require('../middleware/authentication');
 
 const multer = require('multer');
 
-const fs = require('fs');
-
-const path = require('path');
-
+// Setup multer for file uploads
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'uploads');
-        // Ensure the uploads directory exists
-        fs.mkdir(uploadDir, { recursive: true }, function(err) {
-            if (err) {
-                console.error('Error creating upload directory:', err);
-            }
-            cb(null, uploadDir);
-        });
+        cb(null, './uploads'); // Ensure this directory exists
     },
     filename: function(req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -33,7 +23,7 @@ const upload = multer({ storage: storage });
 const cors = require('cors');
 
 router.use(cors({
-    origin: ['http://localhost:3000', 'https://au-temps-donne-frontend.onrender.com','http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+    origin: [' https://au-temps-donne-frontend.onrender.com/', 'http://localhost:3001','http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
     credentials: true // Allow credentials (cookies)
   }));
 
