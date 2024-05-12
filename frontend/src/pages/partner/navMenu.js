@@ -33,7 +33,7 @@ function NavMenu() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch('http://localhost:8000/api/partenaire/getMe', {
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/getMe', {
           method: 'GET',
           credentials: 'include'
         });
