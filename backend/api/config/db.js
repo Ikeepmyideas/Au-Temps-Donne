@@ -1,25 +1,22 @@
-const fs = require('fs');
-const path = require('path');
-const { Client } = require('pg');
+const { Sequelize } = require('sequelize');
 
-const connectionString = process.env.DATABASE_URL;
-const pgClient = new Client({
-  connectionString: connectionString,
+const databaseUrl = process.env.DATABASE_URL;
+
+const sequelize = new Sequelize(databaseUrl, {
+  dialect: 'mysql',
+  logging: false,
 });
 
-pgClient.connect();
-
-// Read SQL file
-const sqlFilePath = path.join(__dirname, 'pa.sql');
-const sql = fs.readFileSync(sqlFilePath, 'utf8');
-
-// Execute SQL commands
-pgClient.query(sql, (err, res) => {
-  if (err) {
-    console.error('Error executing SQL file:', err);
-  } else {
-    console.log('SQL file executed successfully.');
-  }
-  
-  pgClient.end();
+sequelize.authenticate().then(() => {
+  console.log('Connection successful.');
+}).catch(err => {
+  console.error('Connection failed:', err);
 });
+
+sequelize.sync({ force: false }).then(() => {
+  console.log('Database synchronization successful.');
+}).catch(err => {
+  console.error('Database synchronization failed:', err);
+});
+
+module.exports = sequelize;
