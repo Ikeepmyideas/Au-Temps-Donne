@@ -18,7 +18,7 @@ function Newsletter() {
     useEffect(() => {
         const fetchNewsletter = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/newsletter/');
+                const response = await fetch('https://au-temps-donne-api.onrender.com/api/newsletter/');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -48,7 +48,7 @@ function Newsletter() {
             email
         };
 
-        fetch('http://localhost:8000/api/newsletter/add', {
+        fetch('https://au-temps-donne-api.onrender.com/api/newsletter/add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ function Newsletter() {
 
     const deleteNewsletter = (email) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ?')) {
-            fetch(`http://localhost:8000/api/newsletter/delete`, {
+            fetch(`https://au-temps-donne-api.onrender.com/api/newsletter/delete`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
