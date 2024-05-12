@@ -18,7 +18,7 @@ const Beneficiary = sequelize.define('beneficiaires', {
   besoin: { type: Sequelize.STRING },
   avis_impot: {
   type: Sequelize.TEXT
-}
+},
   date_inscription: { type: Sequelize.DATE }
 
 }, 
