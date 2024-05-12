@@ -27,7 +27,7 @@ require('dotenv').config();
 
 const cors = require('cors');
 const corsOptions = {
-  origin: ['http://localhost:3000','http://localhost:3001', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+  origin: ['http://localhost:3000','https://au-temps-donne-frontend.onrender.com', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
   credentials: true,
 };
 
@@ -43,6 +43,7 @@ app.use(logger);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); 
+  res.header("Access-Control-Allow-Origin", "https://au-temps-donne-frontend.onrender.com");
   res.header("Access-Control-Allow-Origin", "http://10.0.2.2:8000"); 
   res.header("Access-Control-Allow-Origin", "http://10.0.2.3:8000"); 
   res.header(
