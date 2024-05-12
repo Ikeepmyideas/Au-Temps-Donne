@@ -10,7 +10,7 @@ function Profileb() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const userInfoResponse = await fetch('http://localhost:8000/api/partenaire/getuserinfos', {
+        const userInfoResponse = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/getuserinfos', {
           method: 'GET',
           credentials: 'include'
         });
@@ -32,7 +32,7 @@ function Profileb() {
 
   const handleDeleteAccount = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/partenaire/delete', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/delete', {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -70,7 +70,7 @@ function Profileb() {
     try {
       const requestBody = { ...userInfo };
 
-      const response = await fetch('http://localhost:8000/api/partenaire/update', {
+      const response = await fetch('https://au-temps-donne-api.onrender.com/api/partenaire/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
