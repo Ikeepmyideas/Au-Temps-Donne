@@ -7,7 +7,8 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    unique: true
   },
   id_formation: {
     type: DataTypes.INTEGER,
