@@ -30,10 +30,10 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
 });
 
 // Set up the associations
-Volunteer.hasMany(InscriptionFormation, { foreignKey: 'id_benevole' });
-InscriptionFormation.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
+//Volunteer.hasMany(InscriptionFormation, { foreignKey: 'id_benevole' });
+//InscriptionFormation.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
 
-InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'formation' });
-Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
+//InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'formation' });
+//Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
 
 module.exports = InscriptionFormation;
