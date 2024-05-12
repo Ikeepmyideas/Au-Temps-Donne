@@ -692,7 +692,7 @@ exports.getLatestActivities = async (req, res) => {
         model: Lieu, 
         as: 'lieu' 
       }],
-      order: [['date_create', 'DESC']],
+      order: [['ID_Activite', 'DESC']],
       limit: 4
     });
     

@@ -6,7 +6,7 @@ const Partenaire = require("../models/Partenaire");
 exports.getAllDenrees = async (req, res) => {
   try {
     const denrees = await Denree.findAll({
-      include: [{ model: Partenaire, as: 'commercant', attributes: ['nom'] }]
+      include: [{ model: Partenaire, as: 'commercant'}]
     });
 
     res.json(denrees);

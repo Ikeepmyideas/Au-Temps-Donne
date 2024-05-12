@@ -48,10 +48,6 @@ const Denree = sequelize.define("denrees", {
     type: DataTypes.DATE,
     allowNull: true,
   },
-statut_collecte: {
-type: DataTypes.STRING,
-allowNull: true,
-},
 
   }, {
     tableName: "denrees",

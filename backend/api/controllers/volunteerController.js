@@ -15,6 +15,8 @@ const PDFDocument = require('pdfkit');
 require('dotenv').config(); 
 const Denree = require('../models/Denree');
 const Entrepot = require('../models/Entrepot');
+const Maraude = require('../models/Maraude');
+const Stocks = require('../models/Stocks');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).fields([
@@ -744,7 +746,63 @@ const updateDenreesWithQRCodeInfo = async (qrCodeInfo) => {
       console.error('Error updating denrees:', error);
   }
 };
+
+const getActivitePriveForLoggedInUser = async (req, res) => {
+  try {
+      const accessToken = req.cookies.access_token;
+      const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+      const userId = decodedToken.id;
+
+      const activites = await ActivityPrive.findAll({ where: { id_benevole: userId } });
+      res.status(200).json({ activites });
+  } catch (error) {
+      console.error('Erreur lors de la récupération des activités de l\'utilisateur connecté :', error);
+      res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+const getActiviteForLoggedInUser = async (req, res) => {
+  try {
+      const accessToken = req.cookies.access_token;
+      const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+      const userId = decodedToken.id;
+
+      const activites = await EvenementBenevole.findAll({ where: { id_benevole: userId } });
+      res.status(200).json({ activites });
+  } catch (error) {
+      console.error('Erreur lors de la récupération des activités de l\'utilisateur connecté :', error);
+      res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+const getMaraudeForVolunteer = async (req, res) => {
+  try {
+    const accessToken = req.cookies.access_token;
+    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const userId = decodedToken.id;
+
+    const maraudes = await Maraude.findAll({
+      where: { ChauffeurID: userId },
+      include: [
+        {
+          model: Volunteer,
+          as: 'Chauffeur'
+        },
+        { model: Stocks, as: 'Stock'}
+      ]
+    });
+
+    res.status(200).json({ maraudes });
+  } catch (error) {
+    console.error('Error fetching maraudes for the connected user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = { 
+  getMaraudeForVolunteer,
+  getActiviteForLoggedInUser,
+  getActivitePriveForLoggedInUser,
   updateDenreesWithQRCodeInfo,
   displayAvailability,
   updateAvailability,

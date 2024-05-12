@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { 
+  getMaraudeForVolunteer,
+  getActiviteForLoggedInUser,
+  getActivitePriveForLoggedInUser,
   displayAvailability,
   updateAvailability,
   deleteAvailability,
@@ -80,6 +83,10 @@ router.get('/registrations/:eventId/:benevoleId',checkRegistrationStatus);
 router.delete('/registrations/delete/:eventId/:benevoleId',deleteRegistration);
 router.get('/activities/:benevoleId', getEventsForVolunteer);
 router.get('/activities-prv/:benevoleId', getEventsPvForVolunteer);
+router.get('/activites-prives', getActivitePriveForLoggedInUser);
+router.get('/activites', getActiviteForLoggedInUser);
+router.get('/maraudes', getMaraudeForVolunteer);
+
 router.get('/activities-all/:benevoleId', getEventsAllForVolunteer);
 router.get('/formations/:id_benevole', getFormationsForVolunteer);
 

@@ -12,6 +12,7 @@ const Maraude = require('../models/Maraude');
 const Volunteer = require('../models/Volunteer');
 const Disponibilite = require('../models/Disponibilite');
 
+const Stocks = require('../models/Stocks');
 
 require('dotenv').config(); 
 exports.loginAdmin = async (req, res) => {
@@ -262,7 +263,6 @@ const generateItinerary = async (req, res) => {
         const { addresses } = req.body;
         const apiKey = 'AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4';
 
-        // Function to resolve address to coordinates using Google Maps Geocoding API
         const resolveAddress = async (address) => {
             try {
                 const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
@@ -286,35 +286,26 @@ const generateItinerary = async (req, res) => {
             }
         };
 
-        // Resolve all points' addresses to coordinates
         const resolvedPoints = await Promise.all(addresses.map(resolveAddress));
 
-        // Construct the route request URL
         const waypoints = resolvedPoints.map(point => `via:${point.coordinates}`).join('|');
         const routeRequestURL = `https://maps.googleapis.com/maps/api/directions/json?origin=${resolvedPoints[0].coordinates}&destination=${resolvedPoints[resolvedPoints.length - 1].coordinates}&waypoints=${waypoints}&key=${apiKey}`;
 
-        // Make request to Google Maps Directions API to get route
         const routeResponse = await axios.get(routeRequestURL);
 
         
-// Extract estimated travel time by car in seconds
         const estimatedCarTimeInSeconds = routeResponse.data.routes[0].legs.reduce((total, leg) => total + leg.duration.value, 0);
 
-        // Convert travel time to hours and minutes
         const hours = Math.floor(estimatedCarTimeInSeconds / 3600);
         const minutes = Math.ceil((estimatedCarTimeInSeconds % 3600) / 60);
 
-        // Extract route data from response
         const route = routeResponse.data.routes[0];
 
-        // Extract all points along the route
         const routeCoordinates = route.legs.flatMap(leg => leg.steps.map(step => [step.start_location.lat, step.start_location.lng]));
 
-        // Extract start and end addresses
         const startAddress = resolvedPoints[0].address;
         const destinationAddress = resolvedPoints[resolvedPoints.length - 1].address;
 
-        // Log estimated car time
         console.log(`Estimated car time: ${hours} hours and ${minutes} minutes`);
 
         // Prepare response
@@ -322,19 +313,193 @@ const generateItinerary = async (req, res) => {
             routeCoordinates,
             startAddress,
             destinationAddress,
-            estimatedCarTime: { hours, minutes } // Estimated travel time by car in hours and minutes
+            estimatedCarTime: { hours, minutes } 
         };
 
-        // Send itinerary data back to client
         res.json(itineraryData);
     } catch (error) {
         console.error('Error generating itinerary:', error);
         res.status(500).json({ error: 'Failed to generate itinerary' });
     }
 };
+const getMaraude = async (req, res) => {
+    try {
+  
+      const maraudes = await Maraude.findAll({
+        include: [
+          {
+            model: Volunteer,
+            as: 'Chauffeur'
+          },
+          { model: Stocks, as: 'Stock'}
+        ]
+      });
+  
+      res.status(200).json({ maraudes });
+    } catch (error) {
+      console.error('Error fetching maraudes for the connected user:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
 
+
+const fs = require('fs');
+const qrcode = require('qrcode');
+const Route = require('../models/Route');
+const CircuitRamassage = require('../models/CircuitRamassage'); 
+const CommercantCircuit = require('../models/CommercantCircuit');
+const addCollecte = async (req, res) => {
+    try {
+        const { date_collecte, LieuDepart, LieuArrivee, id_chauffeur,id_denree } = req.body;
+
+        // Create a new collecte record
+        const newCollecte = await CircuitRamassage.create({
+            date_collecte,
+            LieuDepart,
+            LieuArrivee,
+            id_chauffeur,
+            id_denree
+
+        });
+
+        res.status(201).json({
+            message: 'Collecte successfully created!',
+            collecte: newCollecte
+        });
+    } catch (error) {
+        console.error('Failed to add collecte:', error);
+        res.status(500).json({
+            message: 'Failed to add collecte',
+            error: error.message
+        });
+    }
+};
+const generateItineraryCollecte = async (req, res) => {
+    try {
+        const { addresses} = req.body;
+        const apiKey = 'AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4';
+
+                const resolveAddress = async (address) => {
+                    try {
+                        const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+                            params: {
+                                address: address,
+                                key: apiKey
+                            }
+                        });
+        
+                        if (response.data.results && response.data.results.length > 0) {
+                            const location = response.data.results[0].geometry.location;
+                            const coordinates = `${location.lat},${location.lng}`;
+                            console.log(`Resolved address "${address}" to coordinates: ${coordinates}`);
+                            return { address, coordinates };
+                        } else {
+                            throw new Error('Address not found');
+                        }
+                    } catch (error) {
+                        console.error(`Error resolving address "${address}":`, error);
+                        throw new Error(`Failed to resolve address "${address}"`);
+                    }
+                };
+        
+                const resolvedPoints = await Promise.all(addresses.map(resolveAddress));
+        
+                const waypoints = resolvedPoints.map(point => `via:${point.coordinates}`).join('|');
+                const routeRequestURL = `https://maps.googleapis.com/maps/api/directions/json?origin=${resolvedPoints[0].coordinates}&destination=${resolvedPoints[resolvedPoints.length - 1].coordinates}&waypoints=${waypoints}&key=${apiKey}`;
+        
+                const routeResponse = await axios.get(routeRequestURL);
+        
+                const route = routeResponse.data.routes[0];
+        
+                const startAddress = resolvedPoints[0].address;
+                const destinationAddress = resolvedPoints[resolvedPoints.length - 1].address;
+        
+                const routeCoordinates = decodePolyline(route.overview_polyline.points);
+                
+               
+                let allGoodsData = '';
+                for (const partner of selectedPartners) {
+                    if (partner.ID_Commercant !== null) {
+                        await CommercantCircuit.create({
+                            ID_Commercant: partner.id,
+                            id_collecte: CircuitRamassage.id_collecte 
+                        });
+                    } else {
+                        console.log('ID_Commercant is null for partner:', partner);
+                    }
+
+                    console.log(`Goods for partner ${partner.id}:`);
+                    partner.goods.forEach(good => {
+                        console.log(good.ID_Denree);
+                        allGoodsData += good.ID_Denree + ',';
+                    });
+                }
+                
+        const arrivalEntrepot = addresses[addresses.length - 1];
+        allGoodsData += `${arrivalEntrepot},`;
+
+        allGoodsData = allGoodsData.slice(0, -1);
+
+        const qrCodePath = `./qrcodes/all_goods_qrcode.png`;
+        await qrcode.toFile(qrCodePath, allGoodsData);
+        console.log(`QR code for all partners' goods and arrival entrepot generated at: ${qrCodePath}`);
+
+
+                const itineraryData = {
+                    routeCoordinates,
+                    startAddress,
+                    destinationAddress,
+                    mapImage: imagePath 
+                };
+        
+                res.json(itineraryData);
+            } catch (error) {
+                console.error('Error generating itinerary:', error);
+                res.status(500).json({ error: 'Failed to generate itinerary' });
+            }
+        };
+        
+        const decodePolyline = (encoded) => {
+            let index = 0;
+            const len = encoded.length;
+            const array = [];
+            let lat = 0;
+            let lng = 0;
+        
+            while (index < len) {
+                let b;
+                let shift = 0;
+                let result = 0;
+                do {
+                    b = encoded.charCodeAt(index++) - 63;
+                    result |= (b & 0x1f) << shift;
+                    shift += 5;
+                } while (b >= 0x20);
+                const dlat = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
+                lat += dlat;
+                shift = 0;
+                result = 0;
+                do {
+                    b = encoded.charCodeAt(index++) - 63;
+                    result |= (b & 0x1f) << shift;
+                    shift += 5;
+                } while (b >= 0x20);
+                const dlng = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
+                lng += dlng;
+                array.push([lat * 1e-5, lng * 1e-5]);
+            }
+            return array;
+        };
+        
+        module.exports = { generateItinerary };
+        
+
+        
 module.exports = { generateItinerary };
 module.exports = {
+    generateItineraryCollecte,
+    getMaraude,
+    addCollecte,
     generateItinerary,
     getVolunteersDisponibles,
     addMaraude,

@@ -225,20 +225,17 @@ async function generateAnnualReportController(req, res) {
         // Generate the annual report PDF
         const pdfBuffer = await generateAnnualReport(parseInt(year), partenaire, reportData);
 
-        // Set response headers to indicate PDF content
         res.set({
             'Content-Type': 'application/pdf',
             'Content-Disposition': `attachment; filename=annual_report_${year}.pdf`
         });
 
-        // Send the generated PDF buffer in the response
         res.send(pdfBuffer);
     } catch (error) {
         console.error('Error generating annual report:', error);
         res.status(500).send('Error generating annual report');
     }
 }
-
 
 async function generateAnnualReport(year, partenaire, reportData) {
     return new Promise(async (resolve, reject) => {
@@ -273,7 +270,10 @@ async function generateAnnualReport(year, partenaire, reportData) {
             doc.fontSize(16).text(`Partenaire: ${partenaire.nom}`);
 
             // Filter reportData by the year of Date_ajout
-            const denreesOfYear = reportData.filter(denree => new Date(denree.Date_ajout).getFullYear() === year);
+            const denreesOfYear = reportData.filter(denree => {
+                const dateAjout = new Date(denree.Date_ajout);
+                return dateAjout.getFullYear() === year && !isNaN(dateAjout.getTime()); // Ensure Date_ajout is a valid Date
+            });
 
             // Add content
             doc.moveDown();
@@ -288,7 +288,14 @@ async function generateAnnualReport(year, partenaire, reportData) {
                     doc.fontSize(12).text(`Type: ${denree.type}`);
                     doc.fontSize(12).text(`Date Peremption: ${denree.date_peremption}`);
                     doc.fontSize(12).text(`Quantite: ${denree.quantite}`);
-                    doc.fontSize(12).text(`Date d'ajout: ${denree.Date_ajout.toLocaleDateString()}`);        
+
+                    // Check if Date_ajout is a valid Date before formatting
+                    const dateAjout = new Date(denree.Date_ajout);
+                    if (!isNaN(dateAjout.getTime())) {
+                        doc.fontSize(12).text(`Date d'ajout: ${dateAjout.toLocaleDateString()}`);
+                    } else {
+                        doc.fontSize(12).text(`Date d'ajout: N/A (invalid date format)`);
+                    }
                 }
             }
 
@@ -307,8 +314,6 @@ async function generateAnnualReport(year, partenaire, reportData) {
         }
     });
 }
-
-
 
 
 

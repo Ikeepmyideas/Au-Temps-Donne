@@ -6,6 +6,9 @@ const dentreeController = require('../controllers/denreeController');
 const authentication = require('../middleware/authentication');
 const cors = require('cors');
 const {
+  generateItineraryCollecte,
+  addCollecte,
+  getMaraude,
   generateItinerary,
   getVolunteersDisponibles,
   addMaraude,
@@ -33,9 +36,13 @@ router.delete('/deleteEntrepot/:id',deleteEntrepot );
 router.get('/AllDenrees',dentreeController.getAllDenrees );
 router.get('/AllStocks', getAllStockedDenrees );
 
+router.get('/maraudes', getMaraude );
+
 router.get('/VolunteerAvailable', getVolunteersDisponibles);
 
 router.post('/addMaraude', addMaraude );
+router.post('/addCollecte', addCollecte );
+router.post('/route', generateItineraryCollecte );
 
 router.post('/itinerary', generateItinerary);
 
