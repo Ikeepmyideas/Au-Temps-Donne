@@ -74,7 +74,7 @@ function NavMenuV() {
   const currentPath = location.pathname.replace(/\/$/, "");
 
   useEffect(() => {
-    const navLinks = document.querySelectorAll('#horiz .nav-link');
+    const navLinks = document.querySelectorAll('#horiz2 .nav-link');
     navLinks.forEach(link => {
         const linkPath = new URL(link.href).pathname.replace(/\/$/, "");
         if (linkPath === currentPath) {
@@ -154,12 +154,12 @@ function NavMenuV() {
     <section id="horiz2">
       <div className="nav_img">
         <img src={board} alt="Board Icon"/>
-        <Link className="nav-link" to="/volunteer/dashboard">Board</Link>
+        <Link className="nav-link" to="/beneficiary/dashboard">Board</Link>
       </div>
 
       <div className="nav_img">
         <img src={calendar} alt="Calendar Icon"/>
-        <Link className="nav-link" to="/volunteer/calendar">Calendar</Link>
+        <Link className="nav-link" to="/beneficiary/calendar">Calendar</Link>
       </div>
       <div className="nav_img">
         <img src={blog} alt="Blog Icon"/>
