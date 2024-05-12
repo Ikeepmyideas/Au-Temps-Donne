@@ -9,23 +9,23 @@ const Formation = sequelize.define('formation', {
     autoIncrement: true,
   },
   titre: { 
-    type: DataTypes.STRING, // Changed Sequelize to DataTypes
+    type: DataTypes.STRING, 
     allowNull: false 
   },
   description: { 
-    type: DataTypes.TEXT, // Changed Sequelize to DataTypes
+    type: DataTypes.TEXT, 
   },
   date_debut: { 
-    type: DataTypes.DATE, // Changed Sequelize to DataTypes
+    type: DataTypes.DATE, 
   },
   date_fin: { 
-    type: DataTypes.DATE, // Changed Sequelize to DataTypes
+    type: DataTypes.DATE, 
   },
   heure_debut: { 
-    type: DataTypes.TIME, // Changed Sequelize to DataTypes
+    type: DataTypes.TIME, 
   },
   heure_fin: { 
-    type: DataTypes.TIME, // Changed Sequelize to DataTypes
+    type: DataTypes.TIME, 
   },
   id_lieu: { 
     type: DataTypes.INTEGER, 
@@ -39,4 +39,3 @@ const Formation = sequelize.define('formation', {
 Formation.belongsTo(Lieu, { foreignKey: 'id_lieu', as: 'lieuF' });
 
 module.exports = Formation;
-
