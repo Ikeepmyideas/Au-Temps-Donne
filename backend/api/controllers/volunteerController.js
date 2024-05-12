@@ -857,19 +857,7 @@ const updateDenreesWithQRCodeInfo = async (qrCodeInfo) => {
   }
 };
 
-const getActivitePriveForLoggedInUser = async (req, res) => {
-  try {
-      const accessToken = req.cookies.access_token;
-      const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-      const userId = decodedToken.id;
 
-      const activites = await ActivityPrive.findAll({ where: { id_benevole: userId } });
-      res.status(200).json({ activites });
-  } catch (error) {
-      console.error('Erreur lors de la récupération des activités de l\'utilisateur connecté :', error);
-      res.status(500).json({ error: 'Erreur interne du serveur' });
-  }
-};
 
 const getActiviteForLoggedInUser = async (req, res) => {
   try {
