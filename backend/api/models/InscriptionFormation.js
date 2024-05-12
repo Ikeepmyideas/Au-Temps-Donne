@@ -1,29 +1,28 @@
-const sequelize = require('../config/db');
 const Sequelize = require('sequelize');
-
+const sequelize = require('../config/db');
 const Volunteer = require('./Volunteer');
 const Formation = require('./Formation');
 
 const InscriptionFormation = sequelize.define('inscriptionsformations', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    id_formation: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
-    id_benevole: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
-    date_inscription: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW
-    }
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  id_formation: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  id_benevole: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  date_inscription: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW
+  }
 }, {
-    timestamps: false
+  timestamps: false
 });
 
 // Set up the associations
