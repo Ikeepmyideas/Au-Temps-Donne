@@ -3,7 +3,12 @@ const sequelize = require('../config/db');
 const Lieu = require('./Lieu');
 
 const Formation = sequelize.define('formations', {
-  ID_Formation: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
+  ID_Formation: {
+    type: Sequelize.INTEGER,
+    primaryKey: true, // Ensure this field is marked as the primary key
+    autoIncrement: true,
+    unique: true // Add unique constraint
+  },
   titre: { type: Sequelize.STRING, allowNull: false },
   description: { type: Sequelize.TEXT },
   date_debut: { type: Sequelize.DATE },
