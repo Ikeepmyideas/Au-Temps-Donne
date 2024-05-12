@@ -3,7 +3,7 @@ const sequelize = require('../config/db');
 const Lieu = require('./Lieu');
 
 const Formation = sequelize.define('formation', {
-  ID_Formation: {
+  id_formation: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
