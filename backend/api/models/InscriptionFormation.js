@@ -13,7 +13,7 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      model: Formation, // Corrected reference to the table name
+      model: Formation,
       key: "ID_Formation"
     }
   },
@@ -26,14 +26,22 @@ const InscriptionFormation = sequelize.define('inscriptionsformations', {
     defaultValue: Sequelize.NOW
   }
 }, {
-  timestamps: false
+  timestamps: false,
+  // Explicitly specify foreign key constraint
+  foreignKeys: [{
+    name: 'FK_InscriptionFormation_Formation',
+    referencedTableName: 'formations',
+    referencedColumn: 'ID_Formation',
+    onDelete: 'NO ACTION',
+    onUpdate: 'CASCADE'
+  }]
 });
 
 // Set up the associations
 Volunteer.hasMany(InscriptionFormation, { foreignKey: 'id_benevole' });
 InscriptionFormation.belongsTo(Volunteer, { foreignKey: 'id_benevole', as: 'volunteer' });
 
-InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'formation' }); // Corrected foreign key
+InscriptionFormation.belongsTo(Formation, { foreignKey: 'id_formation', as: 'formation' });
 Formation.hasMany(InscriptionFormation, { foreignKey: 'id_formation' });
 
 module.exports = InscriptionFormation;
