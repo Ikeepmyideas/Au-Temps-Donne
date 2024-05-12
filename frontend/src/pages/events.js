@@ -58,7 +58,7 @@ function Event() {
 
     const fetchActivities = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/event/activities/latest');
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/event/activities/latest');
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }
@@ -77,7 +77,7 @@ function Event() {
 
         setLoadingVolunteers(true);
         try {
-            const response = await fetch(`http://localhost:8000/api/event/benevoleDispo/${formData.date_activite}/${formData.heure_debut}/${formData.heure_fin}`);
+            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/event/benevoleDispo/${formData.date_activite}/${formData.heure_debut}/${formData.heure_fin}`);
             if (!response.ok) throw new Error('Erreur réseau');
             const data = await response.json();
             setVolunteers(data);
@@ -102,7 +102,7 @@ function Event() {
 
     const fetchAddresses = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/admin/adresses');
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/admin/adresses');
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }
@@ -134,7 +134,7 @@ function Event() {
         const formData = new FormData(event.target);
     
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/event/addActivity', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/event/addActivity', {
                 method: 'POST',
                 body: formData,
             });
@@ -154,7 +154,7 @@ function Event() {
             if (loadingVolunteers) return;
         
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/event/addActivityPrive', {
+                const response = await fetch('https://au-temps-donne-api.onrender.com/api/event/addActivityPrive', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -181,7 +181,7 @@ const handleSubmitF = async (event) => {
     });
 
 try {
-    const response = await fetch('http://127.0.0.1:8000/api/event/addFormation', {
+    const response = await fetch('https://au-temps-donne-api.onrender.com/api/event/addFormation', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -269,7 +269,7 @@ try {
 
     const fetchServices = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/event/services');
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/event/services');
             if (!response.ok) {
                 throw new Error('Problème de réponse réseau');
             }
@@ -315,7 +315,7 @@ try {
             const [selectedBeneficiary, setSelectedBeneficiary] = useState('');
         
             useEffect(() => {
-                fetch('http://localhost:8000/api/admin/beneficiaires')
+                fetch('https://au-temps-donne-api.onrender.com/api/admin/beneficiaires')
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -373,7 +373,7 @@ try {
                             <div key={index} className="elm_box">
                                 <div className="infos">
                                     <div className="info">
-                                        <img height="180px" src={`http://localhost:8000${activity.image}`} style={{ borderRadius: '25px' }} alt={activity.titre} />
+                                        <img height="180px" src={`https://au-temps-donne-api.onrender.com${activity.image}`} style={{ borderRadius: '25px' }} alt={activity.titre} />
                                         <div className="info-container">
                                             <div className="hour">
                                                 <img id="img-time" height="20px" src={horlogeIcon} alt="Horloge"/>
