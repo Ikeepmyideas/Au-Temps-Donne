@@ -12,7 +12,7 @@ function Event() {
     const currentPath = location.pathname;
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/event/activites')
+        fetch('https://au-temps-donne-api.onrender.com/api/event/activites')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur réseau');
