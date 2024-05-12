@@ -36,7 +36,7 @@ function NavMenuV() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch('http://localhost:8000/api/beneficiary/userinfo', {
+        const response = await fetch('https://au-temps-donne-api.onrender.com/api/beneficiary/userinfo', {
           method: 'GET',
           credentials: 'include'
         });
