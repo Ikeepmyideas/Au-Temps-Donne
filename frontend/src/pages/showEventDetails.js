@@ -38,7 +38,7 @@ function Activity() {
 
     const fetchEventDetails = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/event/activites/${eventId}`);
+            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/event/activites/${eventId}`);
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }
@@ -61,7 +61,7 @@ function Activity() {
     };
     const fetchEventPDetails = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/event/activites_prives/${eventId}`);
+            const response = await fetch(`https://au-temps-donne-api.onrender.com/api/event/activites_prives/${eventId}`);
             if (!response.ok) {
                 throw new Error('Erreur réseau');
             }
@@ -106,7 +106,7 @@ function Activity() {
     useEffect(() => {
         async function fetchUserData() {
           try {
-            const response = await fetch('http://localhost:8000/api/volunteer/userinfo', {
+            const response = await fetch('https://au-temps-donne-api.onrender.com/api/volunteer/userinfo', {
               method: 'GET',
               credentials: 'include'
             });
@@ -130,7 +130,7 @@ function Activity() {
           if (userInfo) {
             try {
               const ID_Benevole = userInfo.id; 
-              const response = await axios.get(`http://127.0.0.1:8000/api/volunteer/registrations/${eventId}/${ID_Benevole}`);
+              const response = await axios.get(`https://au-temps-donne-api.onrender.com/api/volunteer/registrations/${eventId}/${ID_Benevole}`);
               if (response.status === 200) {
                 setShowSuccessAlert(true);
               }
@@ -150,7 +150,7 @@ function Activity() {
         setError(null);
 
         try {
-            const response = await axios.post(`http://127.0.0.1:8000/api/volunteer/activites/registrations/${eventId}`, {
+            const response = await axios.post(`https://au-temps-donne-api.onrender.com/api/volunteer/activites/registrations/${eventId}`, {
                 ID_event: eventId,
                 ID_Benevole: benevoleId
             });
@@ -176,7 +176,7 @@ function Activity() {
         setError(null);
     
         try {
-            const response = await axios.delete(`http://127.0.0.1:8000/api/volunteer/registrations/delete/${eventId}/${benevoleId}`);
+            const response = await axios.delete(`https://au-temps-donne-api.onrender.com/api/volunteer/registrations/delete/${eventId}/${benevoleId}`);
     
             if (response.status === 200) {
                 setSuccess(false);
