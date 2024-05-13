@@ -20,7 +20,7 @@ const {
 } = require('../controllers/entrepotController');
 
 router.use(cors({
-    origin: [' https://au-temps-donne-frontend.onrender.com/','http://localhost:3001', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
+    origin: [' https://au-temps-donne-frontend.onrender.com/','https://au-temps-donne.onrender.com', 'http://10.0.2.2:8000', 'http://10.0.2.3:8000'], // Ajoutez l'adresse de l'émulateur Android
     credentials: true 
   }));
 
