@@ -1,13 +1,8 @@
-// maraude.js
-
-const { DataTypes, Model } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const Volunteer = require('./Volunteer');
-const Stock = require('./Stocks');
 
-class Maraude extends Model {}
-
-Maraude.init({
+const Maraude = sequelize.define('maraude', {
   ID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -34,29 +29,35 @@ Maraude.init({
   },
   ChauffeurID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
-      model: Volunteer,
-      key: 'id'
+      model: 'benevoles', // Ensure this matches the name used in sequelize.define() for the Benevole model
+      key: 'id' // Assume primary key is 'ID' in the Benevole model
     }
   },
-  StockID: {
+  StockID: { 
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
-      model: Stock, // Ensure that Stock is correctly imported
-      key: 'ID_Stock'
+      model: 'Stocks',  // Changed to 'Stock', assuming you are using a singular naming convention
+      key: 'ID_Stock'  // Assume primary key is 'ID' in the Stock model
     }
   }
 }, {
-  sequelize,
-  modelName: 'Maraude',
-  tableName: 'maraude', // Ensure the correct table name is specified
-  timestamps: false
+    tableName: "maraude",
+    timestamps: false
 });
-
-// Define associations
 Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
-Maraude.belongsTo(Stock, { foreignKey: 'StockID', as: 'Stock' });
+console.log(Maraude.associations);
+
+
+// Maraude.associate = function(models) {
+//   Maraude.belongsTo(models.Volunteer, {
+//     foreignKey: 'ChauffeurID',
+//     as: 'Chauffeur'
+//   });
+  // Maraude.belongsTo(models.Stocks, {
+  //   foreignKey: 'StockID',
+  //   as: 'Stock'
+  // });
+
 
 module.exports = Maraude;
