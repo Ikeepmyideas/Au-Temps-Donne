@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const Volunteer = require('./Volunteer');
-const Stock = require('./Stocks');
+const Stock = require('./Stocks'); // Ensure this path is correct
 
 const Maraude = sequelize.define('Maraude', {
   ID: {
@@ -38,7 +38,7 @@ const Maraude = sequelize.define('Maraude', {
   StockID: { 
     type: DataTypes.INTEGER,
     references: {
-      model: Stock,
+      model: Stock, // Ensure Stock model is correctly imported
       key: 'ID_Stock'
     }
   }
