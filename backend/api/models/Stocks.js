@@ -1,39 +1,54 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const Entrepot = require('./Entrepot');
-const Denree = require('./Denree');
+const Volunteer = require('./Volunteer');
+const Stock = require('./Stocks'); // Corrected import path
 
-const Stock = sequelize.define('Stock', {
-  ID_Stock: {
+const Maraude = sequelize.define('Maraude', {
+  ID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  date_collecte: {
+  Nom: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  LieuDepart: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  LieuArrivee: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  DateDebut: {
     type: DataTypes.DATE,
     allowNull: false
   },
-  ID_Entrepot: {
+  Description: {
+    type: DataTypes.TEXT
+  },
+  ChauffeurID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
-      model: Entrepot,
+      model: Volunteer,
       key: 'id'
     }
   },
-  ID_Denree: {
+  StockID: { 
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
-      model: Denree,
-      key: 'ID_Denree'
+      model: Stock, // Corrected model reference
+      key: 'ID_Stock'
     }
-  },
+  }
 }, {
-  timestamps: false 
+    tableName: "maraude",
+    timestamps: false
 });
 
-Stock.belongsTo(Entrepot, { foreignKey: 'ID_Entrepot', as: 'entrepot' });
-Stock.belongsTo(Denree, { foreignKey: 'ID_Denree', as: 'denree' });
+// Associations
+Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
+Maraude.belongsTo(Stock, { foreignKey: 'StockID', as: 'Stock' });
 
-module.exports = Stock;
+module.exports = Maraude;
