@@ -1,9 +1,13 @@
-const { DataTypes } = require('sequelize');
+// maraude.js
+
+const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db');
 const Volunteer = require('./Volunteer');
-const Stocks = require('./Stocks'); // Corrected import name
+const Stock = require('./Stocks');
 
-const Maraude = sequelize.define('Maraude', {
+class Maraude extends Model {}
+
+Maraude.init({
   ID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -40,17 +44,19 @@ const Maraude = sequelize.define('Maraude', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Stocks, // Corrected model name
+      model: Stock, // Ensure that Stock is correctly imported
       key: 'ID_Stock'
     }
   }
 }, {
-  tableName: "maraude",
+  sequelize,
+  modelName: 'Maraude',
+  tableName: 'maraude', // Ensure the correct table name is specified
   timestamps: false
 });
 
 // Define associations
 Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
-Maraude.belongsTo(Stocks, { foreignKey: 'StockID', as: 'Stock' }); // Corrected model name
+Maraude.belongsTo(Stock, { foreignKey: 'StockID', as: 'Stock' });
 
 module.exports = Maraude;
