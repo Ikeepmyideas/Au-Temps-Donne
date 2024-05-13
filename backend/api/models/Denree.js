@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const Partenaire = require("./Partenaire");
-const Maraude = require("./Maraude");
+const Maraude = require("./Maraude"); // Import Maraude model
 
 const Denree = sequelize.define("denrees", {
   ID_Denree: {
@@ -37,7 +37,7 @@ const Denree = sequelize.define("denrees", {
       key: "ID_Commercant"
     }
   },
- id_maraude: {
+  id_maraude: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
@@ -45,19 +45,23 @@ const Denree = sequelize.define("denrees", {
       key: "ID"
     }
   },
-    Date_ajout: {
+  Date_ajout: {
     type: DataTypes.DATE,
     allowNull: true,
   },
-statut_collecte: {
-type: DataTypes.STRING,
-allowNull: true,
-},
+  statut_collecte: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+}, {
+  tableName: "denrees",
+  timestamps: false
+});
 
-  }, {
-    tableName: "denrees",
-    timestamps: false
-  });
-  Denree.belongsTo(Partenaire, { foreignKey: "id_commercant", as: "commercant" });
+// Define association with Partenaire model
+Denree.belongsTo(Partenaire, { foreignKey: "id_commercant", as: "commercant" });
+
+// Define association with Maraude model
+Denree.belongsTo(Maraude, { foreignKey: "id_maraude", as: "maraude" });
 
 module.exports = Denree;
