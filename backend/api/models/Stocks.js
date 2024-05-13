@@ -29,12 +29,14 @@ const Stock = sequelize.define('Stock', {
       key: 'ID_Denree'
     }
   },
-}, {
-  timestamps: false
+},
+{
+timestamps: false 
 });
-
-// Define associations
+// Association avec le modèle Entrepot
 Stock.belongsTo(Entrepot, { foreignKey: 'ID_Entrepot', as: 'entrepot' });
+
+// Association avec le modèle Denree
 Stock.belongsTo(Denree, { foreignKey: 'ID_Denree', as: 'denree' });
 
 module.exports = Stock;
