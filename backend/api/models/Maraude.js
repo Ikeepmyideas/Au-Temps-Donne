@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const Volunteer = require('./Volunteer');
-const Stock = require('./Stocks');
+const Stocks = require('./Stocks'); // Corrected import name
 
 const Maraude = sequelize.define('Maraude', {
   ID: {
@@ -40,7 +40,7 @@ const Maraude = sequelize.define('Maraude', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Stock,
+      model: Stocks, // Corrected model name
       key: 'ID_Stock'
     }
   }
@@ -51,6 +51,6 @@ const Maraude = sequelize.define('Maraude', {
 
 // Define associations
 Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
-Maraude.belongsTo(Stock, { foreignKey: 'StockID', as: 'Stock' });
+Maraude.belongsTo(Stocks, { foreignKey: 'StockID', as: 'Stock' }); // Corrected model name
 
 module.exports = Maraude;
