@@ -1,42 +1,63 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const Entrepot = require('./Entrepot');
-const Denree = require('./Denree');
+const Volunteer = require('./Volunteer');
 
-const Stock = sequelize.define('Stock', {
-  ID_Stock: {
+const Maraude = sequelize.define('maraude', {
+  ID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  date_collecte: {
+  Nom: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  LieuDepart: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  LieuArrivee: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  DateDebut: {
     type: DataTypes.DATE,
     allowNull: false
   },
-  ID_Entrepot: {
+  Description: {
+    type: DataTypes.TEXT
+  },
+  ChauffeurID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
-      model: Entrepot,
-      key: 'id'
+      model: 'benevoles', // Ensure this matches the name used in sequelize.define() for the Benevole model
+      key: 'id' // Assume primary key is 'ID' in the Benevole model
     }
   },
-  ID_Denree: {
+  StockID: { 
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
-      model: Denree,
-      key: 'ID_Denree'
+      model: 'Stocks',  // Changed to 'Stock', assuming you are using a singular naming convention
+      key: 'ID_Stock'  // Assume primary key is 'ID' in the Stock model
     }
-  },
+  }
 }, {
-  timestamps: false 
+    tableName: "maraude",
+    timestamps: false
 });
+Maraude.belongsTo(Volunteer, { foreignKey: 'ChauffeurID', as: 'Chauffeur' });
+console.log(Maraude.associations);
 
-// Association with the Entrepot model
-Stock.belongsTo(Entrepot, { foreignKey: 'ID_Entrepot', as: 'entrepot' });
 
-// Association with the Denree model
-Stock.belongsTo(Denree, { foreignKey: 'ID_Denree', as: 'denree' });
+// Maraude.associate = function(models) {
+//   Maraude.belongsTo(models.Volunteer, {
+//     foreignKey: 'ChauffeurID',
+//     as: 'Chauffeur'
+//   });
+  // Maraude.belongsTo(models.Stocks, {
+  //   foreignKey: 'StockID',
+  //   as: 'Stock'
+  // });
 
-module.exports = Stock;
+
+module.exports = Maraude;
