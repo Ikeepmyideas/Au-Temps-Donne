@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize('Xnauteb622', 'xnauteb622', 'Asmaoceanekhaoula2024', {
   host: '51.91.236.255',
-  dialect: 'mssql',
+  dialect: 'mysql2',
   port: 3306,
 });
 
