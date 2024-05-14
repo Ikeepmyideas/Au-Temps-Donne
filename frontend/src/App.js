@@ -124,6 +124,7 @@ function App() {
           <Route path="/volunteer/UpdateAvailability" element={<UpdateAvailability />} />
           <Route path="/volunteer/evenements" element={<Events />} />
           <Route path="/volunteer/all-events" element={<AllEvents />} />
+          <Route path="/volunteer/support" element={<Support />} />
           <Route path="/volunteer/activity-details/:eventId" element={<DetailsEvent />} />
           <Route path="/volunteer/activity-avenir/:id" element={<EventAvenir />} />
           <Route path="/volunteer/formations" element={<Formations />} />
