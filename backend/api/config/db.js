@@ -1,10 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('Xnauteb622', 'xnauteb622', 'Asmaoceanekhaoula2024', {
-  host: '51.91.236.255',
-  dialect: 'mysql',
-  port: 3306,
-});
+
+
+const sequelize = new Sequelize('mysql://xnauteb622:Asmaoceanekhaoula2024@51.91.236.255:port/Xnauteb622');
 
 sequelize.authenticate()
   .then(() => {
