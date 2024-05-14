@@ -4,7 +4,6 @@ const sequelize = new Sequelize('Xnauteb622', 'xnauteb622', 'Asmaoceanekhaoula20
   host: '51.91.236.255',
   dialect: 'mssql',
   port: 3306,
-    logging: false 
 });
 
 sequelize.authenticate()
