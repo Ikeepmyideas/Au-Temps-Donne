@@ -1,42 +1,19 @@
-const { DataTypes } = require('sequelize');
+const Sequelize = require('sequelize');
 const sequelize = require('../config/db');
 const Lieu = require('./Lieu');
 
-const Formation = sequelize.define('formation', {
-  ID_Formation: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-    unique: true
-  },
-  titre: { 
-    type: DataTypes.STRING, 
-    allowNull: false 
-  },
-  description: { 
-    type: DataTypes.TEXT, 
-  },
-  date_debut: { 
-    type: DataTypes.DATE, 
-  },
-  date_fin: { 
-    type: DataTypes.DATE, 
-  },
-  heure_debut: { 
-    type: DataTypes.TIME, 
-  },
-  heure_fin: { 
-    type: DataTypes.TIME, 
-  },
-  id_lieu: { 
-    type: DataTypes.INTEGER, 
-    allowNull: false 
-  }
+const Formation = sequelize.define('formations', {
+  id_formation: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
+  titre: { type: Sequelize.STRING, allowNull: false },
+  description: { type: Sequelize.TEXT },
+  date_debut: { type: Sequelize.DATE },
+  date_fin: { type: Sequelize.DATE },
+  heure_debut: { type: Sequelize.TIME },
+  heure_fin: { type: Sequelize.TIME },
+  id_lieu: {type: Sequelize .INTEGER}
 }, {
-  timestamps: false,
-  tableName: 'formations'
+  timestamps: false
 });
-
-Formation.belongsTo(Lieu, { foreignKey: 'id_lieu', as: 'lieuF' });
+Formation.belongsTo(Lieu, { foreignKey: 'id_lieu', as: 'lieu' });
 
 module.exports = Formation;
