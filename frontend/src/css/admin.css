@@ -1309,3 +1309,7 @@ input[type="time"] {
   max-width: 800px;
   margin: 0 auto;
 }
+
+.red-text {
+  color: red;
+}
