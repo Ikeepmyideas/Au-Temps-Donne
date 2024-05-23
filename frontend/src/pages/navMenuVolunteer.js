@@ -138,14 +138,14 @@ function NavMenuV() {
             <span>Documents</span>
           </Link>
         </li>
-        <hr className="hr2"/>
+        <hr className="hr2" to="/volunteer/Support"/>
         <li className="menu_title">
           <strong><span>SUPPORT</span></strong>
         </li>
         <li>
-          <Link className='nav-link' to="/volunteer/settings">
+          <Link className='nav-link' to="/volunteer/support">
             <img src={settings} alt="Settings"/>
-            <span>Paramètres</span>
+            <span>Support</span>
           </Link>
         </li>
         <li>

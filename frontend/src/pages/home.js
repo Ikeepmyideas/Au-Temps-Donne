@@ -41,7 +41,7 @@ function Home() {
             const email = document.getElementById('emailInput').value;
             const currentDate = new Date().toISOString().slice(0, 10);
 
-            fetch('http://localhost:8000/api/newsletter/add', {
+            fetch('http://51.91.236.255/api/newsletter/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

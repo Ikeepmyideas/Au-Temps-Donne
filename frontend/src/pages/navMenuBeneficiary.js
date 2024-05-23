@@ -98,8 +98,8 @@ function NavMenuV() {
         <div className="user-info">
         {userInfo && (
           <div>
-            <center><h3 >Bienvenue {userInfo.prenom}</h3></center>
-
+            <center><h3 >Bienvenue {userInfo.prenom}</h3>
+            <p>Bénéficiaire</p></center>
           </div>
         )}
       </div>
@@ -132,10 +132,8 @@ function NavMenuV() {
           </Link>
         </li>
         <hr className="hr2"/>
-   
-       
-        <li>
-          <Link className={highlight['/beneficiary/support'] ? "highlighted" : ""}>
+        <li  className={highlight['/beneficiary/support'] ? "highlighted" : ""}>
+          <Link  to="/beneficiary/support">
             <img src={settings} alt="Settings"/>
             <span>Support</span>
           </Link>

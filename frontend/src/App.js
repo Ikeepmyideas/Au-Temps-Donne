@@ -53,12 +53,16 @@ import ChangePasswordC from './pages/partner/changepassword';
 import Supportc from './pages/partner/contactsupport';
 import Documentsc from './pages/partner/documents';
 import Support from './pages/beneficiary/Support';
+import SupportV from './pages/supportv';
+
 import CalendarB from './pages/beneficiary/calendar';
 import CalendarV from './pages/calendarV';
 import MaraudeV from './pages/maraudeV';
 import Maraude from './pages/maraude';
 import Collecte from './pages/creation_circuit';
 
+import Entrepots from './pages/entrepots';
+import Denrees from './pages/denrees';
 
 import './css/home.css';
 import './css/signup.css';  
@@ -100,6 +104,8 @@ function App() {
             <Route path="/admin/membres" element={<MembreList />} />
             <Route path="/admin/events" element={<Event />} />
             <Route path="/admin/maraude" element={<Maraude />} />
+            <Route path="/admin/denrees" element={<Denrees />} />
+            <Route path="/admin/entrepots" element={<Entrepots />} />
             <Route path="/admin/formations" element={<Formation />} />
             <Route path="/admin/volunteersF" element={<VolunteersF />} />
             <Route path="/admin/formations/:ID_Formation" element={<FormationDetails />} />
@@ -119,6 +125,7 @@ function App() {
           <Route path="/candidat" element={<Candidat />} />
           <Route path="/volunteer/dashboard" element={<Dashboardv />} />
           <Route path="/volunteer/calendar" element={<CalendarV />} />
+          <Route path="/volunteer/support" element={<SupportV />} />
           <Route path="/volunteer/profile" element={<Profilev />} />
           <Route path="/volunteer/maraude" element={<MaraudeV />} />
           <Route path="/volunteer/UpdateAvailability" element={<UpdateAvailability />} />
@@ -128,6 +135,8 @@ function App() {
           <Route path="/volunteer/activity-avenir/:id" element={<EventAvenir />} />
           <Route path="/volunteer/formations" element={<Formations />} />
           <Route path="/volunteer/formations/:ID_Formation" element={<FormationsD />} />
+          <Route path="/volunteer/Support" element={<Supportc />} />
+
 
         </Route>
         <Route element={<ProtectedRoute userType="beneficiary"/>}>

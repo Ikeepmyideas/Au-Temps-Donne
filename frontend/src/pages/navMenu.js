@@ -18,7 +18,7 @@ import exit from '../assets/exit.png';
 import mard from '../assets/messages.png';
 import '../css/admin.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTruck,faEye,faMap,faSearch , faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
+import { faTruck,faHandHoldingHeart,faEye,faMap,faSearch ,faWarehouse, faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
 function NavMenu() {
   const location = useLocation();
   const [highlight, setHighlight] = useState({});
@@ -137,6 +137,18 @@ function NavMenu() {
           <Link className='nav-link' to="/admin/maraude">
           <FontAwesomeIcon icon={faTruck} style={{ marginLeft:'25px' }} />
             <span>Maraudes</span>
+          </Link>
+        </li>
+        <li className={highlight['/admin/entrepots'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/admin/entrepot">
+          <FontAwesomeIcon icon={faWarehouse} style={{ marginLeft:'25px' }} />
+            <span>Entrepots</span>
+          </Link>
+        </li>
+        <li className={highlight['/admin/denrees'] ? "highlighted" : ""}>
+          <Link className='nav-link' to="/admin/denrees">
+          <FontAwesomeIcon icon={faHandHoldingHeart} style={{ marginLeft:'25px' }} />
+            <span>Denrées</span>
           </Link>
         </li>
         <hr className="hr2"/>

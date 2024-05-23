@@ -10,7 +10,7 @@ function ProblemForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true); 
+    setSubmitting(true);   
     try {
       const response = await fetch('http://localhost:8000/api/partenaire/problems', {
         method: 'POST',
