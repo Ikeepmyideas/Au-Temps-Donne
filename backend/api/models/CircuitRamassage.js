@@ -1,27 +1,49 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+const Denree = require('./Denree');
+const Chauffeur = require('./Volunteer');  // Assuming you have a Chauffeur model
 
-const CircuitRamassage = sequelize.define("circuit_ramassage", {
-  ID_Circuit: {
+const Collecte = sequelize.define('collecte', {
+  id_collecte: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  date_circuit: {
+  date_collecte: {
     type: DataTypes.DATE,
     allowNull: false
   },
-  ID_Route: {
-    type: DataTypes.INTEGER,
+  LieuDepart: {
+    type: DataTypes.STRING,
     allowNull: false
   },
-  ID_Benevole: {
+  LieuArrivee: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  id_denree: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: false,
+    references: {
+      model: Denree,
+      key: 'ID_Denree'
+    }
+  },
+  id_chauffeur: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Chauffeur,  // Assuming you have a Chauffeur model
+      key: 'id'
+    }
+  },
+  ID_Route: {
+    type: DataTypes.INTEGER,
+    allowNull: true // Assuming this can be nullable, adjust if necessary
   }
 }, {
-  tableName: "circuit_ramassage",
+  tableName: 'collecte',
   timestamps: false
 });
 
-module.exports = CircuitRamassage;
+module.exports = Collecte;

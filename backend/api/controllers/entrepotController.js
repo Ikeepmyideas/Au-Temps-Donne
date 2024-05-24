@@ -257,7 +257,6 @@ const getVolunteersDisponibles = async (req, res) => {
 };
 const axios = require('axios');
 
-
 const generateItinerary = async (req, res) => {
     try {
         const { addresses } = req.body;
@@ -288,7 +287,7 @@ const generateItinerary = async (req, res) => {
 
         const resolvedPoints = await Promise.all(addresses.map(resolveAddress));
 
-        const waypoints = resolvedPoints.map(point => `via:${point.coordinates}`).join('|');
+        const waypoints = resolvedPoints.slice(1, -1).map(point => `via:${point.coordinates}`).join('|');
         const routeRequestURL = `https://maps.googleapis.com/maps/api/directions/json?origin=${resolvedPoints[0].coordinates}&destination=${resolvedPoints[resolvedPoints.length - 1].coordinates}&waypoints=${waypoints}&key=${apiKey}`;
 
         const routeResponse = await axios.get(routeRequestURL);
@@ -305,6 +304,7 @@ const generateItinerary = async (req, res) => {
 
         const startAddress = resolvedPoints[0].address;
         const destinationAddress = resolvedPoints[resolvedPoints.length - 1].address;
+        const waypointsAddresses = resolvedPoints.slice(1, -1).map(point => point.address);
 
         console.log(`Estimated car time: ${hours} hours and ${minutes} minutes`);
 
@@ -313,6 +313,7 @@ const generateItinerary = async (req, res) => {
             routeCoordinates,
             startAddress,
             destinationAddress,
+            waypointsAddresses,
             estimatedCarTime: { hours, minutes } 
         };
 
@@ -322,6 +323,7 @@ const generateItinerary = async (req, res) => {
         res.status(500).json({ error: 'Failed to generate itinerary' });
     }
 };
+
 const getMaraude = async (req, res) => {
     try {
   
@@ -346,152 +348,173 @@ const getMaraude = async (req, res) => {
 const fs = require('fs');
 const qrcode = require('qrcode');
 const Route = require('../models/Route');
-const CircuitRamassage = require('../models/CircuitRamassage'); 
-const CommercantCircuit = require('../models/CommercantCircuit');
+const Collecte = require('../models/CircuitRamassage'); 
 const addCollecte = async (req, res) => {
     try {
-        const { date_collecte, LieuDepart, LieuArrivee, id_chauffeur,id_denree } = req.body;
-
-        // Create a new collecte record
-        const newCollecte = await CircuitRamassage.create({
-            date_collecte,
-            LieuDepart,
-            LieuArrivee,
-            id_chauffeur,
-            id_denree
-
+      const { date_collecte, id_chauffeur, collecteRequests } = req.body;
+  
+      if (!Array.isArray(collecteRequests)) {
+        return res.status(400).json({ message: 'Invalid data format: collecteRequests must be an array' });
+      }
+  
+      for (const stockItem of collecteRequests) {
+        const stockExists = await Stock.findOne({
+          where: {
+            ID_Denree: stockItem.id_denree,
+            ID_Entrepot: stockItem.ID_Entrepot,
+            date_collecte: stockItem.date_collecte
+          }
         });
-
-        res.status(201).json({
-            message: 'Collecte successfully created!',
-            collecte: newCollecte
+  
+        if (stockExists) {
+          return res.status(400).json({ message: `Denree with ID ${stockItem.id_denree} already exists in Stock.` });
+        }
+  
+        const collecteExists = await Collecte.findOne({
+          where: {
+            id_denree: stockItem.id_denree,
+            date_collecte: stockItem.date_collecte
+          }
         });
+  
+        if (collecteExists) {
+          return res.status(400).json({ message: `Denree with ID ${stockItem.id_denree} already exists in Collecte.` });
+        }
+  
+        await Collecte.create({
+          date_collecte: stockItem.date_collecte,
+          LieuDepart: stockItem.LieuDepart,
+          LieuArrivee: stockItem.LieuArrivee,
+          id_denree: stockItem.id_denree,
+          id_chauffeur: stockItem.id_chauffeur,
+        });
+  
+        await Stock.create({
+          date_collecte: stockItem.date_collecte,
+          ID_Entrepot: stockItem.ID_Entrepot,
+          ID_Denree: stockItem.id_denree,
+          etages: stockItem.etages,
+          rayons: stockItem.rayons
+        });
+      }
+  
+      res.status(201).json({ message: 'Collecte et stocks ajoutés avec succès' });
     } catch (error) {
-        console.error('Failed to add collecte:', error);
-        res.status(500).json({
-            message: 'Failed to add collecte',
-            error: error.message
-        });
+      console.error(error);
+      res.status(500).json({ message: 'Erreur lors de la création de la collecte et des stocks' });
     }
-};
+  };
+  
+  module.exports = { addCollecte };
+  
 const generateItineraryCollecte = async (req, res) => {
     try {
-        const { addresses} = req.body;
+        const { addresses, selectedPartners } = req.body;
         const apiKey = 'AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4';
 
-                const resolveAddress = async (address) => {
-                    try {
-                        const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-                            params: {
-                                address: address,
-                                key: apiKey
-                            }
-                        });
-        
-                        if (response.data.results && response.data.results.length > 0) {
-                            const location = response.data.results[0].geometry.location;
-                            const coordinates = `${location.lat},${location.lng}`;
-                            console.log(`Resolved address "${address}" to coordinates: ${coordinates}`);
-                            return { address, coordinates };
-                        } else {
-                            throw new Error('Address not found');
-                        }
-                    } catch (error) {
-                        console.error(`Error resolving address "${address}":`, error);
-                        throw new Error(`Failed to resolve address "${address}"`);
+        const resolveAddress = async (address) => {
+            try {
+                const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+                    params: {
+                        address: address,
+                        key: apiKey
                     }
-                };
-        
-                const resolvedPoints = await Promise.all(addresses.map(resolveAddress));
-        
-                const waypoints = resolvedPoints.map(point => `via:${point.coordinates}`).join('|');
-                const routeRequestURL = `https://maps.googleapis.com/maps/api/directions/json?origin=${resolvedPoints[0].coordinates}&destination=${resolvedPoints[resolvedPoints.length - 1].coordinates}&waypoints=${waypoints}&key=${apiKey}`;
-        
-                const routeResponse = await axios.get(routeRequestURL);
-        
-                const route = routeResponse.data.routes[0];
-        
-                const startAddress = resolvedPoints[0].address;
-                const destinationAddress = resolvedPoints[resolvedPoints.length - 1].address;
-        
-                const routeCoordinates = decodePolyline(route.overview_polyline.points);
-                
-               
-                let allGoodsData = '';
-                for (const partner of selectedPartners) {
-                    if (partner.ID_Commercant !== null) {
-                        await CommercantCircuit.create({
-                            ID_Commercant: partner.id,
-                            id_collecte: CircuitRamassage.id_collecte 
-                        });
-                    } else {
-                        console.log('ID_Commercant is null for partner:', partner);
-                    }
+                });
 
-                    console.log(`Goods for partner ${partner.id}:`);
-                    partner.goods.forEach(good => {
-                        console.log(good.ID_Denree);
-                        allGoodsData += good.ID_Denree + ',';
-                    });
+                if (response.data.results && response.data.results.length > 0) {
+                    const location = response.data.results[0].geometry.location;
+                    const coordinates = `${location.lat},${location.lng}`;
+                    return { address, coordinates };
+                } else {
+                    throw new Error('Address not found');
                 }
-                
+            } catch (error) {
+                console.error(`Error resolving address "${address}":`, error);
+                throw new Error(`Failed to resolve address "${address}"`);
+            }
+        };
+
+        const resolvedPoints = await Promise.all(addresses.map(resolveAddress));
+        const waypoints = resolvedPoints.slice(1, -1).map(point => `via:${point.coordinates}`).join('|');
+        const routeRequestURL = `https://maps.googleapis.com/maps/api/directions/json?origin=${resolvedPoints[0].coordinates}&destination=${resolvedPoints[resolvedPoints.length - 1].coordinates}&waypoints=${waypoints}&key=${apiKey}`;
+
+        const routeResponse = await axios.get(routeRequestURL);
+        const route = routeResponse.data.routes[0];
+
+        const startAddress = resolvedPoints[0].address;
+        const destinationAddress = resolvedPoints[resolvedPoints.length - 1].address;
+
+        const routeCoordinates = decodePolyline(route.overview_polyline.points);
+
+        let allGoodsData = '';
+        for (const partner of selectedPartners) {
+            if (partner.ID_Commercant !== null) {
+                await CommercantCircuit.create({
+                    ID_Commercant: partner.id,
+                    id_collecte: newCollecte.id
+                });
+            }
+
+            partner.goods.forEach(good => {
+                allGoodsData += good.ID_Denree + ',';
+            });
+        }
+
         const arrivalEntrepot = addresses[addresses.length - 1];
         allGoodsData += `${arrivalEntrepot},`;
-
         allGoodsData = allGoodsData.slice(0, -1);
 
         const qrCodePath = `./qrcodes/all_goods_qrcode.png`;
         await qrcode.toFile(qrCodePath, allGoodsData);
-        console.log(`QR code for all partners' goods and arrival entrepot generated at: ${qrCodePath}`);
 
+        const itineraryData = {
+            routeCoordinates,
+            startAddress,
+            destinationAddress,
+            mapImage: qrCodePath
+        };
 
-                const itineraryData = {
-                    routeCoordinates,
-                    startAddress,
-                    destinationAddress,
-                    mapImage: imagePath 
-                };
-        
-                res.json(itineraryData);
-            } catch (error) {
-                console.error('Error generating itinerary:', error);
-                res.status(500).json({ error: 'Failed to generate itinerary' });
-            }
-        };
-        
-        const decodePolyline = (encoded) => {
-            let index = 0;
-            const len = encoded.length;
-            const array = [];
-            let lat = 0;
-            let lng = 0;
-        
-            while (index < len) {
-                let b;
-                let shift = 0;
-                let result = 0;
-                do {
-                    b = encoded.charCodeAt(index++) - 63;
-                    result |= (b & 0x1f) << shift;
-                    shift += 5;
-                } while (b >= 0x20);
-                const dlat = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
-                lat += dlat;
-                shift = 0;
-                result = 0;
-                do {
-                    b = encoded.charCodeAt(index++) - 63;
-                    result |= (b & 0x1f) << shift;
-                    shift += 5;
-                } while (b >= 0x20);
-                const dlng = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
-                lng += dlng;
-                array.push([lat * 1e-5, lng * 1e-5]);
-            }
-            return array;
-        };
-        
-        module.exports = { generateItinerary };
+        res.json(itineraryData);
+    } catch (error) {
+        console.error('Error generating itinerary:', error);
+        res.status(500).json({ error: 'Failed to generate itinerary' });
+    }
+};
+
+const decodePolyline = (encoded) => {
+    let index = 0;
+    const len = encoded.length;
+    const array = [];
+    let lat = 0;
+    let lng = 0;
+
+    while (index < len) {
+        let b;
+        let shift = 0;
+        let result = 0;
+        do {
+            b = encoded.charCodeAt(index++) - 63;
+            result |= (b & 0x1f) << shift;
+            shift += 5;
+        } while (b >= 0x20);
+        const dlat = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
+        lat += dlat;
+        shift = 0;
+        result = 0;
+        do {
+            b = encoded.charCodeAt(index++) - 63;
+            result |= (b & 0x1f) << shift;
+            shift += 5;
+        } while (b >= 0x20);
+        const dlng = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
+        lng += dlng;
+        array.push([lat * 1e-5, lng * 1e-5]);
+    }
+    return array;
+};
+
+module.exports = { generateItineraryCollecte };
+
         
 
         

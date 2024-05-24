@@ -45,5 +45,6 @@ router.post('/addCollecte', addCollecte );
 router.post('/route', generateItineraryCollecte );
 
 router.post('/itinerary', generateItinerary);
+router.post('/generateItineraryCollecte', generateItineraryCollecte);
 
 module.exports = router;

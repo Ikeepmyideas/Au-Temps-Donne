@@ -29,6 +29,14 @@ const Stock = sequelize.define('Stock', {
       key: 'ID_Denree'
     }
   },
+  etages: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  rayons: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 },
 {
 timestamps: false 
