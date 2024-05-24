@@ -1,25 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import '../css/admin.css';
 import NavMenu from './navMenu';
-import view from '../assets/voir_all.png';
 import { Link } from 'react-router-dom';
-import addIcon from '../assets/add.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faSearch, faTrash, faHandsHelping } from '@fortawesome/free-solid-svg-icons';
 import { LoadScript, GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
+import Modal from 'react-modal';
+import axios from 'axios';
+
+Modal.setAppElement('#root');
 
 function Stocks() {
   const [denrees, setDenrees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [volunteers, setVolunteers] = useState([]);
+  const [date_circuit, setDateDebut] = useState('');
   const [entrepots, setEntrepots] = useState([]);
-  const [date_collecte, setDateDebut] = useState('');
   const [showCollecteModal, setShowCollecteModal] = useState(false);
+  const [showExpiringSoon, setShowExpiringSoon] = useState(false);
+  const [selectedDenrees, setSelectedDenrees] = useState([]);
+  const [showDepotForm, setShowDepotForm] = useState(false);
+  const [selectedEntrepot, setSelectedEntrepot] = useState('');
+  const [selectedRayon, setSelectedRayon] = useState('');
+  const [selectedEtage, setSelectedEtage] = useState('');
+  const [selectedPartner, setSelectedPartner] = useState('');
+  const [itineraryData, setItineraryData] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+  const [additionalInfo, setAdditionalInfo] = useState({});
 
   const fetchAvailableVolunteersForTime = async () => {
     const url = new URL('http://localhost:8000/api/entrepot/VolunteerAvailable');
-    const params = { date: date_collecte.split('T')[0], startTime: date_collecte.split('T')[1] };
+    const params = { date: date_circuit.split('T')[0], startTime: date_circuit.split('T')[1] };
     url.search = new URLSearchParams(params).toString();
 
     try {
@@ -34,34 +46,28 @@ function Stocks() {
     }
   };
 
+  useEffect(() => {
+    fetchAvailableVolunteersForTime();
+  }, []);
+
   const fetchEntrepots = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/entrepot/AllEntrepots');
-      if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des entrepôts');
-      }
-      const entrepotsData = await response.json();
-      setEntrepots(entrepotsData);
+      const response = await axios.get('http://localhost:8000/api/entrepot/AllEntrepots');
+      setEntrepots(response.data);
     } catch (error) {
       console.error('Erreur lors de la récupération des entrepôts:', error.message);
     }
   };
 
   useEffect(() => {
-    fetchAvailableVolunteersForTime();
     fetchEntrepots();
   }, []);
 
   useEffect(() => {
     const fetchDenrees = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/entrepot/AllDenrees');
-        if (!response.ok) {
-          throw new Error('Failed to fetch denrees');
-        }
-        const data = await response.json();
-        const latestDenrees = data.slice(-5);
-        setDenrees(latestDenrees);
+        const response = await axios.get('http://localhost:8000/api/entrepot/AllDenrees');
+        setDenrees(response.data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching denrees:', error);
@@ -80,106 +86,46 @@ function Stocks() {
     });
   };
 
-  const toggleCollecteModal = (denree) => {
-    setSelected(denree);
+  const toggleCollecteModal = () => {
     setShowCollecteModal(!showCollecteModal);
   };
 
-  const CollecteModal = () => (
-    <div className="modal" style={{ display: showCollecteModal ? 'block' : 'none' }}>
-      <div className="modal-content">
-        <span className="close" onClick={toggleCollecteModal}>&times;</span>
-        <h2>Ajouter une nouvelle maraude</h2>
-        <form onSubmit={handlecollecteFormSubmit}>
-          <div className="scrollable-content">
-            <label htmlFor="date_collecte">Date:</label>
-            <input type="datetime-local" id="date_collecte" name="date_collecte" value={date_collecte} onChange={e => setDateDebut(e.target.value)} required />
-            <Link type="button" onClick={fetchAvailableVolunteersForTime}>
-              <FontAwesomeIcon icon={faSearch} className="square-icon" />
-            </Link>
-            <label htmlFor="id_chauffeur">Chauffeur:</label>
-            <select id="id_chauffeur" name="id_chauffeur" required>
-              <option>Séléctionner unn bénévole disponible</option>
-              {volunteers.map((volunteer) => (
-                <option key={volunteer.id} value={volunteer.id}>
-                  {volunteer.prenom} {volunteer.nom} {volunteer.id}
-                </option>
-              ))}
-            </select>
-            <br></br>
-            <label htmlFor="LieuDepart">Lieu de départ :</label>
-            <input
-              type="text"
-              id="LieuDepart"
-              name="LieuDepart"
-              value={
-                selected &&
-                `${selected.commercant.adresse}, ${selected.commercant.code_postal} ${selected.commercant.ville}`
-              }
-              required
-            />
-            <label htmlFor="LieuArrivee">Lieu d'arrivée:</label>
-            <select id="LieuArrivee" name="LieuArrivee" required>
-              <option>Séléctionner un entrepot </option>
-              {entrepots.map((entrepot) => (
-                <option key={entrepot.adresse} value={entrepot.adresse}>
-                  {entrepot.adresse}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button type="submit">Submit</button>
-        </form>
-      </div>
-    </div>
-  );
+ 
 
-  const handlecollecteFormSubmit = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const collecteData = {
-      date_collecte: formData.get('date_collecte'),
-      LieuDepart: formData.get('LieuDepart'),
-      LieuArrivee: formData.get('LieuArrivee'),
-      id_chauffeur: formData.get('id_chauffeur'),
-      id_denree: selected.ID_Denree
-    };
-
+ 
+  const handleValidation = async () => {
+    const collecteRequests = [];
+  
+    Object.entries(additionalInfo.groupedByPartner).forEach(([partner, info]) => {
+      info.denrees.forEach((denree) => {
+        collecteRequests.push({
+          date_collecte: date_circuit, 
+          LieuDepart: info.adresse,
+          LieuArrivee: additionalInfo.endAddress,
+          ID_Entrepot: additionalInfo.endAddress,
+          id_chauffeur: document.getElementById('chauffeurID').value,
+          id_denree: denree.ID_Denree,
+          rayons: denree.rayon,
+          etages: denree.etage
+        });
+      });
+    });
+  
     try {
-      const response = await fetch('http://localhost:8000/api/entrepot/addCollecte', {
-        method: 'POST',
+      await axios.post('http://localhost:8000/api/entrepot/addCollecte', { collecteRequests }, {
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(collecteData)
+        }
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to create maraude');
-      }
-
-      alert('Maraude created successfully!');
-
-      const generateItineraryResponse = await fetch('AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(collecteData)
-      });
-
-      if (generateItineraryResponse.ok) {
-        const itineraryData = await generateItineraryResponse.json();
-        console.log('Itinerary generated:', itineraryData);
-      } else {
-        throw new Error('Failed to generate itinerary');
-      }
-
+  
+      alert('Collectes enregistrées avec succès !');
+      setShowMap(false);
     } catch (error) {
-      console.error('Error creating maraude:', error.message);
-      alert(`Failed to create maraude: ${error.message}`);
+      console.error('Erreur lors de l\'enregistrement des collectes:', error.message);
+      alert(`Échec de l'enregistrement des collectes : ${error.message}`);
     }
   };
+  
 
   const isDateExpiringSoon = (date) => {
     const currentDate = new Date();
@@ -189,14 +135,289 @@ function Stocks() {
     return differenceInDays <= 7 && differenceInDays >= 0;
   };
 
+  const handleDenreeSelection = (id) => {
+    setSelectedDenrees(prevSelected => {
+      if (prevSelected.includes(id)) {
+        return prevSelected.filter(denreeId => denreeId !== id);
+      } else {
+        return [...prevSelected, id];
+      }
+    });
+  };
+
+  const filteredDenrees = denrees.filter((denree) => {
+    if (showExpiringSoon && !isDateExpiringSoon(denree.date_peremption)) {
+      return false;
+    }
+    if (selectedPartner && denree.commercant.nom !== selectedPartner) {
+      return false;
+    }
+    return true;
+  });
+
+  const handleDepotFormSubmit = async (event) => {
+    event.preventDefault();
+    const selectedDenreesDetails = selectedDenrees.map(denreeId => denrees.find(d => d.ID_Denree === denreeId));
+
+    if (selectedDenreesDetails.length === 0) {
+      alert("Veuillez sélectionner au moins une denrée.");
+      return;
+    }
+
+    const groupedByPartner = selectedDenreesDetails.reduce((acc, denree) => {
+      const partnerName = denree.commercant.nom;
+      if (!acc[partnerName]) {
+        acc[partnerName] = {
+          adresse: `${denree.commercant.adresse}, ${denree.commercant.code_postal} ${denree.commercant.ville}`,
+          denrees: []
+        };
+      }
+      acc[partnerName].denrees.push(denree);
+      return acc;
+    }, {});
+
+    const locations = Object.values(groupedByPartner).map(partner => partner.adresse);
+    locations.push(selectedEntrepot);
+
+    const additionalInfo = {
+      startAddress: locations[0],
+      endAddress: locations[locations.length - 1],
+      waypoints: locations.slice(1, locations.length - 1),
+      groupedByPartner
+    };
+    setAdditionalInfo(additionalInfo);
+
+    await fetchItinerary(locations);
+  };
+
+  const fetchItinerary = async (locations) => {
+    try {
+      const response = await axios.post('http://localhost:8000/api/entrepot/itinerary', { addresses: locations }, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      setItineraryData(response.data);
+      setShowMap(true);
+    } catch (error) {
+      console.error('Erreur lors de la génération de l\'itinéraire:', error);
+      alert(`Échec de la génération de l'itinéraire : ${error.message}`);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowMap(false);
+  };
+
+  const MapComponent = ({ itineraryData, showMap, handleCloseModal, additionalInfo }) => {
+    const [responses, setResponses] = useState([]);
+    const [directionsError, setDirectionsError] = useState(null);
+    const [mapLoaded, setMapLoaded] = useState(false);
+    const [map, setMap] = useState(null);
+    const [center, setCenter] = useState({ lat: 48.8588443, lng: 2.2943506 });
+
+    useEffect(() => {
+      const directionsService = window.google ? new window.google.maps.DirectionsService() : null;
+
+      if (directionsService && mapLoaded && map && itineraryData) {
+        const { startAddress, destinationAddress, waypointsAddresses } = itineraryData;
+
+        if (waypointsAddresses.length === 0) {
+          const request = {
+            origin: startAddress,
+            destination: destinationAddress,
+            travelMode: 'DRIVING',
+            waypoints: []
+          };
+
+          directionsService.route(request, (result, status) => {
+            if (status === 'OK') {
+              setResponses([result]);
+              setDirectionsError(null);
+            } else {
+              setResponses([]);
+              setDirectionsError(`Erreur de chargement de l'itinéraire: ${status}`);
+            }
+          });
+        } else {
+          const waypoints1 = [{ location: waypointsAddresses[0], stopover: true }];
+          const waypoints2 = waypointsAddresses.slice(1).map(address => ({ location: address, stopover: true }));
+
+          const request1 = {
+            origin: startAddress,
+            destination: waypointsAddresses[0],
+            travelMode: 'DRIVING',
+            waypoints: []
+          };
+
+          const request2 = {
+            origin: waypointsAddresses[0],
+            destination: destinationAddress,
+            travelMode: 'DRIVING',
+            waypoints: waypoints2
+          };
+
+          directionsService.route(request1, (result1, status1) => {
+            if (status1 === 'OK') {
+              directionsService.route(request2, (result2, status2) => {
+                if (status2 === 'OK') {
+                  setResponses([result1, result2]);
+                  setDirectionsError(null);
+                } else {
+                  setResponses([]);
+                  setDirectionsError(`Erreur de chargement de l'itinéraire: ${status2}`);
+                }
+              });
+            } else {
+              setResponses([]);
+              setDirectionsError(`Erreur de chargement de l'itinéraire: ${status1}`);
+            }
+          });
+        }
+      }
+    }, [mapLoaded, map, itineraryData]);
+
+    const onLoad = (loadedMap) => {
+      console.log('Google Maps chargé avec succès');
+      setMap(loadedMap);
+      setMapLoaded(true);
+    };
+
+    const [denreesInfo, setDenreesInfo] = useState(additionalInfo.groupedByPartner);
+
+    const handleInputChange = (partner, idx, field, value) => {
+      const updatedInfo = { ...denreesInfo };
+      updatedInfo[partner].denrees[idx][field] = value;
+      setDenreesInfo(updatedInfo);
+    };
+    
+
+    return (
+      <div className="modal" style={{ display: showMap ? 'block' : 'none' }}>
+        <div className="modal-content">
+          <div className="scrollable-content">
+            <span className="close" onClick={handleCloseModal}>&times;</span>
+            <div id="map-container">
+              {itineraryData && (
+                <div>
+                  <p style={{ marginTop: "20px", marginBottom: "20px" }}>Temps de trajet estimé en voiture : {itineraryData.estimatedCarTime.hours} heures et {itineraryData.estimatedCarTime.minutes} minutes</p>
+                  <div>
+                    <h3>Adresses et Denrées à récupérer</h3>
+                    {Object.entries(denreesInfo).map(([partner, info], index) => (
+                      <div key={index}>
+                        <p><strong>Étape {index + 1} :</strong> {info.adresse}</p>
+                        <ul>
+                          {info.denrees.map((denree, idx) => (
+                            <li key={idx}>
+                              {denree.nom} - {denree.quantite} (Rayon : {denree.rayon || ''}, Étage : {denree.etage || ''})
+                              <br />
+                              <label htmlFor={`rayon-${partner}-${idx}`}>Rayon:</label>
+                              <select
+                                id={`rayon-${partner}-${idx}`}
+                                value={denree.rayon || ''}
+                                onChange={(e) => handleInputChange(partner, idx, 'rayon', e.target.value)}
+                                required
+                              >
+                                <option value="">Sélectionner un rayon</option>
+                                <option value="Produits alimentaires">Produits alimentaires</option>
+                                <option value="Produits hygiène">Produits hygiène</option>
+                                <option value="Autre">Autre</option>
+                              </select>
+                              <label htmlFor={`etage-${partner}-${idx}`}>Étage:</label>
+                              <select
+                                id={`etage-${partner}-${idx}`}
+                                value={denree.etage || ''}
+                                onChange={(e) => handleInputChange(partner, idx, 'etage', e.target.value)}
+                                required
+                              >
+                                <option value="">Sélectionner un étage</option>
+                                {[...Array(10).keys()].map(n => (
+                                  <option key={n + 1} value={n + 1}>{n + 1}</option>
+                                ))}
+                              </select>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                    <p><strong>Arrivée :</strong> {additionalInfo.endAddress}</p>
+                    <label htmlFor="date_circuit">Date:</label>
+                    <input type="datetime-local" id="dateDebut" name="date_circuit" value={date_circuit} onChange={(e) => setDateDebut(e.target.value)} required />
+
+                    <Link type="button" onClick={fetchAvailableVolunteersForTime}>
+                      <FontAwesomeIcon icon={faSearch} className="square-icon" />
+                    </Link>
+                    <label htmlFor="chauffeurID">Chauffeur:</label>
+                    <select id="chauffeurID" name="chauffeurID" required>
+                      <option>Sélectionner un bénévole disponible</option>
+                      {volunteers.map((volunteer) => (
+                        <option key={volunteer.id} value={volunteer.id}>
+                          {volunteer.prenom} {volunteer.nom} {volunteer.id}
+                        </option>
+                      ))}
+                    </select>
+                    <br></br>
+                    <button type="button" onClick={handleValidation}>Valider</button>
+
+                  </div>
+                </div>
+              )}
+              <LoadScript googleMapsApiKey={'AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4'}>
+                <GoogleMap
+                  mapContainerStyle={{ position: 'relative', width: '100%', height: '400px' }}
+                  zoom={8}
+                  center={center}
+                  onLoad={onLoad}
+                >
+                  {directionsError && <p>{directionsError}</p>}
+                  {responses.map((response, index) => (
+                    <DirectionsRenderer
+                      key={index}
+                      options={{
+                        directions: response,
+                        polylineOptions: {
+                          strokeColor: responses.length === 1 || index === 0 ? '#FF0000' : '#0000FF',
+                          strokeOpacity: 1.0,
+                          strokeWeight: 4
+                        }
+                      }}
+                    />
+                  ))}
+                </GoogleMap>
+              </LoadScript>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <body className="adminbody">
+    <div className="adminbody">
       <NavMenu />
       <section className="content">
         <section className="tables">
           <div className="main_table">
             <div className="table-header">
               <h3 className="title_dashboard">Denrées</h3>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showExpiringSoon}
+                  onChange={() => setShowExpiringSoon(!showExpiringSoon)}
+                />
+                Afficher seulement les denrées expirant dans les 7 jours
+              </label>
+              <label>
+                Partenaire:
+                <select value={selectedPartner} onChange={(e) => setSelectedPartner(e.target.value)}>
+                  <option value="">Tous</option>
+                  {[...new Set(denrees.map(denree => denree.commercant.nom))].map((partner, index) => (
+                    <option key={index} value={partner}>
+                      {partner}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
             <div className="table_bnv">
               <table>
@@ -208,11 +429,11 @@ function Stocks() {
                     <th>Date de péremption</th>
                     <th>Partenaire</th>
                     <th>Statut</th>
-                    <th>Action</th>
+                    <th>Sélectionner</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {denrees.map((denree) => (
+                  {filteredDenrees.map((denree) => (
                     <tr key={denree.ID_Denree}>
                       <td>{denree.nom}</td>
                       <td>{denree.categorie}</td>
@@ -225,21 +446,53 @@ function Stocks() {
                         {denree.ID_Stock === null ? 'Non collecté' : 'Collecté'}
                       </td>
                       <td>
-                        <button id="collecte" onClick={() => toggleCollecteModal(denree)}>
-                          Ajouter
-                        </button>
-                        {showCollecteModal && <CollecteModal selectedStock={selected} />}
+                        <input
+                          type="checkbox"
+                          checked={selectedDenrees.includes(denree.ID_Denree)}
+                          onChange={() => handleDenreeSelection(denree.ID_Denree)}
+                        />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {loading && <p>Chargement en cours...</p>}
+              <button onClick={() => setShowDepotForm(true)}>Sélectionner Entrepôt</button>
             </div>
           </div>
         </section>
+        {showDepotForm && (
+          <section className="depot-form">
+            <h3>Choisissez l'entrepôt pour les denrées sélectionnées</h3>
+            <form onSubmit={handleDepotFormSubmit}>
+              <label htmlFor="entrepot">Entrepôt:</label>
+              <select id="entrepot" value={selectedEntrepot} onChange={(e) => setSelectedEntrepot(e.target.value)} required>
+                <option value="">Sélectionner un entrepôt</option>
+                {entrepots.map((entrepot) => (
+                  <option key={entrepot.adresse} value={entrepot.adresse}>
+                    {entrepot.adresse}
+                  </option>
+                ))}
+              </select>
+
+              <button type="submit">Soumettre</button>
+            </form>
+          </section>
+        )}
+        <Modal
+          isOpen={showMap}
+          onRequestClose={handleCloseModal}
+          contentLabel="Map Modal"
+          className="map-modal"
+          overlayClassName="map-modal-overlay"
+        >
+          <div className="scrollable-content">
+            {itineraryData && <MapComponent itineraryData={itineraryData} showMap={showMap} handleCloseModal={handleCloseModal} additionalInfo={additionalInfo} />}
+            <button onClick={handleCloseModal}>Fermer</button>
+          </div>
+        </Modal>
       </section>
-    </body>
+    </div>
   );
 }
 
