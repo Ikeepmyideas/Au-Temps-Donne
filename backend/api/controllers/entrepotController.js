@@ -396,6 +396,8 @@ const addCollecte = async (req, res) => {
           etages: stockItem.etages,
           rayons: stockItem.rayons
         });
+
+        
       }
   
       res.status(201).json({ message: 'Collecte et stocks ajoutés avec succès' });
