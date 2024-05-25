@@ -7,6 +7,8 @@ import { faEdit, faSearch, faTrash, faHandsHelping } from '@fortawesome/free-sol
 import { LoadScript, GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
 import Modal from 'react-modal';
 import axios from 'axios';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 Modal.setAppElement('#root');
 
@@ -28,6 +30,17 @@ function Stocks() {
   const [itineraryData, setItineraryData] = useState(null);
   const [showMap, setShowMap] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState({});
+  const [stocks, setStocks] = useState([]);
+  const [showCollected, setShowCollected] = useState('all'); // New state for filtering collected status
+
+  const fetchStocks = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/entrepot/AllStocks');
+      setStocks(response.data);
+    } catch (error) {
+      console.error('Error fetching stocks:', error);
+    }
+  };
 
   const fetchAvailableVolunteersForTime = async () => {
     const url = new URL('http://localhost:8000/api/entrepot/VolunteerAvailable');
@@ -48,6 +61,7 @@ function Stocks() {
 
   useEffect(() => {
     fetchAvailableVolunteersForTime();
+    fetchStocks();
   }, []);
 
   const fetchEntrepots = async () => {
@@ -90,16 +104,13 @@ function Stocks() {
     setShowCollecteModal(!showCollecteModal);
   };
 
- 
-
- 
   const handleValidation = async () => {
     const collecteRequests = [];
-  
+
     Object.entries(additionalInfo.groupedByPartner).forEach(([partner, info]) => {
       info.denrees.forEach((denree) => {
         collecteRequests.push({
-          date_collecte: date_circuit, 
+          date_collecte: date_circuit,
           LieuDepart: info.adresse,
           LieuArrivee: additionalInfo.endAddress,
           ID_Entrepot: additionalInfo.endAddress,
@@ -110,14 +121,14 @@ function Stocks() {
         });
       });
     });
-  
+
     try {
       await axios.post('http://localhost:8000/api/entrepot/addCollecte', { collecteRequests }, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-  
+
       alert('Collectes enregistrées avec succès !');
       setShowMap(false);
     } catch (error) {
@@ -125,7 +136,6 @@ function Stocks() {
       alert(`Échec de l'enregistrement des collectes : ${error.message}`);
     }
   };
-  
 
   const isDateExpiringSoon = (date) => {
     const currentDate = new Date();
@@ -145,11 +155,21 @@ function Stocks() {
     });
   };
 
+  const isDenreeCollected = (denreeId) => {
+    return stocks.some(stock => stock.ID_Denree === denreeId);
+  };
+
   const filteredDenrees = denrees.filter((denree) => {
     if (showExpiringSoon && !isDateExpiringSoon(denree.date_peremption)) {
       return false;
     }
     if (selectedPartner && denree.commercant.nom !== selectedPartner) {
+      return false;
+    }
+    if (showCollected === 'collected' && !isDenreeCollected(denree.ID_Denree)) {
+      return false;
+    }
+    if (showCollected === 'not_collected' && isDenreeCollected(denree.ID_Denree)) {
       return false;
     }
     return true;
@@ -207,6 +227,48 @@ function Stocks() {
   const handleCloseModal = () => {
     setShowMap(false);
   };
+
+  const downloadPDF = async () => {
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) {
+      console.error('Element with id "map-container" not found');
+      return;
+    }
+  
+    // Temporarily hide the elements you don't want to capture
+    const elementsToHide = document.querySelectorAll('.btn_event, input, select, .close');
+    elementsToHide.forEach(el => el.classList.add('hide-for-pdf'));
+  
+    // Capture the canvas
+    const canvas = await html2canvas(mapContainer, {
+      useCORS: true
+    });
+  
+    // Show the elements again after capture
+    elementsToHide.forEach(el => el.classList.remove('hide-for-pdf'));
+  
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF();
+  
+    // Add additional information to the PDF
+    pdf.text('Plan de la route', 10, 10);
+    let yPosition = 20;
+  
+    if (additionalInfo) {
+      pdf.text(`Départ: ${additionalInfo.startAddress}`, 10, yPosition);
+      yPosition += 10;
+      additionalInfo.waypoints.forEach((waypoint, index) => {
+        pdf.text(`Étape ${index + 1}: ${waypoint}`, 10, yPosition);
+        yPosition += 10;
+      });
+      pdf.text(`Arrivée: ${additionalInfo.endAddress}`, 10, yPosition);
+      yPosition += 10;
+    }
+  
+    pdf.addImage(imgData, 'PNG', 10, yPosition, 180, 160);
+    pdf.save('route.pdf');
+  };
+  
 
   const MapComponent = ({ itineraryData, showMap, handleCloseModal, additionalInfo }) => {
     const [responses, setResponses] = useState([]);
@@ -284,12 +346,12 @@ function Stocks() {
 
     const [denreesInfo, setDenreesInfo] = useState(additionalInfo.groupedByPartner);
 
+    
     const handleInputChange = (partner, idx, field, value) => {
       const updatedInfo = { ...denreesInfo };
       updatedInfo[partner].denrees[idx][field] = value;
       setDenreesInfo(updatedInfo);
     };
-    
 
     return (
       <div className="modal" style={{ display: showMap ? 'block' : 'none' }}>
@@ -356,8 +418,6 @@ function Stocks() {
                       ))}
                     </select>
                     <br></br>
-                    <button type="button" onClick={handleValidation}>Valider</button>
-
                   </div>
                 </div>
               )}
@@ -384,11 +444,24 @@ function Stocks() {
                   ))}
                 </GoogleMap>
               </LoadScript>
+
+              <button className="btn_event" type="button" onClick={handleValidation}>Valider</button>
+              <button className="btn_event" type="button" onClick={downloadPDF}>Télécharger le plan en PDF</button>
+
             </div>
           </div>
         </div>
       </div>
     );
+  };
+
+  const selectAllDenrees = () => {
+    if (selectedDenrees.length === denrees.length) {
+      setSelectedDenrees([]);
+    } else {
+      const allDenreeIds = denrees.map(denree => denree.ID_Denree);
+      setSelectedDenrees(allDenreeIds);
+    }
   };
 
   return (
@@ -418,6 +491,15 @@ function Stocks() {
                   ))}
                 </select>
               </label>
+              <label>
+                Statut:
+                <select value={showCollected} onChange={(e) => setShowCollected(e.target.value)}>
+                  <option value="all">Tous</option>
+                  <option value="collected">Collecté</option>
+                  <option value="not_collected">Non Collecté</option>
+                </select>
+              </label>
+              <button onClick={selectAllDenrees}>Sélectionner tout</button>
             </div>
             <div className="table_bnv">
               <table>
@@ -442,8 +524,8 @@ function Stocks() {
                         {formatDate(denree.date_peremption)}
                       </td>
                       <td>{denree.commercant && denree.commercant.nom}</td>
-                      <td className={denree.ID_Stock === null ? 'red-text' : 'green-text'}>
-                        {denree.ID_Stock === null ? 'Non collecté' : 'Collecté'}
+                      <td className={isDenreeCollected(denree.ID_Denree) ? 'green-text' : 'red-text'}>
+                        {isDenreeCollected(denree.ID_Denree) ? 'Collecté' : 'Non collecté'}
                       </td>
                       <td>
                         <input
@@ -470,11 +552,10 @@ function Stocks() {
                 <option value="">Sélectionner un entrepôt</option>
                 {entrepots.map((entrepot) => (
                   <option key={entrepot.adresse} value={entrepot.adresse}>
-                    {entrepot.adresse}
+                    {entrepot.adresse}, {entrepot.ville}, {entrepot.code_postal} 
                   </option>
                 ))}
               </select>
-
               <button type="submit">Soumettre</button>
             </form>
           </section>

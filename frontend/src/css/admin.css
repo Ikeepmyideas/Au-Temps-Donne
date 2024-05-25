@@ -1313,3 +1313,6 @@ input[type="time"] {
 .red-text {
   color: red;
 }
+.hide-for-pdf {
+  display: none !important;
+}
