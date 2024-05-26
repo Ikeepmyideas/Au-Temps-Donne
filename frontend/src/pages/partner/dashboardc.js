@@ -259,7 +259,7 @@ function Event() {
                                 </div>
                                 <div className="form-row">
                                     <label htmlFor="quantite">Quantité :</label>
-                                    <input type="number" id="volunteerCount" name="quantite" value={formData.quantite} onChange={handleChange} min="1" />
+                                    <input type="text" id="volunteerCount" name="quantite" value={formData.quantite}/>
                                 </div>
                                 <input className="btn_event" type="submit" value="Ajouter" />
                             </div>

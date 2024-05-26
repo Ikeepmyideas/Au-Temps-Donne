@@ -266,10 +266,6 @@ header {
 mall#passwordMatchMessage {
     width: 200%;
 }
-label{
-    width: 209%;
-
-}
 
 .input-group.email,
 .input-group.password,

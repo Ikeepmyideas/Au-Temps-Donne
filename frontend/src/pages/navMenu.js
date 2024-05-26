@@ -140,7 +140,7 @@ function NavMenu() {
           </Link>
         </li>
         <li className={highlight['/admin/entrepots'] ? "highlighted" : ""}>
-          <Link className='nav-link' to="/admin/entrepot">
+          <Link className='nav-link' to="/admin/entrepots">
           <FontAwesomeIcon icon={faWarehouse} style={{ marginLeft:'25px' }} />
             <span>Entrepots</span>
           </Link>

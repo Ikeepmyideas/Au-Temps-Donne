@@ -63,6 +63,7 @@ import Collecte from './pages/creation_circuit';
 
 import Entrepots from './pages/entrepots';
 import Denrees from './pages/denrees';
+import StocksList from './pages/StocksList';
 
 import './css/home.css';
 import './css/signup.css';  
@@ -105,6 +106,7 @@ function App() {
             <Route path="/admin/events" element={<Event />} />
             <Route path="/admin/maraude" element={<Maraude />} />
             <Route path="/admin/denrees" element={<Denrees />} />
+            <Route path="/admin/entrepots/:id/stocks" element={<StocksList />} />
             <Route path="/admin/entrepots" element={<Entrepots />} />
             <Route path="/admin/formations" element={<Formation />} />
             <Route path="/admin/volunteersF" element={<VolunteersF />} />

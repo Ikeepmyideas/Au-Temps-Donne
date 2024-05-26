@@ -113,7 +113,7 @@ function Stocks() {
           date_collecte: date_circuit,
           LieuDepart: info.adresse,
           LieuArrivee: additionalInfo.endAddress,
-          ID_Entrepot: additionalInfo.endAddress,
+          ID_Entrepot: selectedEntrepot.id, // Utiliser l'ID de l'entrepôt
           id_chauffeur: document.getElementById('chauffeurID').value,
           id_denree: denree.ID_Denree,
           rayons: denree.rayon,
@@ -197,7 +197,7 @@ function Stocks() {
     }, {});
 
     const locations = Object.values(groupedByPartner).map(partner => partner.adresse);
-    locations.push(selectedEntrepot);
+    locations.push(selectedEntrepot.adresse);
 
     const additionalInfo = {
       startAddress: locations[0],
@@ -362,6 +362,23 @@ function Stocks() {
               {itineraryData && (
                 <div>
                   <p style={{ marginTop: "20px", marginBottom: "20px" }}>Temps de trajet estimé en voiture : {itineraryData.estimatedCarTime.hours} heures et {itineraryData.estimatedCarTime.minutes} minutes</p>
+                  <div id="div-stock">
+                  <label htmlFor="date_circuit">Date:</label>
+                    <input type="datetime-local" id="dateDebut" name="date_circuit" value={date_circuit} onChange={(e) => setDateDebut(e.target.value)} required />
+
+                    <Link type="button" onClick={fetchAvailableVolunteersForTime}>
+                      <FontAwesomeIcon icon={faSearch} className="square-icon" style={{marginTop:"20px"}} />
+                    </Link>
+                    <label htmlFor="chauffeurID">Chauffeur:</label>
+                    <select id="chauffeurID" name="chauffeurID" required>
+                      <option>Sélectionner un bénévole disponible</option>
+                      {volunteers.map((volunteer) => (
+                        <option key={volunteer.id} value={volunteer.id}>
+                          {volunteer.prenom} {volunteer.nom} {volunteer.id}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <div>
                     <h3>Adresses et Denrées à récupérer</h3>
                     {Object.entries(denreesInfo).map(([partner, info], index) => (
@@ -372,6 +389,7 @@ function Stocks() {
                             <li key={idx}>
                               {denree.nom} - {denree.quantite} (Rayon : {denree.rayon || ''}, Étage : {denree.etage || ''})
                               <br />
+                              <div id="div-stock">
                               <label htmlFor={`rayon-${partner}-${idx}`}>Rayon:</label>
                               <select
                                 id={`rayon-${partner}-${idx}`}
@@ -396,27 +414,14 @@ function Stocks() {
                                   <option key={n + 1} value={n + 1}>{n + 1}</option>
                                 ))}
                               </select>
+                              </div>
                             </li>
                           ))}
                         </ul>
                       </div>
                     ))}
                     <p><strong>Arrivée :</strong> {additionalInfo.endAddress}</p>
-                    <label htmlFor="date_circuit">Date:</label>
-                    <input type="datetime-local" id="dateDebut" name="date_circuit" value={date_circuit} onChange={(e) => setDateDebut(e.target.value)} required />
-
-                    <Link type="button" onClick={fetchAvailableVolunteersForTime}>
-                      <FontAwesomeIcon icon={faSearch} className="square-icon" />
-                    </Link>
-                    <label htmlFor="chauffeurID">Chauffeur:</label>
-                    <select id="chauffeurID" name="chauffeurID" required>
-                      <option>Sélectionner un bénévole disponible</option>
-                      {volunteers.map((volunteer) => (
-                        <option key={volunteer.id} value={volunteer.id}>
-                          {volunteer.prenom} {volunteer.nom} {volunteer.id}
-                        </option>
-                      ))}
-                    </select>
+                   
                     <br></br>
                   </div>
                 </div>
@@ -548,11 +553,16 @@ function Stocks() {
             <h3>Choisissez l'entrepôt pour les denrées sélectionnées</h3>
             <form onSubmit={handleDepotFormSubmit}>
               <label htmlFor="entrepot">Entrepôt:</label>
-              <select id="entrepot" value={selectedEntrepot} onChange={(e) => setSelectedEntrepot(e.target.value)} required>
+              <select
+                id="entrepot"
+                value={JSON.stringify(selectedEntrepot)}
+                onChange={(e) => setSelectedEntrepot(JSON.parse(e.target.value))}
+                required
+              >
                 <option value="">Sélectionner un entrepôt</option>
                 {entrepots.map((entrepot) => (
-                  <option key={entrepot.adresse} value={entrepot.adresse}>
-                    {entrepot.adresse}, {entrepot.ville}, {entrepot.code_postal} 
+                  <option key={entrepot.id} value={JSON.stringify({ id: entrepot.id, adresse: entrepot.adresse })}>
+                    {entrepot.adresse}, {entrepot.ville}, {entrepot.code_postal}
                   </option>
                 ))}
               </select>

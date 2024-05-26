@@ -1316,3 +1316,12 @@ input[type="time"] {
 .hide-for-pdf {
   display: none !important;
 }
+#div-stock{
+  display: flex;
+  flex-direction: row;
+  gap:20px;
+  margin-bottom: 20px;
+}
+#stcok-label{
+  width: 20px;
+}
