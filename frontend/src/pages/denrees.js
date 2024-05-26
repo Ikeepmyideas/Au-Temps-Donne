@@ -43,7 +43,7 @@ function Stocks() {
   };
 
   const fetchAvailableVolunteersForTime = async () => {
-    const url = new URL('http://localhost:8000/api/entrepot/VolunteerAvailable');
+    const url = new URL('http://localhost:8000/api/volunteer/VolunteerAvailable');
     const params = { date: date_circuit.split('T')[0], startTime: date_circuit.split('T')[1] };
     url.search = new URLSearchParams(params).toString();
 
@@ -98,10 +98,6 @@ function Stocks() {
       month: 'long',
       day: 'numeric',
     });
-  };
-
-  const toggleCollecteModal = () => {
-    setShowCollecteModal(!showCollecteModal);
   };
 
   const handleValidation = async () => {
@@ -235,7 +231,6 @@ function Stocks() {
       return;
     }
   
-    // Temporarily hide the elements you don't want to capture
     const elementsToHide = document.querySelectorAll('.btn_event, input, select, .close');
     elementsToHide.forEach(el => el.classList.add('hide-for-pdf'));
   
