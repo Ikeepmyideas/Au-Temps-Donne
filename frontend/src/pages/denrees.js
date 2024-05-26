@@ -22,7 +22,7 @@ function Stocks() {
   const [showCollecteModal, setShowCollecteModal] = useState(false);
   const [showExpiringSoon, setShowExpiringSoon] = useState(false);
   const [selectedDenrees, setSelectedDenrees] = useState([]);
-  const [showDepotForm, setShowDepotForm] = useState(false);
+  const [showDepotForm, setShowDepotForm] = useState('');
   const [selectedEntrepot, setSelectedEntrepot] = useState('');
   const [selectedRayon, setSelectedRayon] = useState('');
   const [selectedEtage, setSelectedEtage] = useState('');
@@ -224,6 +224,7 @@ function Stocks() {
     setShowMap(false);
   };
 
+
   const downloadPDF = async () => {
     const mapContainer = document.getElementById('map-container');
     if (!mapContainer) {
@@ -239,13 +240,11 @@ function Stocks() {
       useCORS: true
     });
   
-    // Show the elements again after capture
     elementsToHide.forEach(el => el.classList.remove('hide-for-pdf'));
   
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF();
   
-    // Add additional information to the PDF
     pdf.text('Plan de la route', 10, 10);
     let yPosition = 20;
   
@@ -466,6 +465,10 @@ function Stocks() {
       setSelectedDenrees(allDenreeIds);
     }
   };
+  const handleClose = () => {
+    setShowDepotForm(false);
+  };
+
 
   return (
     <div className="adminbody">
@@ -502,7 +505,6 @@ function Stocks() {
                   <option value="not_collected">Non Collecté</option>
                 </select>
               </label>
-              <button onClick={selectAllDenrees}>Sélectionner tout</button>
             </div>
             <div className="table_bnv">
               <table>
@@ -514,7 +516,15 @@ function Stocks() {
                     <th>Date de péremption</th>
                     <th>Partenaire</th>
                     <th>Statut</th>
-                    <th>Sélectionner</th>
+                    <th>
+                    <label>
+                      <input
+                        type="checkbox"
+                        onClick={selectAllDenrees}                      
+                        />
+                      Tout sélectionner
+                    </label>
+                  </th>                  
                   </tr>
                 </thead>
                 <tbody>
@@ -542,11 +552,14 @@ function Stocks() {
                 </tbody>
               </table>
               {loading && <p>Chargement en cours...</p>}
-              <button onClick={() => setShowDepotForm(true)}>Sélectionner Entrepôt</button>
+              <button style={{marginBottom:"20px"}} className="btn_event" onClick={() => setShowDepotForm(true)}>Sélectionner Entrepôt</button>
             </div>
           </div>
         </section>
         {showDepotForm && (
+           <div className="modal" style={{ display: 'block'}}>
+           <div className="modal-content">
+           <span className="close" onClick={handleClose}>&times;</span>
           <section className="depot-form">
             <h3>Choisissez l'entrepôt pour les denrées sélectionnées</h3>
             <form onSubmit={handleDepotFormSubmit}>
@@ -557,16 +570,20 @@ function Stocks() {
                 onChange={(e) => setSelectedEntrepot(JSON.parse(e.target.value))}
                 required
               >
-                <option value="">Sélectionner un entrepôt</option>
+                <option style={{marginBottom:"20px"}} className="btn_event" value="">Sélectionner un entrepôt</option>
                 {entrepots.map((entrepot) => (
                   <option key={entrepot.id} value={JSON.stringify({ id: entrepot.id, adresse: entrepot.adresse })}>
                     {entrepot.adresse}, {entrepot.ville}, {entrepot.code_postal}
                   </option>
                 ))}
               </select>
-              <button type="submit">Soumettre</button>
+              <button  className="btn_event"type="submit">Soumettre</button>
+              <button className="btn_event" onClick={handleClose}>Fermer</button>
+
             </form>
           </section>
+          </div>
+          </div>
         )}
         <Modal
           isOpen={showMap}
