@@ -216,46 +216,52 @@ const updateStock = async (req, res) => {
     }
 };
 
-
-
 const addMaraude = async (req, res) => {
-    const { nom, lieuDepart, lieuArrivee, dateDebut, description, chauffeurID, stockID } = req.body;
-    
-    try {
-        // Check if the referenced Stock and Chauffeur exist
-        const stock = await Stock.findByPk(stockID);
-        const chauffeur = await Volunteer.findByPk(chauffeurID);
+    const { Nom, LieuDepart, LieuArrivee, DateDebut, Description, ChauffeurID, StockID } = req.body;
 
-        if (!stock || !chauffeur) {
-            return res.status(404).json({
-                message: "Stock or Chauffeur not found"
-            });
-        }
-
-        // Create the new Maraude
-        const newMaraude = await Maraude.create({
-            Nom: nom,
-            LieuDepart: lieuDepart,
-            LieuArrivee: lieuArrivee,
-            DateDebut: dateDebut,
-            Description: description,
-            ChauffeurID: chauffeurID,
-            StockID: stockID
-        });
-
-        return res.status(201).json({
-            message: "Maraude successfully created",
-            maraude: newMaraude
-        });
-    } catch (error) {
-        console.error("Error creating maraude: ", error);
-        return res.status(500).json({
-            message: "Failed to create maraude",
-            error: error.message
-        });
+  try {
+    // Check if the referenced Chauffeur exists
+    const chauffeur = await Volunteer.findByPk(ChauffeurID);
+    if (!chauffeur) {
+      return res.status(404).json({ message: 'Chauffeur not found' });
     }
-};
 
+    // Check if the referenced Stocks exist
+    const stocks = await Stock.findAll({
+      where: {
+        ID_Stock: StockID
+      }
+    });
+
+    if (stocks.length !== StockID.length) {
+      return res.status(404).json({ message: 'One or more stocks not found' });
+    }
+
+    // Create the new Maraude
+    const newMaraude = await Maraude.create({
+      Nom,
+      LieuDepart,
+      LieuArrivee,
+      DateDebut,
+      Description,
+      ChauffeurID,
+      StockID // Stocker les IDs des stocks directement
+    });
+
+    return res.status(201).json({
+      message: 'Maraude successfully created',
+      maraude: newMaraude
+    });
+  } catch (error) {
+    console.error('Error creating maraude: ', error);
+    return res.status(500).json({
+      message: 'Failed to create maraude',
+      error: error.message
+    });
+  }
+
+  };
+  
 const getVolunteersDisponibles = async (req, res) => {
     try {
         const { date, startTime } = req.query;

@@ -8,10 +8,6 @@ const Maraude = sequelize.define('maraude', {
     primaryKey: true,
     autoIncrement: true
   },
-  Nom: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   LieuDepart: {
     type: DataTypes.STRING,
     allowNull: false
@@ -35,9 +31,9 @@ const Maraude = sequelize.define('maraude', {
     }
   },
   StockID: { 
-    type: DataTypes.INTEGER,
+    type: DataTypes.JSON,
     references: {
-      model: 'Stocks',  // Changed to 'Stock', assuming you are using a singular naming convention
+      model: 'Stocks',  
       key: 'ID_Stock'  // Assume primary key is 'ID' in the Stock model
     }
   }
