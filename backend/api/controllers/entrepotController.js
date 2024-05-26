@@ -127,7 +127,7 @@ const getAllStockedDenrees = async (req, res) => {
             include: [
                 { 
                     model: Entrepot, 
-                    as: 'entrepot'                },
+                    as: 'entrepot'},
                 { 
                     model: Denree, 
                     as: 'denree'
@@ -140,6 +140,31 @@ const getAllStockedDenrees = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de la récupération des entrepôts.' });
     }
 };
+
+const getAllStockedDenreesByEntrepotId = async (req, res) => {
+    const { entrepotId } = req.params;
+
+    try {
+        const stocks = await Stock.findAll({
+            where: { ID_Entrepot: entrepotId },
+            include: [
+                { 
+                    model: Entrepot, 
+                    as: 'entrepot' 
+                },
+                { 
+                    model: Denree, 
+                    as: 'denree'
+                }
+            ]
+        });
+        res.status(200).json(stocks);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des stocks pour l\'entrepôt:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des stocks pour l\'entrepôt.' });
+    }
+};
+
 const deleteStock = async (req, res) => {
     const { id } = req.params;
     try {
@@ -522,6 +547,7 @@ module.exports = { generateItineraryCollecte };
         
 module.exports = { generateItinerary };
 module.exports = {
+    getAllStockedDenreesByEntrepotId,
     generateItineraryCollecte,
     getMaraude,
     addCollecte,

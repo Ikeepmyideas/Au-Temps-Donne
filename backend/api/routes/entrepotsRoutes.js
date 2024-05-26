@@ -12,6 +12,7 @@ const {
   generateItinerary,
   getVolunteersDisponibles,
   addMaraude,
+  getAllStockedDenreesByEntrepotId,
   getAllStockedDenrees,
     createEntrepot,
     getAllEntrepots,
@@ -35,6 +36,9 @@ router.delete('/deleteEntrepot/:id',deleteEntrepot );
 
 router.get('/AllDenrees',dentreeController.getAllDenrees );
 router.get('/AllStocks', getAllStockedDenrees );
+
+
+router.get('/:entrepotId/stocks', getAllStockedDenreesByEntrepotId );
 
 router.get('/maraudes', getMaraude );
 

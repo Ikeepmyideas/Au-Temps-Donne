@@ -18,7 +18,7 @@ const Denree = sequelize.define("denrees", {
     allowNull: false
   },
   quantite: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false
   },
   ID_Stock: {
