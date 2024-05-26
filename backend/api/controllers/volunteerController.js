@@ -799,7 +799,44 @@ const getMaraudeForVolunteer = async (req, res) => {
   }
 };
 
+const getVolunteersDisponibles = async (req, res) => {
+  try {
+      const { date, startTime } = req.query;
+
+      if (!date || !startTime) {
+          return res.status(400).send("All parameters are required.");
+      }
+
+      const jourDate = new Date(date + 'T00:00:00Z');
+      const startDate = new Date(`${date}T${startTime}:00Z`);
+
+      const availableVolunteers = await Disponibilite.findAll({
+          where: {
+              jour: jourDate,
+              heure_debut: {
+                  [Op.lte]: startDate
+              }
+          },
+          include: [{
+              model: Volunteer,
+              as: 'benevole',
+              attributes: ['id', 'nom', 'prenom', 'email', 'telephone'],
+              where: { permis_conduire: "oui" }
+          }]
+      });
+
+      if (availableVolunteers.length === 0) {
+          return res.status(404).send('No available volunteers found.');
+      }
+
+      res.json(availableVolunteers.map(vol => vol.benevole));
+  } catch (error) {
+      console.error('Error retrieving available volunteers:', error);
+      res.status(500).send('Internal Server Error');
+  }
+};
 module.exports = { 
+  getVolunteersDisponibles,
   getMaraudeForVolunteer,
   getActiviteForLoggedInUser,
   getActivitePriveForLoggedInUser,

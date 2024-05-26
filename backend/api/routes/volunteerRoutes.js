@@ -22,6 +22,7 @@ const {
   deleteRegistration ,
   checkRegistrationStatus, 
   loginVolunteer,getUserInfo,
+  getVolunteersDisponibles,
   addRegistration }
    = require('../controllers/volunteerController');
 const authentication = require('../middleware/authentication');
@@ -96,6 +97,9 @@ router.post('/add-to-availability', createAvailability);
 router.put('/updateAvailability/:id_disponibilite', updateAvailability);
 router.delete('/deleteAvailability/:id_disponibilite', deleteAvailability);
 router.get('/getpdf', exportUserInfoAsPDF);
+
+
+router.get('/VolunteerAvailable', getVolunteersDisponibles);
 
 router.put('/processQrCode', async (req, res) => {
   try {

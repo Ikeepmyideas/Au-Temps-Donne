@@ -164,7 +164,21 @@ const getAllStockedDenreesByEntrepotId = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de la récupération des stocks pour l\'entrepôt.' });
     }
 };
-
+const getEntrepotById = async (req, res) => {
+    try {
+        const id = req.params.idEntrepot;
+        const entrepot = await Entrepot.findByPk(id); 
+    
+        if (!entrepot) {
+          return res.status(404).json({ message: 'Entrepôt non trouvé' });
+        }
+    
+        res.json(entrepot);
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'entrepôt:', error);
+        res.status(500).json({ message: 'Erreur du serveur' });
+      }
+    };
 const deleteStock = async (req, res) => {
     const { id } = req.params;
     try {
@@ -244,29 +258,27 @@ const addMaraude = async (req, res) => {
 
 const getVolunteersDisponibles = async (req, res) => {
     try {
-        const { date, startTime } = req.query;  
+        const { date, startTime } = req.query;
 
-        if (!date || !startTime ) {
+        if (!date || !startTime) {
             return res.status(400).send("All parameters are required.");
         }
 
-        const jourDate = new Date(date + 'T00:00:00Z'); 
-
-        const startDate = new Date(`${date}T${startTime}:00Z`); 
+        const jourDate = new Date(date + 'T00:00:00Z');
+        const startDate = new Date(`${date}T${startTime}:00Z`);
 
         const availableVolunteers = await Disponibilite.findAll({
             where: {
                 jour: jourDate,
                 heure_debut: {
-                    [Op.lte]: startDate 
+                    [Op.lte]: startDate
                 }
-                
             },
             include: [{
                 model: Volunteer,
                 as: 'benevole',
-                attributes: ['id','nom', 'prenom', 'email', 'telephone'],
-                where: { permis_conduire: "oui" } 
+                attributes: ['id', 'nom', 'prenom', 'email', 'telephone'],
+                where: { permis_conduire: "oui" }
             }]
         });
 
@@ -274,7 +286,7 @@ const getVolunteersDisponibles = async (req, res) => {
             return res.status(404).send('No available volunteers found.');
         }
 
-        res.json(availableVolunteers.map(vol => vol.benevole)); 
+        res.json(availableVolunteers.map(vol => vol.benevole));
     } catch (error) {
         console.error('Error retrieving available volunteers:', error);
         res.status(500).send('Internal Server Error');
@@ -547,6 +559,7 @@ module.exports = { generateItineraryCollecte };
         
 module.exports = { generateItinerary };
 module.exports = {
+    getEntrepotById,
     getAllStockedDenreesByEntrepotId,
     generateItineraryCollecte,
     getMaraude,
