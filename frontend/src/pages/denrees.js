@@ -399,6 +399,9 @@ function Stocks() {
                               >
                                 <option value="">Sélectionner un rayon</option>
                                 <option value="Produits alimentaires">Produits alimentaires</option>
+                                <option value="Fruits et légumes">Fruits et légumes</option>
+                                <option value="Produits surgelés">Produits surgelés</option>
+                                <option value="Produits laitiers">Produits laitiers</option>
                                 <option value="Produits hygiène">Produits hygiène</option>
                                 <option value="Autre">Autre</option>
                               </select>
