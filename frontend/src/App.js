@@ -64,7 +64,7 @@ import Collecte from './pages/creation_circuit';
 import Entrepots from './pages/entrepots';
 import Denrees from './pages/denrees';
 import StocksList from './pages/StocksList';
-
+import StockPopup from './pages/StockPopup';
 import './css/home.css';
 import './css/signup.css';  
 import './css/admin.css';

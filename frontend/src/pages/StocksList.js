@@ -148,7 +148,6 @@ function StocksList() {
     const form = event.target;
     const departAddress = form.departAddress.value;
     const destinationAddress = form.destination.value;
-    const nomMaraude = form.nomMaraude.value;
     const description = form.description.value;
     const chauffeurID = form.chauffeurID.value;
   
@@ -164,13 +163,12 @@ function StocksList() {
   
     try {
       const response = await axios.post('http://localhost:8000/api/entrepot/addMaraude', {
-        Nom: nomMaraude,
         LieuDepart: departAddress,
         LieuArrivee: destinationAddress,
         DateDebut: dateCircuit,
         Description: description,
         ChauffeurID: parseInt(chauffeurID, 10),
-        StockIDs: selectedDenrees // Envoyer plusieurs IDs de stocks
+        StockID: selectedDenrees // Envoyer plusieurs IDs de stocks
       });
       setShowPopup(false);
       alert('Maraude ajoutée avec succès!');
@@ -480,7 +478,7 @@ function StocksList() {
               </tbody>
             </table>
           </div>
-          <button style={{marginBottom:"20px"}} className="btn_event" onClick={handleAddMaraude}>Ajouter une maraude</button>
+          <button style={{marginBottom: '20px'}} className="btn_event" onClick={handleAddMaraude}>Ajouter une maraude</button>
         </section>
       </section>
       {showPopup && (

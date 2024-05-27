@@ -136,7 +136,7 @@ function NavMenu() {
         <li className={highlight['/admin/maraude'] ? "highlighted" : ""}>
           <Link className='nav-link' to="/admin/maraude">
           <FontAwesomeIcon icon={faTruck} style={{ marginLeft:'25px' }} />
-            <span>Maraudes</span>
+            <span>Maraudes et collecte</span>
           </Link>
         </li>
         <li className={highlight['/admin/entrepots'] ? "highlighted" : ""}>
