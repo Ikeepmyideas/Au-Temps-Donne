@@ -86,6 +86,7 @@ const getAllEntrepots = async (req, res) => {
 
 const updateEntrepot = async (req, res) => {
     const { id } = req.params;
+
     const { nom, adresse, ville, code_postal, capacite } = req.body;
     try {
         const entrepot = await Entrepot.findByPk(id);
@@ -385,9 +386,8 @@ const getMaraude = async (req, res) => {
         ]
       });
   
-      // Récupérer les informations des stocks pour chaque maraude
       const maraudesWithStocks = await Promise.all(maraudes.map(async (maraude) => {
-        const stockIDs = JSON.parse(maraude.StockID); // Convertir le JSON string en tableau
+        const stockIDs = JSON.parse(maraude.StockID); 
         const stocks = await Stock.findAll({
           where: {
             ID_Stock: stockIDs
@@ -409,7 +409,6 @@ const getMaraude = async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   };
-  
   const addCollecte = async (req, res) => {
     try {
       const { date_collecte, id_chauffeur, collecteRequests } = req.body;
@@ -418,7 +417,6 @@ const getMaraude = async (req, res) => {
         return res.status(400).json({ message: 'Invalid data format: collecteRequests must be an array' });
       }
   
-      // Group collecteRequests by LieuDepart and date_collecte
       const groupedRequests = collecteRequests.reduce((acc, stockItem) => {
         const key = `${stockItem.LieuDepart}-${stockItem.date_collecte}`;
         if (!acc[key]) {
@@ -430,7 +428,7 @@ const getMaraude = async (req, res) => {
   
       for (const key in groupedRequests) {
         const stockItems = groupedRequests[key];
-        const { date_collecte, LieuDepart, ID_Entrepot } = stockItems[0]; 
+        const { date_collecte, LieuDepart, ID_Entrepot } = stockItems[0];
   
         let collecte = await Collecte.findOne({
           where: {
@@ -444,15 +442,15 @@ const getMaraude = async (req, res) => {
             date_collecte,
             id_chauffeur: stockItems[0].id_chauffeur,
             LieuDepart: stockItems[0].LieuDepart,
-            LieuArrivee: stockItems[0].LieuArrivee, 
-            ID_Entrepot: stockItems[0].ID_Entrepot, 
-            id_denree : JSON.stringify(stockItems.map(item => item.id_denree)) 
+            LieuArrivee: stockItems[0].LieuArrivee,
+            ID_Entrepot: stockItems[0].ID_Entrepot,
+            id_denree: JSON.stringify(stockItems.map(item => item.id_denree))
           });
         } else {
-          const existingStockIDs = JSON.parse(collecte.StockIDs);
-          const newStockIDs = stockItems.map(item => item.id_denree);
-          const updatedStockIDs = Array.from(new Set([...existingStockIDs, ...newStockIDs]));
-          collecte.StockIDs = JSON.stringify(updatedStockIDs);
+          const existingDenreeIDs = JSON.parse(collecte.id_denree);
+          const newDenreeIDs = stockItems.map(item => item.id_denree);
+          const updatedDenreeIDs = Array.from(new Set([...existingDenreeIDs, ...newDenreeIDs]));
+          collecte.id_denree = JSON.stringify(updatedDenreeIDs);
           await collecte.save();
         }
   
@@ -488,6 +486,79 @@ const getMaraude = async (req, res) => {
   
   
   module.exports = { addCollecte };
+    
+  const getCollecte = async (req, res) => {
+    try {
+      const collectes = await Collecte.findAll({
+        include: [
+          {
+            model: Volunteer,
+            as: 'chauffeur'
+          }
+        ]
+      });
+  
+      const collecteMap = collectes.reduce((map, collecte) => {
+        const date = collecte.date_collecte.toISOString();
+        if (!map[date]) {
+          map[date] = [];
+        }
+        map[date].push(collecte);
+        return map;
+      }, {});
+  
+      const result = await Promise.all(Object.entries(collecteMap).map(async ([date, collecteGroup]) => {
+        const denrees = await Promise.all(collecteGroup.map(async collecte => {
+          let denreesIds = [];
+          try {
+            denreesIds = JSON.parse(collecte.id_denree);
+          } catch (error) {
+            console.error(`Erreur lors du parsing des identifiants des denrées pour la collecte ${collecte.id_collecte}:`, error);
+          }
+  
+          let denrees = [];
+          if (Array.isArray(denreesIds)) {
+            denrees = await Promise.all(denreesIds.map(async id => {
+              const denree = await Denree.findByPk(id);
+              if (denree) {
+                return {
+                  id: denree.ID_Denree,
+                  nom: denree.nom,
+                  quantite: denree.quantite,
+                  date_peremption: denree.date_peremption
+                };
+              } else {
+                return null;
+              }
+            }));
+          }
+          return denrees.filter(denree => denree !== null);
+        }));
+  
+        const adressesDepart = collecteGroup.map(collecte => collecte.LieuDepart);
+        const adressesArrivee = collecteGroup.map(collecte => collecte.LieuArrivee);
+  
+        const chauffeur = collecteGroup[0].chauffeur ? {
+          id: collecteGroup[0].chauffeur.id,
+          prenom: collecteGroup[0].chauffeur.prenom,
+          nom: collecteGroup[0].chauffeur.nom
+        } : null;
+  
+        return {
+          date_collecte: date,
+          adressesDepart: adressesDepart,
+          adressesArrivee: adressesArrivee,
+          chauffeur: chauffeur,
+          denrees: denrees.flat()
+        };
+      }));
+  
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur lors de la récupération des collectes' });
+    }
+  };
   
 const generateItineraryCollecte = async (req, res) => {
     try {
@@ -606,6 +677,7 @@ module.exports = {
     getAllStockedDenreesByEntrepotId,
     generateItineraryCollecte,
     getMaraude,
+    getCollecte,
     addCollecte,
     generateItinerary,
     getVolunteersDisponibles,

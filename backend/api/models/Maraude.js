@@ -31,7 +31,7 @@ const Maraude = sequelize.define('Maraude', {
       key: 'id'
     }
   },
-  StockID: { // Utilisation d'un tableau JSON pour stocker les IDs des stocks
+  StockID: { 
     type: DataTypes.JSON,
     allowNull: false
   }

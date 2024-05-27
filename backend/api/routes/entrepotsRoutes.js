@@ -9,6 +9,7 @@ const {
   generateItineraryCollecte,
   addCollecte,
   getMaraude,
+  getCollecte,
   generateItinerary,
   getVolunteersDisponibles,
   addMaraude,
@@ -43,6 +44,7 @@ router.get('/:entrepotId/stocks', getAllStockedDenreesByEntrepotId );
 router.get('/:idEntrepot', getEntrepotById );
 
 router.get('/entrepot/maraudes', getMaraude );
+router.get('/entrepot/collectes', getCollecte );
 
 router.get('/VolunteerAvailable', getVolunteersDisponibles);
 
