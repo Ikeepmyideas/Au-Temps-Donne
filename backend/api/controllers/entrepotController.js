@@ -11,7 +11,10 @@ const Denree = require('../models/Denree');
 const Maraude = require('../models/Maraude');
 const Volunteer = require('../models/Volunteer');
 const Disponibilite = require('../models/Disponibilite');
-
+const fs = require('fs');
+const qrcode = require('qrcode');
+const Route = require('../models/Route');
+const Collecte = require('../models/CircuitRamassage'); 
 const Stocks = require('../models/Stocks');
 
 require('dotenv').config(); 
@@ -217,7 +220,7 @@ const updateStock = async (req, res) => {
 };
 
 const addMaraude = async (req, res) => {
-    const { Nom, LieuDepart, LieuArrivee, DateDebut, Description, ChauffeurID, StockID } = req.body;
+    const { LieuDepart, LieuArrivee, DateDebut, Description, ChauffeurID, StockID } = req.body;
 
   try {
     // Check if the referenced Chauffeur exists
@@ -226,7 +229,6 @@ const addMaraude = async (req, res) => {
       return res.status(404).json({ message: 'Chauffeur not found' });
     }
 
-    // Check if the referenced Stocks exist
     const stocks = await Stock.findAll({
       where: {
         ID_Stock: StockID
@@ -239,7 +241,6 @@ const addMaraude = async (req, res) => {
 
     // Create the new Maraude
     const newMaraude = await Maraude.create({
-      Nom,
       LieuDepart,
       LieuArrivee,
       DateDebut,
@@ -366,33 +367,50 @@ const generateItinerary = async (req, res) => {
         res.status(500).json({ error: 'Failed to generate itinerary' });
     }
 };
-
 const getMaraude = async (req, res) => {
     try {
+      const currentDate = new Date();
   
       const maraudes = await Maraude.findAll({
+        where: {
+          DateDebut: {
+            [Op.gt]: currentDate
+          }
+        },
         include: [
           {
             model: Volunteer,
             as: 'Chauffeur'
-          },
-          { model: Stocks, as: 'Stock'}
+          }
         ]
       });
   
-      res.status(200).json({ maraudes });
+      // Récupérer les informations des stocks pour chaque maraude
+      const maraudesWithStocks = await Promise.all(maraudes.map(async (maraude) => {
+        const stockIDs = JSON.parse(maraude.StockID); // Convertir le JSON string en tableau
+        const stocks = await Stock.findAll({
+          where: {
+            ID_Stock: stockIDs
+          },
+          include: [{
+            model: Denree,
+            as: 'denree',
+          }]
+        });
+        return {
+          ...maraude.toJSON(),
+          Stocks: stocks
+        };
+      }));
+  
+      res.status(200).json({ maraudes: maraudesWithStocks });
     } catch (error) {
       console.error('Error fetching maraudes for the connected user:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   };
-
-
-const fs = require('fs');
-const qrcode = require('qrcode');
-const Route = require('../models/Route');
-const Collecte = require('../models/CircuitRamassage'); 
-const addCollecte = async (req, res) => {
+  
+  const addCollecte = async (req, res) => {
     try {
       const { date_collecte, id_chauffeur, collecteRequests } = req.body;
   
@@ -400,47 +418,65 @@ const addCollecte = async (req, res) => {
         return res.status(400).json({ message: 'Invalid data format: collecteRequests must be an array' });
       }
   
-      for (const stockItem of collecteRequests) {
-        const stockExists = await Stock.findOne({
+      // Group collecteRequests by LieuDepart and date_collecte
+      const groupedRequests = collecteRequests.reduce((acc, stockItem) => {
+        const key = `${stockItem.LieuDepart}-${stockItem.date_collecte}`;
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push(stockItem);
+        return acc;
+      }, {});
+  
+      for (const key in groupedRequests) {
+        const stockItems = groupedRequests[key];
+        const { date_collecte, LieuDepart, ID_Entrepot } = stockItems[0]; 
+  
+        let collecte = await Collecte.findOne({
           where: {
-            ID_Denree: stockItem.id_denree,
+            LieuDepart,
+            date_collecte
+          }
+        });
+  
+        if (!collecte) {
+          collecte = await Collecte.create({
+            date_collecte,
+            id_chauffeur: stockItems[0].id_chauffeur,
+            LieuDepart: stockItems[0].LieuDepart,
+            LieuArrivee: stockItems[0].LieuArrivee, 
+            ID_Entrepot: stockItems[0].ID_Entrepot, 
+            id_denree : JSON.stringify(stockItems.map(item => item.id_denree)) 
+          });
+        } else {
+          const existingStockIDs = JSON.parse(collecte.StockIDs);
+          const newStockIDs = stockItems.map(item => item.id_denree);
+          const updatedStockIDs = Array.from(new Set([...existingStockIDs, ...newStockIDs]));
+          collecte.StockIDs = JSON.stringify(updatedStockIDs);
+          await collecte.save();
+        }
+  
+        for (const stockItem of stockItems) {
+          const stockExists = await Stock.findOne({
+            where: {
+              ID_Denree: stockItem.id_denree,
+              ID_Entrepot,
+              date_collecte
+            }
+          });
+  
+          if (stockExists) {
+            return res.status(400).json({ message: `Denree with ID ${stockItem.id_denree} already exists in Stock.` });
+          }
+  
+          await Stock.create({
+            date_collecte: stockItem.date_collecte,
             ID_Entrepot: stockItem.ID_Entrepot,
-            date_collecte: stockItem.date_collecte
-          }
-        });
-  
-        if (stockExists) {
-          return res.status(400).json({ message: `Denree with ID ${stockItem.id_denree} already exists in Stock.` });
+            ID_Denree: stockItem.id_denree,
+            etages: stockItem.etages,
+            rayons: stockItem.rayons
+          });
         }
-  
-        const collecteExists = await Collecte.findOne({
-          where: {
-            id_denree: stockItem.id_denree,
-            date_collecte: stockItem.date_collecte
-          }
-        });
-  
-        if (collecteExists) {
-          return res.status(400).json({ message: `Denree with ID ${stockItem.id_denree} already exists in Collecte.` });
-        }
-  
-        await Collecte.create({
-          date_collecte: stockItem.date_collecte,
-          LieuDepart: stockItem.LieuDepart,
-          LieuArrivee: stockItem.LieuArrivee,
-          id_denree: stockItem.id_denree,
-          id_chauffeur: stockItem.id_chauffeur,
-        });
-  
-        await Stock.create({
-          date_collecte: stockItem.date_collecte,
-          ID_Entrepot: stockItem.ID_Entrepot,
-          ID_Denree: stockItem.id_denree,
-          etages: stockItem.etages,
-          rayons: stockItem.rayons
-        });
-
-        
       }
   
       res.status(201).json({ message: 'Collecte et stocks ajoutés avec succès' });
@@ -449,6 +485,7 @@ const addCollecte = async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de la création de la collecte et des stocks' });
     }
   };
+  
   
   module.exports = { addCollecte };
   

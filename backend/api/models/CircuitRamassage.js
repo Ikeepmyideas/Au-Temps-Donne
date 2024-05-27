@@ -22,7 +22,7 @@ const Collecte = sequelize.define('collecte', {
     allowNull: false
   },
   id_denree: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.JSON,
     allowNull: false,
     references: {
       model: Denree,

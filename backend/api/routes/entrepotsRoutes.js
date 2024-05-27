@@ -42,7 +42,7 @@ router.get('/AllStocks', getAllStockedDenrees );
 router.get('/:entrepotId/stocks', getAllStockedDenreesByEntrepotId );
 router.get('/:idEntrepot', getEntrepotById );
 
-router.get('/maraudes', getMaraude );
+router.get('/entrepot/maraudes', getMaraude );
 
 router.get('/VolunteerAvailable', getVolunteersDisponibles);
 
