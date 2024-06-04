@@ -9,6 +9,8 @@ import Modal from 'react-modal';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 Modal.setAppElement('#root');
 
@@ -24,14 +26,13 @@ function Stocks() {
   const [selectedDenrees, setSelectedDenrees] = useState([]);
   const [showDepotForm, setShowDepotForm] = useState('');
   const [selectedEntrepot, setSelectedEntrepot] = useState('');
-  const [selectedRayon, setSelectedRayon] = useState('');
-  const [selectedEtage, setSelectedEtage] = useState('');
   const [selectedPartner, setSelectedPartner] = useState('');
   const [itineraryData, setItineraryData] = useState(null);
   const [showMap, setShowMap] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState({});
   const [stocks, setStocks] = useState([]);
   const [showCollected, setShowCollected] = useState('all'); // New state for filtering collected status
+  const [errors, setErrors] = useState([]); // New state for errors
 
   const fetchStocks = async () => {
     try {
@@ -46,7 +47,7 @@ function Stocks() {
     const url = new URL('http://localhost:8000/api/volunteer/VolunteerAvailable');
     const params = { date: date_circuit.split('T')[0], startTime: date_circuit.split('T')[1] };
     url.search = new URLSearchParams(params).toString();
-
+  
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -56,6 +57,7 @@ function Stocks() {
       setVolunteers(data);
     } catch (error) {
       console.error('Error fetching available volunteers:', error.message);
+      setVolunteers([]); // Set to empty array in case of error
     }
   };
 
@@ -119,17 +121,25 @@ function Stocks() {
     });
 
     try {
-      await axios.post('http://localhost:8000/api/entrepot/addCollecte', { collecteRequests }, {
+      const response = await axios.post('http://localhost:8000/api/entrepot/addCollecte', { collecteRequests }, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-
-      alert('Collectes enregistrées avec succès !');
-      setShowMap(false);
+  
+      if (response.data.errors && response.data.errors.length > 0) {
+        setErrors(response.data.errors);
+      } else {
+        alert('Collectes enregistrées avec succès !');
+        setShowMap(false);
+      }
     } catch (error) {
       console.error('Erreur lors de l\'enregistrement des collectes:', error.message);
-      alert(`Échec de l'enregistrement des collectes : ${error.message}`);
+      if (error.response && error.response.status === 400) {
+        setErrors(error.response.data.errors || ['Erreur de validation.']);
+      } else {
+        alert(`Échec de l'enregistrement des collectes : ${error.message}`);
+      }
     }
   };
 
@@ -151,8 +161,22 @@ function Stocks() {
     });
   };
 
-  const isDenreeCollected = (denreeId) => {
-    return stocks.some(stock => stock.ID_Denree === denreeId);
+  const getCollectionStatus = (collecteDate) => {
+    const currentDate = new Date();
+    const collectionDate = new Date(collecteDate);
+    if (collectionDate < currentDate) {
+      return 'Collecté';
+    } else {
+      return 'Collecte Ajoutée';
+    }
+  };
+
+  const getDenreeCollectionStatus = (denreeId) => {
+    const stock = stocks.find(stock => stock.ID_Denree === denreeId);
+    if (stock && stock.date_collecte) {
+      return getCollectionStatus(stock.date_collecte);
+    }
+    return 'Non Collecté';
   };
 
   const filteredDenrees = denrees.filter((denree) => {
@@ -162,10 +186,13 @@ function Stocks() {
     if (selectedPartner && denree.commercant.nom !== selectedPartner) {
       return false;
     }
-    if (showCollected === 'collected' && !isDenreeCollected(denree.ID_Denree)) {
+    if (showCollected === 'collected' && getDenreeCollectionStatus(denree.ID_Denree) !== 'Collecté') {
       return false;
     }
-    if (showCollected === 'not_collected' && isDenreeCollected(denree.ID_Denree)) {
+    if (showCollected === 'not_collected' && getDenreeCollectionStatus(denree.ID_Denree) === 'Collecté') {
+      return false;
+    }
+    if (showCollected === 'collecte_ajoutee' && getDenreeCollectionStatus(denree.ID_Denree) === 'Collecte Ajoutée') {
       return false;
     }
     return true;
@@ -357,15 +384,19 @@ function Stocks() {
                 <div>
                   <p style={{ marginTop: "20px", marginBottom: "20px" }}>Temps de trajet estimé en voiture : {itineraryData.estimatedCarTime.hours} heures et {itineraryData.estimatedCarTime.minutes} minutes</p>
                   <div id="div-stock">
-                  <label htmlFor="date_circuit">Date:</label>
+                    <label htmlFor="date_circuit">Date:</label>
                     <input type="datetime-local" id="dateDebut" name="date_circuit" value={date_circuit} onChange={(e) => setDateDebut(e.target.value)} required />
-
+  
                     <Link type="button" onClick={fetchAvailableVolunteersForTime}>
-                      <FontAwesomeIcon icon={faSearch} className="square-icon" style={{marginTop:"20px"}} />
+                      <FontAwesomeIcon icon={faSearch} className="square-icon" style={{ marginTop: "20px" }} />
                     </Link>
                     <label htmlFor="chauffeurID">Chauffeur:</label>
                     <select id="chauffeurID" name="chauffeurID" required>
-                      <option>Sélectionner un bénévole disponible</option>
+                      {volunteers.length === 0 ? (
+                        <option value="">Aucun bénévole disponible</option>
+                      ) : (
+                        <option value="">Sélectionner un bénévole disponible</option>
+                      )}
                       {volunteers.map((volunteer) => (
                         <option key={volunteer.id} value={volunteer.id}>
                           {volunteer.prenom} {volunteer.nom} {volunteer.id}
@@ -384,33 +415,33 @@ function Stocks() {
                               {denree.nom} - {denree.quantite} (Rayon : {denree.rayon || ''}, Étage : {denree.etage || ''})
                               <br />
                               <div id="div-stock">
-                              <label htmlFor={`rayon-${partner}-${idx}`}>Rayon:</label>
-                              <select
-                                id={`rayon-${partner}-${idx}`}
-                                value={denree.rayon || ''}
-                                onChange={(e) => handleInputChange(partner, idx, 'rayon', e.target.value)}
-                                required
-                              >
-                                <option value="">Sélectionner un rayon</option>
-                                <option value="Produits alimentaires">Produits alimentaires</option>
-                                <option value="Fruits et légumes">Fruits et légumes</option>
-                                <option value="Produits surgelés">Produits surgelés</option>
-                                <option value="Produits laitiers">Produits laitiers</option>
-                                <option value="Produits hygiène">Produits hygiène</option>
-                                <option value="Autre">Autre</option>
-                              </select>
-                              <label htmlFor={`etage-${partner}-${idx}`}>Étage:</label>
-                              <select
-                                id={`etage-${partner}-${idx}`}
-                                value={denree.etage || ''}
-                                onChange={(e) => handleInputChange(partner, idx, 'etage', e.target.value)}
-                                required
-                              >
-                                <option value="">Sélectionner un étage</option>
-                                {[...Array(10).keys()].map(n => (
-                                  <option key={n + 1} value={n + 1}>{n + 1}</option>
-                                ))}
-                              </select>
+                                <label htmlFor={`rayon-${partner}-${idx}`}>Rayon:</label>
+                                <select
+                                  id={`rayon-${partner}-${idx}`}
+                                  value={denree.rayon || ''}
+                                  onChange={(e) => handleInputChange(partner, idx, 'rayon', e.target.value)}
+                                  required
+                                >
+                                  <option value="">Sélectionner un rayon</option>
+                                  <option value="Produits alimentaires">Produits alimentaires</option>
+                                  <option value="Fruits et légumes">Fruits et légumes</option>
+                                  <option value="Produits surgelés">Produits surgelés</option>
+                                  <option value="Produits laitiers">Produits laitiers</option>
+                                  <option value="Produits hygiène">Produits hygiène</option>
+                                  <option value="Autre">Autre</option>
+                                </select>
+                                <label htmlFor={`etage-${partner}-${idx}`}>Étage:</label>
+                                <select
+                                  id={`etage-${partner}-${idx}`}
+                                  value={denree.etage || ''}
+                                  onChange={(e) => handleInputChange(partner, idx, 'etage', e.target.value)}
+                                  required
+                                >
+                                  <option value="">Sélectionner un étage</option>
+                                  {[...Array(10).keys()].map(n => (
+                                    <option key={n + 1} value={n + 1}>{n + 1}</option>
+                                  ))}
+                                </select>
                               </div>
                             </li>
                           ))}
@@ -418,8 +449,7 @@ function Stocks() {
                       </div>
                     ))}
                     <p><strong>Arrivée :</strong> {additionalInfo.endAddress}</p>
-                   
-                    <br></br>
+                    <br />
                   </div>
                 </div>
               )}
@@ -446,10 +476,10 @@ function Stocks() {
                   ))}
                 </GoogleMap>
               </LoadScript>
-
+  
               <button className="btn_event" type="button" onClick={handleValidation}>Valider</button>
               <button className="btn_event" type="button" onClick={downloadPDF}>Télécharger le plan en PDF</button>
-
+  
             </div>
           </div>
         </div>
@@ -471,6 +501,7 @@ function Stocks() {
 
 
   return (
+    
     <div className="adminbody">
       <NavMenu />
       <section className="content">
@@ -503,6 +534,8 @@ function Stocks() {
                   <option value="all">Tous</option>
                   <option value="collected">Collecté</option>
                   <option value="not_collected">Non Collecté</option>
+                  <option value="collecte_ajoutee">Collecte Ajoutée</option>
+
                 </select>
               </label>
             </div>
@@ -537,8 +570,8 @@ function Stocks() {
                         {formatDate(denree.date_peremption)}
                       </td>
                       <td>{denree.commercant && denree.commercant.nom}</td>
-                      <td className={isDenreeCollected(denree.ID_Denree) ? 'green-text' : 'red-text'}>
-                        {isDenreeCollected(denree.ID_Denree) ? 'Collecté' : 'Non collecté'}
+                      <td className={getDenreeCollectionStatus(denree.ID_Denree) === 'Collecté' ? 'green-text' : getDenreeCollectionStatus(denree.ID_Denree) === 'Collecte Ajoutée' ? 'orange-text' : 'red-text'}>
+                        {getDenreeCollectionStatus(denree.ID_Denree)}
                       </td>
                       <td>
                         <input
@@ -551,7 +584,7 @@ function Stocks() {
                   ))}
                 </tbody>
               </table>
-              {loading && <p>Chargement en cours...</p>}
+              
               <button style={{marginBottom:"20px"}} className="btn_event" onClick={() => setShowDepotForm(true)}>Sélectionner Entrepôt</button>
             </div>
           </div>

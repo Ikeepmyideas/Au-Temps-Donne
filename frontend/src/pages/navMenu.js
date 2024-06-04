@@ -31,6 +31,8 @@ function NavMenu() {
     "/admin/membres": "Membres",
     "/admin/events": "Événements",
     "/admin/maraude": "Maraudes",
+    "/admin/denrees": "Denrées",
+    "/admin/entrepots": "Entrepot",
     "/admin/documents": "Documents"
 
   };
@@ -64,6 +66,8 @@ function NavMenu() {
       "/admin/membres": "Membres",
       "/admin/events": "Événements",
       "/admin/maraude": "Maraudes",
+      "/admin/denrees": "Denrées",
+      "/admin/entrepots": "Entrepot",
       "/admin/documents": "Documents"
 
     };

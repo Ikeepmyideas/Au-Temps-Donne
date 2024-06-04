@@ -5,6 +5,8 @@ import NavMenu from './navMenu';
 import viewIcon from '../assets/voir_all.png';
 import addIcon from '../assets/add.png';
 import horlogeIcon from '../assets/horloge.png';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Event() {
     const [activities, setActivities] = useState([]);
@@ -20,8 +22,8 @@ function Event() {
     const [error, setError] = useState(null);
     const [volunteers, setVolunteers] = useState([]);
     const [services, setServices] = useState([]);
-
-
+    const [sallesDisponibles, setSallesDisponibles] = useState([]); 
+    const navigate = useNavigate(); 
 
     const [formData, setFormData] = useState({
         titre: '',
@@ -35,11 +37,12 @@ function Event() {
         ville: '',
         code_postal: '',
         id_benevole: '',
-        id_beneficiaire: ''
+        id_beneficiaire: '',
+        nb_places: '', 
+        id_salle: ''
         });
 
 
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetchActivities();
@@ -47,6 +50,12 @@ function Event() {
         fetchServices();
 
     }, []);
+
+    useEffect(() => {
+        if (selectedAddressId) {
+            fetchSallesDisponibles(selectedAddressId);
+        }
+    }, [selectedAddressId]);
 
 
     const handleChange = useCallback((e) => {
@@ -112,10 +121,29 @@ function Event() {
             console.error('Erreur lors de la récupération des adresses:', error);
         }
     };
+    const fetchSallesDisponibles = async (adresseId) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/event/salles/${adresseId}`);
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+            const data = await response.json();
+            setSallesDisponibles(data);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des salles disponibles:', error);
+            setSallesDisponibles([]);
+
+        }
+    };
     const handleAddressChange = (event) => {
         const value = event.target.value;
         setIsNewAddress(value === 'new');
         setSelectedAddressId(value); 
+        setFormData(prevState => ({
+            ...prevState,
+            adresseId: value,
+            id_salle:''
+        }));
       };
 
       const handleImageChange = (event) => {
@@ -131,47 +159,57 @@ function Event() {
       
     const handleSubmit = async (event) => {
         event.preventDefault();
+        
         const formData = new FormData(event.target);
+        const data = {};
+    
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
     
         try {
             const response = await fetch('http://127.0.0.1:8000/api/event/addActivity', {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
             });
     
-            if (!response.ok) throw new Error('Server or network error');
+            if (!response.ok) {
+                throw new Error('Server or network error');
+            }
     
-            const result = await response.json(); 
-            alert('Activity added successfully!');
+            const result = await response.json();
+            toast.success('Activity added successfully!');
             navigate('/admin/activites');
         } catch (error) {
-            alert(`Error adding activity: ${error.message}`);
+            toast.error(`Error adding activity: ${error.message}`);
         }
     };
     
     const handleSubmitPv = async (event) => {
-            event.preventDefault();
-            if (loadingVolunteers) return;
-        
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/event/addActivityPrive', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-        
-                if (!response.ok) throw new Error('Server or network error');
+        event.preventDefault();
+        if (loadingVolunteers) return;
     
-                const result = await response.json(); 
-                alert('Activity added successfully!');
-                navigate('/admin/activiteprv');
-            } catch (error) {
-                alert(`Erreur lors de l'ajout de l'activité: ${error.message}`);
-            }
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/event/addActivityPrive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
     
-};
+            if (!response.ok) throw new Error('Server or network error');
+    
+            const result = await response.json();
+            toast.success('Activity added successfully!');
+            navigate('/admin/activiteprv');
+        } catch (error) {
+            toast.error(`Erreur lors de l'ajout de l'activité: ${error.message}`);
+        }
+    };
+    
 const handleSubmitF = async (event) => {
-    event.preventDefault();
     event.preventDefault();
     const formData = new FormData(event.target);
     const jsonFormData = {};
@@ -180,47 +218,42 @@ const handleSubmitF = async (event) => {
         jsonFormData[key] = value;
     });
 
-try {
-    const response = await fetch('http://127.0.0.1:8000/api/event/addFormation', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonFormData)
-    });
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/event/addFormation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(jsonFormData)
+        });
 
-    if (!response.ok) {
-        throw new Error('Erreur réseau ou du serveur');
+        if (!response.ok) {
+            throw new Error('Erreur réseau ou du serveur');
+        }
+        
+        const contentType = response.headers.get('content-type');
+        let data;
+
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            data = await response.text();
+        }
+
+        if (typeof data === 'object' && data.error) {
+            console.error('Erreur:', data.error);
+            toast.error(`Erreur lors de l'ajout de l'activité privée: ${data.error}`);
+        } else {
+            console.log('Réponse:', data);
+            toast.success('Activité privée ajoutée avec succès !');
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout de l\'activité:', error);
+        toast.error(`Erreur lors de l'ajout de l'activité: ${error.message}`);
     }
-
-    const contentType = response.headers.get('content-type');
-    let data;
-
-    if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-    } else {
-        data = await response.text();
-    }
-
-    if (typeof data === 'object' && data.error) {
-        console.error('Erreur:', data.error);
-        alert('Erreur lors de l\'ajout de l\'activité privée: ' + data.error);
-    } else {
-        console.log('Réponse:', data);
-        alert('Activité privée ajoutée avec succès !');
-    }
-} catch (error) {
-    console.error('Erreur lors de l\'ajout de l\'activité:', error);
-    alert(`Erreur lors de l'ajout de l'activité: ${error.message}`);
-}
-
 };
 
-
-      
-    
     useEffect(() => {
-        // Utilisation de useEffect pour gérer les événements DOM et le chargement initial
         const addLink = document.getElementById('add_link');
         const overlay = document.getElementById('overlay');
         const publicButton = document.getElementById('publicButton');
@@ -345,6 +378,7 @@ try {
 
     return (
         <>
+    <ToastContainer />
             <NavMenu />
             <section className="content">
                 <div className="lists">
@@ -434,7 +468,12 @@ try {
                                         <label htmlFor="activityTimeEnd">Heure de fin:</label>
                                         <input type="time" id="activityTimeEnd" name="heure_fin" required />
                                     </div>
-                                </div>
+                                    <div className="form-row">
+                                         <label htmlFor="activityNbPlaces">Nombre de places:</label>
+                                         <input type="number" id="activityNbPlaces" name="nb_places" required min="1" />
+                                    </div>
+                                    </div>
+                                    
                                 <div className="form-row">
                                 {!isNewAddress ? (
                                     <div className="form-row">
@@ -448,6 +487,20 @@ try {
                                         </option>
                                         ))}
                                     </select>
+                                    <label htmlFor="id_salle">Salle:</label>
+                                        <select
+                                            id="id_salle"
+                                            name="id_salle"
+                                            value={formData.id_salle}
+                                            onChange={handleChange}>
+                                            <option value="">Sélectionnez une salle</option>
+                                            <option value="new">Nouvelle salle</option>
+                                            {sallesDisponibles.map((salle) => (
+                                                <option key={salle.id_salle} value={salle.id_salle}>
+                                                    {salle.nom}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 ) : (
                                     <div>
@@ -517,6 +570,7 @@ try {
                                         </option>
                                         ))}
                                     </select>
+                                     
                                     </div>
                                 ) : (
                                     <div>
@@ -539,9 +593,12 @@ try {
                         <div className="form-row">
                             <label htmlFor="volunteerSelect">Bénévoles disponibles:</label>
                             <select id="volunteerSelect" name="id_benevole" value={formData.id_benevole} onChange={handleVolunteerChange}>
-                                <option value="">Sélectionner un bénévole</option>
-                                {loadingVolunteers ? <option>Chargement...</option> : null}
-                                {error ? <option disabled>Error: {error}</option> : null}
+                            {volunteers.length === 0 ? (
+                                    <option value="">Aucun bénévole disponible</option>
+                                ) : (
+                                    <option value="">Sélectionner un bénévole disponible</option>
+                                )}                                
+
                                 {volunteers.map(volunteer => (
                                     <option key={volunteer.id_benevole} value={volunteer.id_benevole} >
                                         {volunteer.benevole.nom} {volunteer.benevole.prenom}
@@ -590,7 +647,11 @@ try {
                                     <label for="formationTimeEnd">Heure de fin:</label>
                                     <input type="time" id="formationTimeEnd" name="heure_fin" required/>
                                 </div>
-                            </div>
+                                <div className="form-row">
+                                    <label htmlFor="formationNbPlaces">Nombre de places:</label>
+                                    <input type="number" id="formationNbPlaces" name="nb_places" required min="1" />
+                                </div>
+                           </div>
                             <div className="form-row">
                                 {!isNewAddress ? (
                                     <div className="form-row">
@@ -604,6 +665,22 @@ try {
                                         </option>
                                         ))}
                                     </select>
+                                    <div className="form-row">
+                                    <label htmlFor="id_salle">Salle:</label>
+                                        <select
+                                            id="id_salle"
+                                            name="id_salle"
+                                            value={formData.id_salle}
+                                            onChange={handleChange}>
+                                            <option value="">Sélectionnez une salle</option>
+                                            <option value="new">Nouvelle salle</option>
+                                            {sallesDisponibles.map((salle) => (
+                                                <option key={salle.id_salle} value={salle.id_salle}>
+                                                    {salle.nom}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     </div>
                                 ) : (
                                     <div>
@@ -628,6 +705,7 @@ try {
                     </div>
                 </div>
             </section>
+        
         </>
     );
 }

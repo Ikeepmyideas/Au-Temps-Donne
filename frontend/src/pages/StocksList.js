@@ -9,10 +9,13 @@ import { LoadScript, GoogleMap, DirectionsRenderer } from '@react-google-maps/ap
 import Modal from 'react-modal';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function StocksList() {
   const { id } = useParams();
   const [stocks, setStocks] = useState([]);
+  const [maraudeStocks, setMaraudeStocks] = useState([]);
   const [selectedDenrees, setSelectedDenrees] = useState([]);
   const [showExpiringSoon, setShowExpiringSoon] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState('');
@@ -42,7 +45,7 @@ function StocksList() {
     const url = new URL('http://localhost:8000/api/volunteer/VolunteerAvailable');
     const params = { date: dateCircuit.split('T')[0], startTime: dateCircuit.split('T')[1] };
     url.search = new URLSearchParams(params).toString();
-
+  
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -51,7 +54,8 @@ function StocksList() {
       const data = await response.json();
       setVolunteers(data);
     } catch (error) {
-      console.error('Error fetching available volunteers:', error.message);
+      toast.error('Error fetching available volunteers:', error.message);
+      setVolunteers([]); // Set to empty array in case of error
     }
   };
 
@@ -71,7 +75,7 @@ function StocksList() {
           code_postal: response.data.code_postal
         });
       } catch (error) {
-        console.error('Erreur lors de la récupération de l\'adresse de l\'entrepôt:', error);
+        toast.error('Erreur lors de la récupération de l\'adresse de l\'entrepôt:', error);
       }
     };
 
@@ -83,11 +87,22 @@ function StocksList() {
           await fetchEntrepotAddress(id);
         }
       } catch (error) {
-        console.error('Erreur lors de la récupération des stocks:', error);
+        toast.error('Erreur lors de la récupération des stocks:', error);
+      }
+    };
+
+    const fetchMaraudeStocks = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/entrepot/maraude/stocks');
+        const maraudeStockIds = response.data;
+        setMaraudeStocks(maraudeStockIds);
+      } catch (error) {
+        toast.error('Erreur lors de la récupération des stocks avec maraudes:', error);
       }
     };
 
     fetchStocks();
+    fetchMaraudeStocks();
   }, [id]);
 
   const isDateExpiringSoon = (date) => {
@@ -162,7 +177,7 @@ function StocksList() {
     }
   
     try {
-      const response = await axios.post('http://localhost:8000/api/entrepot/addMaraude', {
+      await axios.post('http://localhost:8000/api/entrepot/addMaraude', {
         LieuDepart: departAddress,
         LieuArrivee: destinationAddress,
         DateDebut: dateCircuit,
@@ -173,7 +188,7 @@ function StocksList() {
       setShowPopup(false);
       alert('Maraude ajoutée avec succès!');
     } catch (error) {
-      console.error('Erreur lors de l\'ajout de la maraude:', error);
+      toast.error('Erreur lors de l\'ajout de la maraude:', error);
       if (error.response && error.response.data && error.response.data.message) {
         alert(`Erreur lors de l'ajout de la maraude : ${error.response.data.message}`);
       } else {
@@ -183,9 +198,6 @@ function StocksList() {
   };
 
   const filteredStocks = stocks.filter((stock) => {
-    if (showExpiringSoon && !isDateExpiringSoon(stock.denree.date_peremption)) {
-      return false;
-    }
     if (showExpiringSoon && !isDateExpiringSoon(stock.denree.date_peremption)) {
       return false;
     }
@@ -241,7 +253,7 @@ function StocksList() {
       setItineraryData({ ...response.data, additionalInfo });
       setShowMap(true);
     } catch (error) {
-      console.error('Erreur lors de la génération de l\'itinéraire:', error);
+      toast.error('Erreur lors de la génération de l\'itinéraire:', error);
       alert(`Échec de la génération de l'itinéraire : ${error.message}`);
     }
   };
@@ -253,7 +265,7 @@ function StocksList() {
   const downloadPDF = async () => {
     const mapContainer = document.getElementById('map-container');
     if (!mapContainer) {
-      console.error('Element with id "map-container" not found');
+      toast.error('Element with id "map-container" not found');
       return;
     }
 
@@ -358,7 +370,7 @@ function StocksList() {
     }, [mapLoaded, map, itineraryData]);
 
     const onLoad = (loadedMap) => {
-      console.log('Google Maps chargé avec succès');
+      toast.log('Google Maps chargé avec succès');
       setMap(loadedMap);
       setMapLoaded(true);
     };
@@ -401,30 +413,27 @@ function StocksList() {
 
   return (
     <>
+      <ToastContainer />
       <NavMenu />
       <section className="content">
         <section className="lists">
           <div className="table-header">
             <h3 className="title_dashboard">Liste des Stocks</h3>
-            <div>
-  
-          </div>
-
-          <label  htmlFor="filterRayon">Filtrer par rayon:</label>
-                <select 
-                  id="filterRayon"
-                  value={selectedRayon}
-                  onChange={(e) => setSelectedRayon(e.target.value)}
-                >
-                  <option value="">Tous les rayons</option>
-                  <option value="Produits alimentaires">Produits alimentaires</option>
-                  <option value="Fruits et légumes">Fruits et légumes</option>
-                  <option value="Produits surgelés">Produits surgelés</option>
-                  <option value="Produits laitiers">Produits laitiers</option>
-                  <option value="Produits hygiène">Produits hygiène</option>
-                  <option value="Autre">Autre</option>
-                </select>
-                <label>
+              <label htmlFor="filterRayon">Filtrer par rayon:</label>
+              <select 
+                id="filterRayon"
+                value={selectedRayon}
+                onChange={(e) => setSelectedRayon(e.target.value)}
+              >
+                <option value="">Tous les rayons</option>
+                <option value="Produits alimentaires">Produits alimentaires</option>
+                <option value="Fruits et légumes">Fruits et légumes</option>
+                <option value="Produits surgelés">Produits surgelés</option>
+                <option value="Produits laitiers">Produits laitiers</option>
+                <option value="Produits hygiène">Produits hygiène</option>
+                <option value="Autre">Autre</option>
+              </select>
+              <label>
                 <input
                   type="checkbox"
                   checked={showExpiringSoon}
@@ -443,6 +452,7 @@ function StocksList() {
                   <th>Quantité</th>
                   <th>Rayons</th>
                   <th>Étages</th>
+                  <th>Maraude</th> {/* Nouvelle colonne */}
                   <th>
                     <label>
                       <input
@@ -467,6 +477,9 @@ function StocksList() {
                     <td>{stock.rayons}</td>
                     <td>{stock.etages}</td>
                     <td>
+                      {maraudeStocks.includes(stock.ID_Stock) ? 'à venir' : ''} 
+                    </td>
+                    <td>
                       <input
                         type="checkbox"
                         checked={selectedDenrees.includes(stock.ID_Stock)}
@@ -482,8 +495,7 @@ function StocksList() {
         </section>
       </section>
       {showPopup && (
-
-          <div className="modal">
+        <div className="modal">
           <div className="modal-content">
             <div className="scrollable-content">
               <span className="close" onClick={handleClosePopup}>&times;</span>
@@ -500,14 +512,18 @@ function StocksList() {
                     required
                   />
                   <Link type="button" onClick={fetchAvailableVolunteersForTime}>
-                    <FontAwesomeIcon icon={faSearch} className="square-icon" style={{ marginTop: '20px' }} />
+                    <FontAwesomeIcon icon={faSearch} className="square-icon" style={{ marginTop: "20px" }} />
                   </Link>
                   <label htmlFor="chauffeurID">Chauffeur:</label>
                   <select id="chauffeurID" name="chauffeurID" required>
-                    <option value="">Sélectionner un bénévole disponible</option>
+                    {volunteers.length === 0 ? (
+                      <option value="">Aucun bénévole disponible</option>
+                    ) : (
+                      <option value="">Sélectionner un bénévole disponible</option>
+                    )}
                     {volunteers.map((volunteer) => (
                       <option key={volunteer.id} value={volunteer.id}>
-                        {volunteer.prenom} {volunteer.nom}
+                        {volunteer.prenom} {volunteer.nom} {volunteer.id}
                       </option>
                     ))}
                   </select>
@@ -531,7 +547,6 @@ function StocksList() {
                   onChange={(e) => setDestination(e.target.value)}
                   required
                 />
-                
                 <label htmlFor="description">Description:</label>
                 <textarea
                   id="description"
@@ -552,22 +567,20 @@ function StocksList() {
                   </ul>
                 </div>
                 {showMap && (
-                <MapComponent
-                  itineraryData={itineraryData}
-                  showMap={showMap}
-                  handleCloseModal={handleCloseModal}
-                />
-              )}
+                  <MapComponent
+                    itineraryData={itineraryData}
+                    showMap={showMap}
+                    handleCloseModal={handleCloseModal}
+                  />
+                )}
                 <button className="btn_event" type="button" onClick={handleDepotFormSubmit}>Voir la route</button>
                 <button className="btn_event" type="submit">Créer une maraude</button>
                 <button className="btn_event" type="button" onClick={downloadPDF}>Télécharger le plan en PDF</button>
                 <button className="btn_event" type="button" onClick={handleClosePopup}>Annuler</button>
               </form>
-              
             </div>
           </div>
-          </div>
-
+        </div>
       )}
     </>
   );

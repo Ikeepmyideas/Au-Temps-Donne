@@ -415,7 +415,6 @@ function EventDetails() {
                                             <p id="service">{event.nom_service}</p>
                                             <h2>{event.titre}</h2>
                                             <p className="p_details">Description: {event.description || 'No description provided'}</p>
-                                        
                                         </div>
                                         <div>
                                         <div className="heure_d">

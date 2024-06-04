@@ -1,6 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import WebFont from 'webfontloader';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 // Import pages
 import Login from './pages/login'; 

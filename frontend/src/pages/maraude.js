@@ -3,8 +3,10 @@ import axios from 'axios';
 import Modal from 'react-modal';
 import NavMenu from './navMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faMap } from '@fortawesome/free-solid-svg-icons';
+import { faTrash,faEye, faMap } from '@fortawesome/free-solid-svg-icons';
 import { LoadScript, GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const StockPopup = ({ isOpen, onRequestClose, stocks }) => {
   return (
@@ -14,9 +16,9 @@ const StockPopup = ({ isOpen, onRequestClose, stocks }) => {
         <ul>
           {stocks.map((stock) => (
             <li key={stock.ID_Stock}>
-              <strong>{stock.nom}</strong><br />
-              Quantité: {stock.quantite}<br />
-              Date de péremption: {new Date(stock.date_peremption).toLocaleDateString('fr-FR')}
+              <strong>{stock.denree.nom}</strong><br />
+              Quantité: {stock.denree.quantite}<br />
+              Date de péremption: {new Date(stock.denree.date_peremption).toLocaleDateString('fr-FR')}
             </li>
           ))}
         </ul>
@@ -25,6 +27,9 @@ const StockPopup = ({ isOpen, onRequestClose, stocks }) => {
     </Modal>
   );
 };
+
+
+
 
 const FutureMaraudes = () => {
   const [futureMaraudes, setFutureMaraudes] = useState([]);
@@ -35,6 +40,8 @@ const FutureMaraudes = () => {
   const [error, setError] = useState(null);
   const [itineraryData, setItineraryData] = useState(null);
   const [showMap, setShowMap] = useState(false);
+  const [additionalInfo, setAdditionalInfo] = useState({});
+
 
   const fetchFutureMaraudes = async () => {
     try {
@@ -105,6 +112,33 @@ const FutureMaraudes = () => {
     setShowMap(false);
   };
 
+  const downloadPDF = async () => {
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) {
+      console.error('Element with id "map-container" not found');
+      return;
+    }
+  
+    const elementsToHide = document.querySelectorAll('.btn_event, input, select, .close');
+    elementsToHide.forEach(el => el.classList.add('hide-for-pdf'));
+  
+    // Capture the canvas
+    const canvas = await html2canvas(mapContainer, {
+      useCORS: true
+    });
+  
+    elementsToHide.forEach(el => el.classList.remove('hide-for-pdf'));
+  
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF();
+  
+    pdf.text('Plan de la route', 10, 10);
+    let yPosition = 20;
+  
+  
+    pdf.addImage(imgData, 'PNG', 10, yPosition, 180, 160);
+    pdf.save('route.pdf');
+  };
   const MapComponent = ({ itineraryData }) => {
     const [response, setResponse] = useState(null);
     const [directionsError, setDirectionsError] = useState(null);
@@ -143,6 +177,7 @@ const FutureMaraudes = () => {
       setMapLoaded(true);
     };
 
+ 
     return (
       <div className="modal" style={{ display: showMap ? 'block' : 'none' }}>
         <div className="modal-content">
@@ -155,8 +190,8 @@ const FutureMaraudes = () => {
             )}
             <LoadScript googleMapsApiKey={'AIzaSyB3KofdS-3nitMbrTB0JVftrZXYU5WYxt4'}>
               <GoogleMap
-                mapContainerStyle={{ width: '100%', height: '100vh' }}
-                zoom={8}
+                  mapContainerStyle={{ position: 'relative', width: '100%', height: '400px' }}
+                  zoom={8}
                 center={center}
                 onLoad={onLoad}
               >
@@ -176,9 +211,28 @@ const FutureMaraudes = () => {
               </GoogleMap>
             </LoadScript>
           </div>
+          <button className="btn_event" type="button" onClick={downloadPDF}>Télécharger le plan en PDF</button>
+
         </div>
       </div>
+      
     );
+  };
+
+
+  const handleDeleteEntrepot = async (entrepotId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/entrepot/deleteEntrepot/${entrepotId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression de l\'entrepôt');
+      }
+      alert('Entrepôt supprimé avec succès!');
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'entrepôt:', error.message);
+      alert(`Erreur lors de la suppression de l'entrepôt: ${error.message}`);
+    }
   };
 
   return (
@@ -219,6 +273,9 @@ const FutureMaraudes = () => {
                       <button onClick={() => fetchItinerary([maraude.LieuDepart, maraude.LieuArrivee])}>
                         <FontAwesomeIcon icon={faMap} style={{ color: 'orange', paddingLeft: '5px' }} />
                       </button>
+                      <button id="trash">
+                        <FontAwesomeIcon icon={faTrash} onClick={() => handleDeleteEntrepot(maraude.id)} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -231,47 +288,49 @@ const FutureMaraudes = () => {
         {itineraryData && <MapComponent itineraryData={itineraryData} />}
       </div>
       <div className="content">
-        <section className="lists">
-          <div className="table-header">
-            <h3 className="title_dashboard">Collectes</h3>
-          </div>
-          <div className="table_bnv">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date Collecte</th>
-                  <th>Première Adresse Départ</th>
-                  <th>Deuxième Adresse Départ</th>
-                  <th>Première Adresse Arrivée</th>
-                  <th>Deuxième Adresse Arrivée</th>
-                  <th>Chauffeur</th>
-                  <th>Stocks</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {collectes.map((collecte) => (
-                  <tr key={collecte.date_collecte}>
-                    <td>{formatDate(collecte.date_collecte)}</td>
-                    <td>{collecte.adressesDepart[0]}</td>
-                    <td>{collecte.adressesDepart[1] || '-'}</td>
-                    <td>{collecte.adressesArrivee[0]}</td>
-                    <td>{collecte.adressesArrivee[1] || '-'}</td>
-                    <td>{collecte.chauffeur ? `${collecte.chauffeur.prenom} ${collecte.chauffeur.nom}` : 'N/A'}</td>
-                    <td>
-                      <button onClick={() => openPopup(collecte.denrees || [])}>
-                        <FontAwesomeIcon icon={faEye} style={{ color: 'blue' }} />
-                      </button>
-                    </td>
-                    <td>
-                      <button onClick={() => fetchItinerary([collecte.adressesDepart[0], collecte.adressesArrivee[0], collecte.adressesDepart[1] || collecte.adressesArrivee[1]])}>
-                        <FontAwesomeIcon icon={faMap} style={{ color: 'orange', paddingLeft: '5px' }} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+  <section className="lists">
+    <div className="table-header">
+      <h3 className="title_dashboard">Collectes</h3>
+    </div>
+    <div className="table_bnv">
+      <table>
+        <thead>
+          <tr>
+            <th>Date Collecte</th>
+            <th>Première Adresse </th>
+            <th>Deuxième Adresse</th>
+            <th>Adresse Arrivée</th>
+            <th>Chauffeur</th>
+            <th>Denrées</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {collectes.map((collecte) => (
+            <tr key={collecte.date_collecte}>
+              <td>{formatDate(collecte.date_collecte)}</td>
+              <td>{collecte.adressesDepart.length > 0 ? collecte.adressesDepart[0] : '-'}</td>
+              <td>{collecte.adressesDepart.length > 1 ? collecte.adressesDepart[1] : '-'}</td>
+              <td>{collecte.adressesArrivee.length > 0 ? collecte.adressesArrivee[0] : '-'}</td>
+              <td>{collecte.chauffeur ? `${collecte.chauffeur.prenom} ${collecte.chauffeur.nom}` : 'N/A'}</td>
+              <td>
+                <button onClick={() => openPopup(collecte.denrees || [])}>
+                  <FontAwesomeIcon icon={faEye} style={{ color: 'blue' }} />
+                </button>
+              </td>
+              <td>
+                <button onClick={() => fetchItinerary([
+                  collecte.adressesDepart[0], 
+                  collecte.adressesArrivee[0], 
+                  collecte.adressesDepart.length > 1 ? collecte.adressesDepart[1] : collecte.adressesArrivee.length > 1 ? collecte.adressesArrivee[0] : null
+                ].filter(address => address))}>
+                  <FontAwesomeIcon icon={faMap} style={{ color: 'orange', paddingLeft: '5px' }} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
           </div>
         </section>
       </div>
