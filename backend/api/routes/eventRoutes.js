@@ -63,5 +63,6 @@ router.get('/services', eventController.getAllServices);
 
 router.get('/benevoleDispo/:date/:startTime/:endTime', eventController.getVolunteersDisponibles);
 
+router.get('/salles/:lieuId', eventController.getSallesDisponibles);
 
 module.exports = router;

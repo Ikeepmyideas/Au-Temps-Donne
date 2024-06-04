@@ -44,7 +44,6 @@ timestamps: false
 // Association avec le modèle Entrepot
 Stock.belongsTo(Entrepot, { foreignKey: 'ID_Entrepot', as: 'entrepot' });
 
-// Association avec le modèle Denree
 Stock.belongsTo(Denree, { foreignKey: 'ID_Denree', as: 'denree' });
 
 module.exports = Stock;

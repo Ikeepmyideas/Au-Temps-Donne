@@ -426,6 +426,8 @@ const getMaraude = async (req, res) => {
         return acc;
       }, {});
   
+      const errors = [];
+  
       for (const key in groupedRequests) {
         const stockItems = groupedRequests[key];
         const { date_collecte, LieuDepart, ID_Entrepot } = stockItems[0];
@@ -437,7 +439,19 @@ const getMaraude = async (req, res) => {
           }
         });
   
-        if (!collecte) {
+        if (collecte) {
+          const existingDenreeIDs = JSON.parse(collecte.id_denree);
+          const newDenreeIDs = stockItems.map(item => item.id_denree);
+          const duplicateDenreeIDs = newDenreeIDs.filter(id => existingDenreeIDs.includes(id));
+  
+          if (duplicateDenreeIDs.length > 0) {
+            errors.push(`Denree(s) already exist(s) in Collecte.`);
+          }
+  
+          const updatedDenreeIDs = Array.from(new Set([...existingDenreeIDs, ...newDenreeIDs]));
+          collecte.id_denree = JSON.stringify(updatedDenreeIDs);
+          await collecte.save();
+        } else {
           collecte = await Collecte.create({
             date_collecte,
             id_chauffeur: stockItems[0].id_chauffeur,
@@ -446,12 +460,6 @@ const getMaraude = async (req, res) => {
             ID_Entrepot: stockItems[0].ID_Entrepot,
             id_denree: JSON.stringify(stockItems.map(item => item.id_denree))
           });
-        } else {
-          const existingDenreeIDs = JSON.parse(collecte.id_denree);
-          const newDenreeIDs = stockItems.map(item => item.id_denree);
-          const updatedDenreeIDs = Array.from(new Set([...existingDenreeIDs, ...newDenreeIDs]));
-          collecte.id_denree = JSON.stringify(updatedDenreeIDs);
-          await collecte.save();
         }
   
         for (const stockItem of stockItems) {
@@ -464,17 +472,21 @@ const getMaraude = async (req, res) => {
           });
   
           if (stockExists) {
-            return res.status(400).json({ message: `Denree with ID ${stockItem.id_denree} already exists in Stock.` });
+            errors.push(`Denree already exists in Stock.`);
+          } else {
+            await Stock.create({
+              date_collecte: stockItem.date_collecte,
+              ID_Entrepot: stockItem.ID_Entrepot,
+              ID_Denree: stockItem.id_denree,
+              etages: stockItem.etages,
+              rayons: stockItem.rayons
+            });
           }
-  
-          await Stock.create({
-            date_collecte: stockItem.date_collecte,
-            ID_Entrepot: stockItem.ID_Entrepot,
-            ID_Denree: stockItem.id_denree,
-            etages: stockItem.etages,
-            rayons: stockItem.rayons
-          });
         }
+      }
+  
+      if (errors.length > 0) {
+        return res.status(400).json({ message: 'Some errors occurred', errors });
       }
   
       res.status(201).json({ message: 'Collecte et stocks ajoutés avec succès' });
@@ -483,6 +495,7 @@ const getMaraude = async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de la création de la collecte et des stocks' });
     }
   };
+  
   
   
   module.exports = { addCollecte };
@@ -498,7 +511,11 @@ const getMaraude = async (req, res) => {
         ]
       });
   
-      const collecteMap = collectes.reduce((map, collecte) => {
+      // Filtrer les collectes à venir
+      const now = new Date();
+      const upcomingCollectes = collectes.filter(collecte => new Date(collecte.date_collecte) > now);
+  
+      const collecteMap = upcomingCollectes.reduce((map, collecte) => {
         const date = collecte.date_collecte.toISOString();
         if (!map[date]) {
           map[date] = [];
@@ -559,6 +576,7 @@ const getMaraude = async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de la récupération des collectes' });
     }
   };
+  
   
 const generateItineraryCollecte = async (req, res) => {
     try {
@@ -665,14 +683,49 @@ const decodePolyline = (encoded) => {
     }
     return array;
 };
-
+const { QueryTypes } = require('sequelize');
+const sequelize = require('../config/db'); 
 module.exports = { generateItineraryCollecte };
 
-        
 
-        
+
+const getMaraudeStocks = async (req, res) => {
+  try {
+    const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    const maraudeStocks = await sequelize.query(
+      `SELECT DISTINCT s.ID_Stock
+       FROM stocks s
+       JOIN (
+         SELECT JSON_UNQUOTE(JSON_EXTRACT(m.StockID, CONCAT('$[', numbers.n, ']'))) AS StockID
+         FROM maraude m
+         JOIN (
+           SELECT 0 as n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+           UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
+         ) numbers
+         WHERE JSON_UNQUOTE(JSON_EXTRACT(m.StockID, CONCAT('$[', numbers.n, ']'))) IS NOT NULL
+         AND m.DateDebut > :currentDate
+       ) m ON s.ID_Stock = m.StockID`,
+      {
+        type: QueryTypes.SELECT,
+        replacements: { currentDate }
+      }
+    );
+
+    const stockIds = maraudeStocks.map(stock => stock.ID_Stock);
+
+    res.json(stockIds);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des stocks avec maraudes:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des stocks avec maraudes' });
+  }
+};
+
+
+
 module.exports = { generateItinerary };
 module.exports = {
+  getMaraudeStocks,
     getEntrepotById,
     getAllStockedDenreesByEntrepotId,
     generateItineraryCollecte,

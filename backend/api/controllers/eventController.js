@@ -21,6 +21,7 @@ const Service = require('../models/Service');
 const Blog = require('../models/Blog');
 const EvenementBenevole = require('../models/EvenementBenevole');
 const EvenementBeneficiaire = require('../models/EvenementBeneficiaire');
+const Salle = require('../models/Salle');
 
 const RegisterF = require('../models/InscriptionFormation');
 const Disponibilite = require('../models/Disponibilite');
@@ -85,25 +86,24 @@ exports.createActivityPrive = async (req, res) => {
     adresseComplete,
     ville,
     code_postal,
-    id_benevole,   
-    id_beneficiaire,  
-    nom_service
+    id_benevole,
+    id_beneficiaire,
+    nom_service,
   } = req.body;
-  
+
   const t = await sequelize.transaction();
 
   try {
-
     const benevole = await Volunteer.findByPk(id_benevole, { transaction: t });
 
-    if (!benevole ) {
+    if (!benevole) {
       await t.rollback();
-      return res.status(404).json({ error: 'Benevole or Beneficiaire not found.' });
+      return res.status(404).json({ error: 'Bénévole non trouvé.' });
     }
 
     const currentDate = new Date();
     const startDate = new Date(date_activite);
-  
+
     if (startDate < currentDate) {
       await t.rollback();
       return res.status(400).send('La date de début est déjà passée.');
@@ -138,11 +138,9 @@ exports.createActivityPrive = async (req, res) => {
       transaction: t
     });
 
-
-
     if (existingActivity) {
       await t.rollback();
-      return res.status(400).json({ error: 'An activity with the same start and end times already exists.' });
+      return res.status(400).json({ error: 'Une activité avec le même créneau horaire existe déjà dans cette salle.' });
     }
 
     const overlappingBooking = await ActivityPrive.findOne({
@@ -159,7 +157,7 @@ exports.createActivityPrive = async (req, res) => {
 
     if (overlappingBooking) {
       await t.rollback();
-      return res.status(400).json({ error: 'This volunteer is already booked for another activity at the same time.' });
+      return res.status(400).json({ error: 'Ce bénévole est déjà réservé pour une autre activité à la même heure.' });
     }
 
     let imageUrl = ""; // Default image path
@@ -179,7 +177,7 @@ exports.createActivityPrive = async (req, res) => {
       id_benevole,
       id_beneficiaire,
       image: imageUrl,
-      nom_service
+      nom_service,
     }, { transaction: t });
 
     await t.commit();
@@ -191,9 +189,8 @@ exports.createActivityPrive = async (req, res) => {
   }
 };
 
-
-
 const Op = Sequelize.Op;
+
 
 exports.getVolunteersDisponibles = async (req, res) => {
     try {
@@ -287,7 +284,9 @@ exports.createActivity = async (req, res) => {
     ville,
     code_postal,
     nom_service,
-    nb_benevoles
+    nb_benevoles,
+    id_salle,
+    nb_places
   } = req.body;
 
   const t = await sequelize.transaction();
@@ -295,7 +294,7 @@ exports.createActivity = async (req, res) => {
   try {
     const currentDate = new Date();
     const startDate = new Date(date_activite);
-  
+    
     if (startDate < currentDate) {
       await t.rollback();
       return res.status(400).send('La date de début est déjà passée.');
@@ -317,10 +316,12 @@ exports.createActivity = async (req, res) => {
       });
     }
 
+    // Vérification de la disponibilité de la salle
     const existingActivity = await Activity.findOne({
       where: {
         date_activite: startDate,
         id_lieu: lieu.id_lieu,
+        id_salle: id_salle,
         [Op.or]: [
           { [Op.and]: [{ heure_debut: { [Op.lte]: heure_debut } }, { heure_fin: { [Op.gte]: heure_debut } }] },
           { [Op.and]: [{ heure_debut: { [Op.lte]: heure_fin } }, { heure_fin: { [Op.gte]: heure_fin } }] },
@@ -332,11 +333,11 @@ exports.createActivity = async (req, res) => {
 
     if (existingActivity) {
       await t.rollback();
-      return res.status(400).json({ error: 'An activity with the same start and end times already exists.' });
+      return res.status(400).json({ error: 'Une activité avec le même créneau horaire existe déjà dans cette salle.' });
     }
 
-    // Handle file upload
-    let imageUrl = ""; // Default image path
+    // Gestion de l'upload de fichier
+    let imageUrl = ""; // Chemin d'image par défaut
     if (req.file) {
       imageUrl = `/uploads/${req.file.filename}`; 
     } else {
@@ -352,7 +353,9 @@ exports.createActivity = async (req, res) => {
       id_lieu: lieu.id_lieu,
       image: imageUrl, 
       nom_service,
-      nb_benevoles
+      nb_benevoles,
+      id_salle: id_salle,
+      nb_places
     }, { transaction: t });
 
     await t.commit();
@@ -368,7 +371,21 @@ exports.createActivity = async (req, res) => {
 
 exports.updateActivity = async (req, res) => {
   const { id } = req.params;
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
+  const {
+    description,
+    date_activite,
+    heure_debut,
+    heure_fin,
+    titre,
+    adresseComplete,
+    ville,
+    code_postal,
+    nom_service,
+    nb_benevoles,
+    salle,
+    nb_places
+  } = req.body;
+
   const t = await sequelize.transaction();
 
   try {
@@ -376,45 +393,36 @@ exports.updateActivity = async (req, res) => {
     const startDate = new Date(date_activite);
 
     if (startDate < currentDate) {
-      return res.status(400).send('La date de l\'activité ne peut pas être dans le passé.');
+      await t.rollback();
+      return res.status(400).send("La date de l'activité ne peut pas être dans le passé.");
     }
 
-    const lieu = await Lieu.findOne({
+    // Recherche du lieu basé sur l'adresse complète, la ville et le code postal
+    let lieu = await Lieu.findOne({
       where: { adresse: adresseComplete, ville, code_postal },
       transaction: t
     });
 
+    // Si le lieu n'existe pas, le créer
     if (!lieu) {
-      await t.rollback();
-      return res.status(404).send('Lieu introuvable.');
+      lieu = await Lieu.create({
+        adresse: adresseComplete, ville, code_postal
+      }, { transaction: t });
     }
 
+    // Vérification de la disponibilité de la salle pour le créneau spécifié, en excluant l'activité actuelle
     const existingActivity = await Activity.findOne({
       where: {
         id: {
-          [Op.ne]: id 
+          [Op.ne]: id
         },
         date_activite: startDate,
         id_lieu: lieu.id_lieu,
+        salle: salle,
         [Op.or]: [
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_debut } },
-              { heure_fin: { [Op.gte]: heure_debut } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_fin } },
-              { heure_fin: { [Op.gte]: heure_fin } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.gte]: heure_debut } },
-              { heure_fin: { [Op.lte]: heure_fin } }
-            ]
-          }
+          { [Op.and]: [{ heure_debut: { [Op.lte]: heure_debut } }, { heure_fin: { [Op.gte]: heure_debut } }] },
+          { [Op.and]: [{ heure_debut: { [Op.lte]: heure_fin } }, { heure_fin: { [Op.gte]: heure_fin } }] },
+          { [Op.and]: [{ heure_debut: { [Op.gte]: heure_debut } }, { heure_fin: { [Op.lte]: heure_fin } }] }
         ]
       },
       transaction: t
@@ -422,9 +430,10 @@ exports.updateActivity = async (req, res) => {
 
     if (existingActivity) {
       await t.rollback();
-      return res.status(400).send('Conflit d\'horaire avec une autre activité.');
+      return res.status(400).send('Conflit d\'horaire avec une autre activité dans la même salle.');
     }
 
+    // Mise à jour de l'activité avec les nouvelles données
     await Activity.update({
       description,
       date_activite,
@@ -433,7 +442,9 @@ exports.updateActivity = async (req, res) => {
       titre,
       id_lieu: lieu.id_lieu,
       nom_service,
-      nb_benevoles
+      nb_benevoles,
+      salle,
+      nb_places
     }, {
       where: { id },
       transaction: t
@@ -447,93 +458,22 @@ exports.updateActivity = async (req, res) => {
     res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
   }
 };
-exports.updateActivity = async (req, res) => {
-  const { ID_Activite } = req.params;
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
-  const t = await sequelize.transaction();
 
-  try {
-    const currentDate = new Date();
-    const startDate = new Date(date_activite);
-
-    if (startDate < currentDate) {
-      await t.rollback();
-      return res.status(400).send('La date de l\'activité ne peut pas être dans le passé.');
-    }
-
-    let [lieu, created] = await Lieu.findOrCreate({
-      where: { adresse: adresseComplete, ville, code_postal },
-      defaults: { adresse: adresseComplete, ville, code_postal },
-      transaction: t
-    });
-
-    if (!lieu) {
-      await t.rollback();
-      return res.status(404).send('Lieu introuvable.');
-    }
-
-    const existingActivity = await Activity.findOne({
-      where: {
-        ID_Activite: {
-          [Op.ne]: ID_Activite
-        },
-        date_activite: startDate,
-        id_lieu: lieu.id_lieu,
-        [Op.or]: [
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_debut } },
-              { heure_fin: { [Op.gte]: heure_debut } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.lte]: heure_fin } },
-              { heure_fin: { [Op.gte]: heure_fin } }
-            ]
-          },
-          {
-            [Op.and]: [
-              { heure_debut: { [Op.gte]: heure_debut } },
-              { heure_fin: { [Op.lte]: heure_fin } }
-            ]
-          }
-        ]
-      },
-      transaction: t
-    });
-
-    if (existingActivity) {
-      await t.rollback();
-      return res.status(400).send('Conflit d\'horaire avec une autre activité.');
-    }
-
-    await Activity.update({
-      titre,
-      description,
-      date_activite,
-      heure_debut,
-      heure_fin,
-      titre,
-      id_lieu: lieu.id_lieu,
-      nom_service,
-      nb_benevoles
-    }, {
-      where: { ID_Activite },
-      transaction: t
-    });
-
-    await t.commit();
-    res.status(200).send('Activité mise à jour avec succès.');
-  } catch (error) {
-    await t.rollback();
-    console.error('Erreur lors de la mise à jour de l\'activité : ', error);
-    res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
-  }
-};
 exports.updateActivityPrive = async (req, res) => {
   const { ID_Activite } = req.params;
-  const { description, date_activite, heure_debut, heure_fin, titre, adresseComplete, ville, code_postal, nom_service, nb_benevoles } = req.body;
+  const {
+    description,
+    date_activite,
+    heure_debut,
+    heure_fin,
+    titre,
+    adresseComplete,
+    ville,
+    code_postal,
+    nom_service,
+    id_salle
+  } = req.body;
+  
   const t = await sequelize.transaction();
 
   try {
@@ -563,6 +503,7 @@ exports.updateActivityPrive = async (req, res) => {
         },
         date_activite: startDate,
         id_lieu: lieu.id_lieu,
+        id_salle: id_salle,
         [Op.or]: [
           {
             [Op.and]: [
@@ -589,18 +530,18 @@ exports.updateActivityPrive = async (req, res) => {
 
     if (existingActivity) {
       await t.rollback();
-      return res.status(400).send('Conflit d\'horaire avec une autre activité.');
+      return res.status(400).send('Conflit d\'horaire avec une autre activité dans cette salle.');
     }
 
-    await ActivityPrive .update({
+    await ActivityPrive.update({
       titre,
       description,
       date_activite,
       heure_debut,
       heure_fin,
-      titre,
       id_lieu: lieu.id_lieu,
-      nb_benevoles
+      nom_service,
+      id_salle
     }, {
       where: { ID_Activite },
       transaction: t
@@ -614,27 +555,38 @@ exports.updateActivityPrive = async (req, res) => {
     res.status(500).send('Erreur lors de la mise à jour de l\'activité : ' + error.message);
   }
 };
+
+
 exports.createFormation = async (req, res) => {
-  const { description, date_debut, date_fin,    adresseId,
-    heure_debut, heure_fin, titre, adresseComplete, ville, code_postal } = req.body;
+  const {
+    description,
+    date_debut,
+    date_fin,
+    heure_debut,
+    heure_fin,
+    titre,
+    adresseId,
+    adresseComplete,
+    ville,
+    code_postal,
+    id_salle, // Modifiez le nom de la variable pour correspondre à ce que vous recevez
+    nb_places
+  } = req.body;
+
   const t = await sequelize.transaction();
 
   try {
     const currentDate = new Date();
     const startDate = new Date(date_debut);
-    const EndDate = new Date(date_fin);
-  
-    if (startDate < currentDate) {
-      return res.status(400).send('La date de début est déjà passée.');
-    }
-    if (EndDate < currentDate) {
-      return res.status(400).send('La date de fin est déjà passée.');
-    }
-  
-    let lieu;
+    const endDate = new Date(date_fin);
 
+    if (startDate < currentDate || endDate < currentDate) {
+      await t.rollback();
+      return res.status(400).send('Les dates de début et de fin doivent être dans le futur.');
+    }
+
+    let lieu;
     if (adresseId) {
-      // Utilisateur a sélectionné une adresse existante
       lieu = await Lieu.findByPk(adresseId, { transaction: t });
       if (!lieu) {
         await t.rollback();
@@ -647,20 +599,25 @@ exports.createFormation = async (req, res) => {
         transaction: t
       });
     }
-    const endDate = new Date(date_fin);
 
     const existingFormation = await Formation.findOne({
       where: {
         date_debut: startDate,
         date_fin: endDate,
-        id_lieu: lieu.id_lieu
+        id_lieu: lieu.id_lieu,
+        id_salle: id_salle, // Utilisez l'ID de la salle récupérée
+        [Op.or]: [
+          { [Op.and]: [{ heure_debut: { [Op.lte]: heure_debut } }, { heure_fin: { [Op.gte]: heure_debut } }] },
+          { [Op.and]: [{ heure_debut: { [Op.lte]: heure_fin } }, { heure_fin: { [Op.gte]: heure_fin } }] },
+          { [Op.and]: [{ heure_debut: { [Op.gte]: heure_debut } }, { heure_fin: { [Op.lte]: heure_fin } }] }
+        ]
       },
       transaction: t
     });
 
     if (existingFormation) {
       await t.rollback();
-      return res.status(400).send('Une formation avec les mêmes dates de début et de fin existe déjà.');
+      return res.status(400).json({ error: 'Une formation avec les mêmes dates et créneaux horaires existe déjà dans cette salle.' });
     }
 
     await Formation.create({
@@ -671,10 +628,11 @@ exports.createFormation = async (req, res) => {
       heure_fin,
       titre,
       id_lieu: lieu.id_lieu,
+      id_salle: id_salle, // Utilisez l'ID de la salle récupérée
+      nb_places
     }, { transaction: t });
 
     await t.commit();
-
     res.status(201).send('Formation ajoutée avec succès.');
   } catch (error) {
     await t.rollback();
@@ -682,6 +640,7 @@ exports.createFormation = async (req, res) => {
     res.status(500).send('Erreur lors de l\'ajout de formation : ' + error.message);
   }
 };
+
 const models = require('../models');
 models.Activity.belongsTo(models.Lieu, { foreignKey: 'id_lieu', as: 'activityLieu' });
 
@@ -1192,7 +1151,8 @@ exports.getAllEventsForAdmin = async (req, res) => {
             model: Lieu,
             as: 'lieuA',
             attributes: ['adresse', 'ville', 'code_postal']
-          }]
+          },
+        ]
         }],
         order: [[{ model: Activity, as: 'activity' }, 'date_activite', 'ASC']] 
       }),
@@ -1232,4 +1192,13 @@ exports.getAllEventsForAdmin = async (req, res) => {
     res.status(500).json({ message: 'Erreur interne du serveur lors de la récupération des événements.' });
   }
 };
-
+exports.getSallesDisponibles = async (req, res) => {
+  const { lieuId } = req.params;
+  try {
+      const salles = await Salle.findAll({ where: { id_lieu: lieuId } });
+      res.json(salles);
+  } catch (error) {
+      console.error('Erreur lors de la récupération des salles disponibles:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des salles disponibles' });
+  }
+};

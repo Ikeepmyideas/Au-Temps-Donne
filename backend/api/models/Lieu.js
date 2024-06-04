@@ -11,4 +11,8 @@ const Lieu = sequelize.define('lieu', {
   timestamps: false
 });
 
+Lieu.associate = function(models) {
+  Lieu.hasMany(models.Salle, { foreignKey: 'id_lieu', as: 'salles' });
+};
+
 module.exports = Lieu;

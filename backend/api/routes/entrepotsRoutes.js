@@ -19,7 +19,8 @@ const {
   getAllEntrepots,
   getEntrepotById,
   updateEntrepot,
-  deleteEntrepot
+  deleteEntrepot,
+  getMaraudeStocks
 } = require('../controllers/entrepotController');
 
 router.use(cors({
@@ -39,6 +40,7 @@ router.delete('/deleteEntrepot/:id',deleteEntrepot );
 router.get('/AllDenrees',dentreeController.getAllDenrees );
 router.get('/AllStocks', getAllStockedDenrees );
 
+router.get('/maraude/stocks', getMaraudeStocks );
 
 router.get('/:entrepotId/stocks', getAllStockedDenreesByEntrepotId );
 router.get('/:idEntrepot', getEntrepotById );
